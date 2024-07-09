@@ -1,0 +1,6 @@
+*.db
+*.py[cod]
+.web
+alembic/
+alembic.ini
+__pycache__/
