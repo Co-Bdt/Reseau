@@ -1,5 +1,5 @@
 # Local .terraform directories
-prod/.terraform/
+*.terraform
 prod/sensitive/
 
 # Clé JSON du compte de service GCP
