@@ -2,7 +2,9 @@
 .git
 __pycache__/*
 Dockerfile
+prod.Dockerfile
 Caddy.Dockerfile
+Caddyfile
 compose.yaml
 compose.*.yaml
 uploaded_files
