@@ -19,8 +19,3 @@ variable "user" {
   description = "the user on GCP"
   sensitive = true
 }
-
-# variable "auth_token" {
-#   type        = string
-#   description = "auth token allowing Terraform to access GCP"
-# }
