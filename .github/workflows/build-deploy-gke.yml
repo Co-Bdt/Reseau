@@ -47,9 +47,8 @@ jobs:
       name: 'Authenticate to Google Cloud'
       uses: 'google-github-actions/auth@v2'
       with:
-        service_account: 'helm-sa@reseau-devperso.iam.gserviceaccount.com'
-        token_format: 'access_token'
-        # workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
+        workload_identity_provider: 'projects/758161621186/locations/global/workloadIdentityPools/github-actions/providers/reseau-gh-repo'
+        #service_account: 'helm-sa@reseau-devperso.iam.gserviceaccount.com'
 
     # Required for downloading GKE cloud auth plugin
     - name: Setup Cloud SDK
