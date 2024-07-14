@@ -13,8 +13,9 @@
 name: Build and Deploy to GKE
 
 on:
-  push:
-    branches: [ "main" ]
+  [workflow_dispatch]
+  #push:
+  #  branches: [ "main" ]
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
@@ -44,7 +45,7 @@ jobs:
     # Configure Workload Identity Federation and generate an access token.
     - id: 'auth'
       name: 'Authenticate to Google Cloud'
-      uses: 'google-github-actions/auth@v0'
+      uses: 'google-github-actions/auth@v2'
       with:
         service_account: 'helm-sa@reseau-devperso.iam.gserviceaccount.com'
         token_format: 'access_token'
