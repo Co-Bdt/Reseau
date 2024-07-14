@@ -20,7 +20,7 @@ on:
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   GAR_LOCATION: europe-west1
-  GKE_CLUSTER: ${{ secrets.GKE_CLUSTER_NAME }}
+  GKE_CLUSTER_NAME: ${{ secrets.GKE_CLUSTER_NAME }}
   GKE_ZONE: europe-west1-b
   DEPLOYMENT_NAME: reseau-deployment
   REPOSITORY: reseau-artifact-registry # TODO: update to Artifact Registry docker repository
