@@ -35,7 +35,10 @@ Common labels
 */}}
 {{- define "reseau.labels" -}}
 helm.sh/chart: {{ include "reseau.chart" . }}
+meta.helm.sh/release-name: {{ include "reseau.fullname" . }}
+meta.helm.sh/release-namespace {{ Values.namespace }}
 app.kubernetes.io/part-of: {{ include "reseau.fullname" . }}
+app.kubernetes.io/managed-by: "Helm"
 {{- if not .Values.useInstanceLabelSelector }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
@@ -43,7 +46,6 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{/*
