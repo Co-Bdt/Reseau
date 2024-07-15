@@ -55,7 +55,7 @@ jobs:
       uses: google-github-actions/setup-gcloud@v2
 
     # This plugin seems to be necessary in order to use Kubernetes API and therefore, Helm
-    - name: Setup GKE cloud auth plugin
+    - name: Setup GKE GCloud Auth plugin
       run: |-
         gcloud components install gke-gcloud-auth-plugin
         gke-gcloud-auth-plugin --version
@@ -65,20 +65,20 @@ jobs:
     #    echo ${{steps.auth.outputs.access_token}} | docker login -u oauth2accesstoken --password-stdin https://$GAR_LOCATION-docker.pkg.dev
 
     # Get the GKE credentials so we can deploy to the cluster
-    - name: Set up GKE credentials
+    - name: Get cluster credentials
       uses: google-github-actions/get-gke-credentials@v2
       with:
         cluster_name: ${{ env.GKE_CLUSTER_NAME }}
         location: ${{ env.GAR_LOCATION }}
         project_id: ${{ env.PROJECT_ID }}
 
-    - name: Package deployment
+    - name: Package Chart
       run: |-
         cd helm
         ls -la
         helm package reseau
 
-    - name: Deploy
+    - name: Deploy Chart
       run: |-
         helm install reseau helm/reseau-1.0.0.tgz --wait --dry-run
         #helm upgrade reseau helm/reseau-1.0.0.tgz --wait --dry-run
