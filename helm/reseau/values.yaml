@@ -62,3 +62,7 @@ autoscaling:
   maxReplicas: 3
   targetCPUUtilizationPercentage: 90
   targetMemoryUtilizationPercentage: 90
+
+annotations:
+  meta.helm.sh/release-name: reseau
+  meta.helm.sh/release-namespace: default
