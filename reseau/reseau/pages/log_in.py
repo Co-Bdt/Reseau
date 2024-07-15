@@ -18,7 +18,8 @@ class LogInState(BaseState):
     async def on_submit(
             self,
             form_data
-    ) -> AsyncGenerator[rx.event.EventSpec | None, None]:
+    ) -> AsyncGenerator[rx.event.EventSpec |
+                        list[rx.event.EventSpec] | None, None]:
         """Handle login form on_submit.
 
         Args:
@@ -50,7 +51,7 @@ class LogInState(BaseState):
             yield
             self._login(user.id)
         await asyncio.sleep(0.5)
-        yield LogInState.redir()  # type: ignore
+        yield [LogInState.redir(), LogInState.set_success(False)]
 
     def redir(self) -> rx.event.EventSpec | None:
         """Redirect to the redirect_to route if logged in,
