@@ -34,9 +34,12 @@ Create chart name and version as used by the chart label.
 Common labels
 */}}
 {{- define "reseau.labels" -}}
-app: {{ include "reseau.fullname" . }}
 helm.sh/chart: {{ include "reseau.chart" . }}
-{{ include "reseau.selectorLabels" . }}
+app.kubernetes.io/part-of: {{ include "reseau.fullname" . }}
+{{- if not .Values.useInstanceLabelSelector }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+{{- include "reseau.commonSelectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -47,6 +50,6 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Selector labels
 */}}
 {{- define "reseau.selectorLabels" -}}
-app: {{ include "reseau.fullname" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/name: {{ include "reseau.fullname" . }}
 {{- end }}
