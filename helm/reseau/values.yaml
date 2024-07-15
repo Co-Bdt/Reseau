@@ -4,7 +4,7 @@
 
 namespace: default
 
-replicaCount: 1
+replicaCount: 3
 
 image:
   repository: ghcr.io/co-bdt/reseau
