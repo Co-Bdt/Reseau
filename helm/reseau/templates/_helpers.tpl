@@ -53,3 +53,8 @@ Selector labels
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/name: {{ include "reseau.fullname" . }}
 {{- end }}
+{{- define "reseau.commonSelectorLabels" -}}
+{{- if .Values.useInstanceLabelSelector -}}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{ end -}}
+{{- end }}
