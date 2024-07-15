@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "reseau.fullname" . }}-svc
+  labels:
+    {{- include "reseau.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "reseau.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: {{ .Values.service.name }}
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}

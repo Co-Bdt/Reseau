@@ -51,14 +51,3 @@ resource "local_file" "global_static_ip_file" {
   content  = google_compute_global_address.global_static_ip.address
   filename = "sensitive/prod_global_static_ip.txt"
 }
-
-resource "google_compute_address" "regional_static_ip" {
-  name    = "${var.project_name}-regional-static-ip"
-  region  = var.region
-}
-
-# Write to file the address of the regional static IP ressource
-resource "local_file" "regional_static_ip_file" {
-  content  = google_compute_address.regional_static_ip.address
-  filename = "sensitive/prod_regional_static_ip.txt"
-}

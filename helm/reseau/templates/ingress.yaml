@@ -1,0 +1,15 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "reseau.fullname" . }}-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: {{ include "reseau.fullname" . }}-global-static-ip
+    networking.gke.io/managed-certificates: {{ include "reseau.fullname" . }}-managed-cert
+    kubernetes.io/ingress.class: "gce"
+spec:
+  ingressClassName: gce
+  defaultBackend:
+    service:
+      name: {{ include "reseau.fullname" . }}-svc
+      port:
+        name: {{ .Values.service.name }}
