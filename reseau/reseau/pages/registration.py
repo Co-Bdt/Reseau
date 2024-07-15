@@ -5,7 +5,6 @@ from re import match
 import reflex as rx
 
 from ..reseau import REGISTER_ROUTE
-
 from ..models.city import City
 from ..components.sidebar import sidebar
 from ..base_state import BaseState
@@ -266,7 +265,7 @@ def registration_page() -> rx.Component:
                                 rx.vstack(
                                     rx.spinner(),
                                     rx.text(
-                                        "Inscription réussie. Redirection...",
+                                        "Inscription réussie",
                                         size="3",
                                         weight="medium",
                                     ),
