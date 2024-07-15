@@ -35,28 +35,28 @@ Common labels
 */}}
 {{- define "reseau.labels" -}}
 helm.sh/chart: {{ include "reseau.chart" . }}
-meta.helm.sh/release-name: {{ include "reseau.fullname" . }}
-meta.helm.sh/release-namespace: {{ .Values.namespace }}
-app.kubernetes.io/part-of: {{ include "reseau.fullname" . }}
-app.kubernetes.io/managed-by: Helm
-{{- if not .Values.useInstanceLabelSelector }}
-app.kubernetes.io/instance: {{ .Release.Name }}
-{{- end }}
-{{- include "reseau.commonSelectorLabels" . }}
+{{ include "reseau.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{/*
 Selector labels
 */}}
 {{- define "reseau.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "reseau.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/name: {{ include "reseau.fullname" . }}
 {{- end }}
-{{- define "reseau.commonSelectorLabels" -}}
-{{- if .Values.useInstanceLabelSelector -}}
-app.kubernetes.io/instance: {{ .Release.Name }}
-{{ end -}}
+
+{{/*
+Create the name of the service account to use
+*/}}
+{{- define "reseau.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create }}
+{{- default (include "reseau.fullname" .) .Values.serviceAccount.name }}
+{{- else }}
+{{- default "default" .Values.serviceAccount.name }}
+{{- end }}
 {{- end }}
