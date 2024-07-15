@@ -80,8 +80,8 @@ jobs:
 
     - name: Deploy Chart
       run: |-
-        helm install reseau helm/reseau-1.0.0.tgz --wait #--dry-run
-        #helm upgrade reseau helm/reseau-1.0.0.tgz --wait #--dry-run
+        #helm install reseau helm/reseau-1.0.0.tgz --wait #--dry-run
+        helm upgrade reseau helm/reseau-1.0.0.tgz --wait #--dry-run
         
     - name: Verify deployment
       run: |-
