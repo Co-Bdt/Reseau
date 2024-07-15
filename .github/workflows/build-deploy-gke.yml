@@ -72,6 +72,20 @@ jobs:
         location: ${{ env.GAR_LOCATION }}
         project_id: ${{ env.PROJECT_ID }}
 
+    - name: Package deployment
+      run: |-
+        cd helm
+        ls -la
+        helm package reseau
+
+    - name: Deploy
+      run: |-
+        helm upgrade reseau reseau-1.0.0.tgz --wait --dry-run
+        
+    - name: Verify deployment
+      run: |-
+        helm list
+
     # Build the Docker image
     #- name: Build
     #  run: |-
