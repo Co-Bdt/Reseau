@@ -71,7 +71,8 @@ jobs:
     - name: Login
       run: |-
         docker login ghcr.io/co-bdt \
-          -p ${{ secrets.ACTIONS_ACCESS_TOKEN }}
+          --username CorentinBaudet
+          --password ${{ secrets.ACTIONS_ACCESS_TOKEN }}
 
     # Push the Docker image to GitHub Artifact Registry
     - name: Publish
