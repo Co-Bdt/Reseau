@@ -23,7 +23,8 @@ env:
   GKE_CLUSTER_NAME: ${{ secrets.GKE_CLUSTER_NAME }}
   GKE_ZONE: europe-west1-b
   DEPLOYMENT_NAME: reseau-deployment
-  IMAGE: ghcr.io/co-bdt/reseau
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
   MAJOR: ${{ secrets.MAJOR_VERSION }}
   MINOR: ${{ secrets.MINOR_VERSION }}
   NEW_PATCH_VERSION: ${{ secrets.MINOR_VERSION }}
@@ -60,37 +61,42 @@ jobs:
     #    repository: Co-Bdt/Reseau
     #    token: ${{ secrets.GITHUB_TOKEN }}
 
-    # Test
-    - name: Test
-      env:
-        TOKEN: ${{ env.REPO_ACCESS_TOKEN }}
-      run: |-
-        echo $REPO_ACCESS_TOKEN
-        echo "$REPO_ACCESS_TOKEN"
-        echo ${{ env.REPO_ACCESS_TOKEN }}
-        echo $TOKEN
-
     # Build the Docker image
-    - name: Build
-      run: |-
-        docker build \
-          --tag "$IMAGE:$MAJOR.5" \
-          --file reseau/app.Dockerfile \
-          reseau/.
+    #- name: Build
+    #  run: |-
+    #    docker build \
+    #      --tag "$REGISTRY/$IMAGE_NAME:$MAJOR.5" \
+    #      --file reseau/app.Dockerfile \
+    #      reseau/.
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and push
+      uses: docker/build-push-action@v5
+      with:
+        context: reseau/
+        file: reseau/app.Dockerfile
+        push: true
+        tags: ${{ REGISTRY }}/${{ IMAGE_NAME }}:${{ MAJOR }}.5
 
     # Login to GitHub Artifact Registry
-    - name: Login
-      env:
-        TOKEN: ${{ env.REPO_ACCESS_TOKEN }}
-      run: |-
-        docker login ghcr.io/co-bdt \
-          --username Co-Bdt
-          --password $TOKEN
+    #- name: Login
+    #  env:
+    #    TOKEN: ${{ env.REPO_ACCESS_TOKEN }}
+    #  run: |-
+    #    docker login ghcr.io/co-bdt \
+    #      --username Co-Bdt
+    #      --password $TOKEN
 
     # Push the Docker image to GitHub Artifact Registry
-    - name: Publish
-      run: |-
-        docker push "$IMAGE:$MAJOR.5"
+    #- name: Publish
+    #  run: |-
+    #    docker push "$IMAGE:$MAJOR.5"
 
     # Configure Workload Identity Federation and generate an access token.
     - id: 'auth'
