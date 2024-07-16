@@ -27,6 +27,7 @@ env:
   MAJOR: ${{ secrets.MAJOR_VERSION }}
   MINOR: ${{ secrets.MINOR_VERSION }}
   NEW_PATCH_VERSION: ${{ secrets.MINOR_VERSION }}
+  REPO_ACCESS_TOKEN: ${{ secrets.ACTIONS_ACCESS_TOKEN }}
 
 jobs:
   setup-build-publish-deploy:
@@ -72,7 +73,7 @@ jobs:
       run: |-
         docker login ghcr.io/co-bdt \
           --username CorentinBaudet
-          --password ${{ secrets.ACTIONS_ACCESS_TOKEN }}
+          --password $REPO_ACCESS_TOKEN
 
     # Push the Docker image to GitHub Artifact Registry
     - name: Publish
