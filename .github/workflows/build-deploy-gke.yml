@@ -38,22 +38,6 @@ jobs:
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    # Increment the Image Minor Version variable
-    - name: Increment Minor Version
-      uses: action-pack/increment@v2
-      with:
-        name: 'MINOR_VERSION'
-        repository: ${{ github.repository }}
-        token: ${{ env.TOKEN }}
-
-    # Increment the Helm Chart Minor Version variable
-    - name: Increment Minor Version
-      uses: action-pack/increment@v2
-      with:
-        name: 'HELM_CHART_MINOR_VERSION'
-        repository: ${{ github.repository }}
-        token: ${{ env.TOKEN }}
-
     # Update Image Version in the related HelmChart values.yaml
     - name: Update Helm Chart
       uses: fjogeleit/yaml-update-action@main
@@ -69,6 +53,22 @@ jobs:
               "version": "1.0.${{ vars.HELM_CHART_MINOR_VERSION }}",
               "appVersion": "${{ vars.MAJOR_VERSION }}.${{ vars.MINOR_VERSION }}"
             }
+
+    # Increment the Image Minor Version variable
+    - name: Increment Minor Version
+      uses: action-pack/increment@v2
+      with:
+        name: 'MINOR_VERSION'
+        repository: ${{ github.repository }}
+        token: ${{ env.TOKEN }}
+
+    # Increment the Helm Chart Minor Version variable
+    - name: Increment Minor Version
+      uses: action-pack/increment@v2
+      with:
+        name: 'HELM_CHART_MINOR_VERSION'
+        repository: ${{ github.repository }}
+        token: ${{ env.TOKEN }}
 
     # Build the Docker image and Push it to GHCR
     - name: Build and Push
