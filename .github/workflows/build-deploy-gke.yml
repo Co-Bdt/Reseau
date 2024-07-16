@@ -3,7 +3,6 @@
 name: Build, Publish and Deploy to GKE
 
 on:
-  #[workflow_dispatch]
   push:
     branches: [ "main" ]
 
@@ -20,7 +19,7 @@ jobs:
   build-publish-deploy:
     name: Build, Publish and Deploy
     runs-on: ubuntu-latest
-    #environment: production
+    environment: production
     permissions:
       contents: 'read'
       packages: 'write'
@@ -67,8 +66,8 @@ jobs:
         quotingType: '"'
         changes: |
             {
-              "version": "1.0.2",
-              "appVersion": "${{ vars.MAJOR_VERSION }}.5"
+              "version": "1.0.{{ vars.HELM_CHART_MINOR_VERSION }}",
+              "appVersion": "${{ vars.MAJOR_VERSION }}.{{ vars.MINOR_VERSION }}"
             }
 
     # Build the Docker image and Push it to GHCR
@@ -78,7 +77,7 @@ jobs:
         context: reseau/
         file: reseau/app.Dockerfile
         push: true
-        tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ vars.MAJOR_VERSION }}.5
+        tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ vars.MAJOR_VERSION }}.{{ vars.MINOR_VERSION }}
 
     # Configure Workload Identity Federation and generate an access token.
     - id: 'auth'
@@ -112,23 +111,8 @@ jobs:
 
     - name: Deploy Chart
       run: |-
-        helm upgrade reseau helm/reseau-*.tgz --wait --dry-run
+        helm upgrade reseau helm/reseau-*.tgz --wait #--dry-run
         
     - name: Verify deployment
       run: |-
         helm list
-    
-    # Set up kustomize
-    #- name: Set up Kustomize
-    #  run: |-
-    #    curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
-    #    chmod u+x ./kustomize
-    
-    # Deploy the Docker image to the GKE cluster
-    #- name: Deploy
-    #  run: |-
-    #    # replacing the image name in the k8s template
-    #    ./kustomize edit set image LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY/IMAGE:TAG=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_SHA
-    #    ./kustomize build . | kubectl apply -f -
-    #    kubectl rollout status deployment/$DEPLOYMENT_NAME
-    #    kubectl get services -o wide
