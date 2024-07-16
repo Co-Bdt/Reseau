@@ -1,0 +1,4 @@
+- name: Configure Kubernetes Cluster
+  hosts: all
+  roles:
+    - config_kubernetes
