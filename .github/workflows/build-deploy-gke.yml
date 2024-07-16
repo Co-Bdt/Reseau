@@ -54,7 +54,9 @@ jobs:
         valueFile: 'helm/reseau/Chart.yaml'
         propertyPath: 'appVersion'
         value: ${{ vars.MAJOR_VERSION }}.6
+        masterBranchName: main
         branch: main
+        targetBranch: main
         createPR: false
         message: 'Update Helm Chart appVersion [skip ci]'
 
