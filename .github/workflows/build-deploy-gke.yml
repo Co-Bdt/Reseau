@@ -62,7 +62,7 @@ jobs:
         context: reseau/
         file: reseau/app.Dockerfile
         push: true
-        tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ vars.MAJOR }}.5
+        tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ vars.MAJOR_VERSION }}.5
 
     # Configure Workload Identity Federation and generate an access token.
     - id: 'auth'
