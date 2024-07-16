@@ -1,16 +1,6 @@
-# This workflow will build a docker container, publish it to Google Container Registry, and deploy it to GKE when there is a push to the "main" branch.
-#
-# To configure this workflow:
-#
-# 1. Ensure that your repository contains the necessary configuration for your Google Kubernetes Engine cluster, including deployment.yml, kustomization.yml, service.yml, etc.
-#
-# 2. Create and configure a Workload Identity Provider for GitHub (https://github.com/google-github-actions/auth#setting-up-workload-identity-federation)
-#
-# 3. Change the values for the GAR_LOCATION, GKE_ZONE, GKE_CLUSTER, IMAGE, REPOSITORY and DEPLOYMENT_NAME environment variables (below).
-#
-# For more support on how to run the workflow, please visit https://github.com/google-github-actions/setup-gcloud/tree/master/example-workflows/gke-kustomize
+# This workflow will build a docker container, publish it to GitHub Container Registry, and deploy it to GKE when there is a push to the "main" branch.
 
-name: Build and Deploy to GKE
+name: Build, Publish and Deploy to GKE
 
 on:
   #[workflow_dispatch]
@@ -49,13 +39,27 @@ jobs:
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Increment Minor Version variable
+    # Increment the Minor Version repository variable
+    - name: Increment Minor Version
       uses: action-pack/increment@v2
       with:
         name: 'MINOR_VERSION'
         repository: ${{ github.repository }}
         token: ${{ env.TOKEN }}
 
+    # Update Image Version in the related HelmChart values.yaml
+    - name: Update Helm Chart
+      uses: fjogeleit/yaml-update-action@main
+      with:
+        valueFile: 'helm/reseau/Chart.yaml'
+        propertyPath: 'appVersion'
+        value: ${{ vars.MAJOR_VERSION }}.6
+        branch: main
+        #targetBranch: development
+        #createPR: true
+        message: 'Update Helm Chart appVersion [skip ci]'
+
+    # Build the Docker image and Push it to GHCR
     - name: Build and Push
       uses: docker/build-push-action@v6
       with:
@@ -92,7 +96,6 @@ jobs:
     - name: Package Chart
       run: |-
         cd helm
-        ls -la
         helm package reseau
 
     - name: Deploy Chart
