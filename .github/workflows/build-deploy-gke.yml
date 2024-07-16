@@ -19,12 +19,13 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  GAR_LOCATION: europe-west1
+  GCP_LOCATION: europe-west1
   GKE_CLUSTER_NAME: ${{ secrets.GKE_CLUSTER_NAME }}
   GKE_ZONE: europe-west1-b
   DEPLOYMENT_NAME: reseau-deployment
-  REPOSITORY: reseau-artifact-registry # TODO: update to Artifact Registry docker repository
-  IMAGE: gcr.io/reseau
+  IMAGE: ghcr.io/co-bdt/reseau
+  MAJOR: ${{ secrets.MAJOR_VERSION }}
+  MINOR: ${{ secrets.MINOR_VERSION }}
 
 jobs:
   setup-build-publish-deploy:
@@ -42,13 +43,34 @@ jobs:
       with:
         ref: main
 
+    # Increment the Docker image version
+    - name: Increment Minor version
+      uses: hmanzur/actions-set-secret@v2.0.0
+      with:
+        name: 'MINOR_VERSION'
+        value: $(($MINOR))
+        repository: Co-Bdt/Reseau
+        token: ${{ secrets.ACTIONS_ACCESS_TOKEN }}
+
+    # Build the Docker image
+    - name: Build
+      run: |-
+        docker build \
+          --tag "$IMAGE:$MAJOR.$MINOR" \
+          --file reseau/app.Dockerfile \
+          reseau/.
+
+    # Push the Docker image to GitHub Artifact Registry
+    - name: Publish
+      run: |-
+        docker push "$IMAGE:$MAJOR.$MINOR"
+
     # Configure Workload Identity Federation and generate an access token.
     - id: 'auth'
       name: 'Authenticate to Google Cloud'
       uses: 'google-github-actions/auth@v2'
       with:
         workload_identity_provider: 'projects/758161621186/locations/global/workloadIdentityPools/github-actions/providers/reseau-gh-repo'
-        #service_account: 'helm-sa@reseau-devperso.iam.gserviceaccount.com'
 
     # Required for downloading GKE cloud auth plugin
     - name: Setup Cloud SDK
@@ -69,7 +91,7 @@ jobs:
       uses: google-github-actions/get-gke-credentials@v2
       with:
         cluster_name: ${{ env.GKE_CLUSTER_NAME }}
-        location: ${{ env.GAR_LOCATION }}
+        location: ${{ env.GCP_LOCATION }}
         project_id: ${{ env.PROJECT_ID }}
 
     - name: Package Chart
@@ -80,24 +102,11 @@ jobs:
 
     - name: Deploy Chart
       run: |-
-        helm upgrade reseau helm/reseau-*.tgz --wait #--dry-run
+        helm upgrade reseau helm/reseau-*.tgz --wait --dry-run
         
     - name: Verify deployment
       run: |-
         helm list
-
-    # Build the Docker image
-    #- name: Build
-    #  run: |-
-    #    docker build \
-    #      --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_SHA" \
-    #      --build-arg GITHUB_SHA="$GITHUB_SHA" \
-    #      --build-arg GITHUB_REF="$GITHUB_REF" \
-    #      .
-    # Push the Docker image to Google Artifact Registry
-    #- name: Publish
-    #  run: |-
-    #    docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_SHA"
     
     # Set up kustomize
     #- name: Set up Kustomize
