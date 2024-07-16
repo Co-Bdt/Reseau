@@ -59,7 +59,7 @@ jobs:
         targetBranch: main
         createPR: false
         message: 'Update Helm Chart appVersion [skip ci]'
-        quotingType: "
+        quotingType: '"'
 
     # Build the Docker image and Push it to GHCR
     - name: Build and Push
