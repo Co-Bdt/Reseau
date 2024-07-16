@@ -60,6 +60,16 @@ jobs:
     #    repository: Co-Bdt/Reseau
     #    token: ${{ secrets.GITHUB_TOKEN }}
 
+    # Test
+    - name: Test
+      env:
+        TOKEN: ${{ env.REPO_ACCESS_TOKEN }}
+      run: |-
+        echo $REPO_ACCESS_TOKEN
+        echo "$REPO_ACCESS_TOKEN"
+        echo ${{ env.REPO_ACCESS_TOKEN }}
+        echo $TOKEN
+
     # Build the Docker image
     - name: Build
       run: |-
@@ -70,10 +80,12 @@ jobs:
 
     # Login to GitHub Artifact Registry
     - name: Login
+      env:
+        TOKEN: ${{ env.REPO_ACCESS_TOKEN }}
       run: |-
         docker login ghcr.io/co-bdt \
-          --username CorentinBaudet
-          --password $REPO_ACCESS_TOKEN
+          --username Co-Bdt
+          --password $TOKEN
 
     # Push the Docker image to GitHub Artifact Registry
     - name: Publish
