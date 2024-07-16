@@ -43,12 +43,17 @@ jobs:
       with:
         ref: main
 
+    - name: Increment a new patch version 
+      run: |-
+        echo "NEW_PATCH_VERSION=$((${{ secrets.MINOR_VERSION }}+1))" >> $GITHUB_ENV
+        echo $GITHUB_ENV
+
     # Increment the Docker image version
     - name: Increment Minor version
       uses: hmanzur/actions-set-secret@v2.0.0
       with:
         name: 'MINOR_VERSION'
-        value: $((${{ secrets.MINOR_VERSION }}))
+        value: $MINOR
         repository: Co-Bdt/Reseau
         token: ${{ secrets.ACTIONS_ACCESS_TOKEN }}
 
