@@ -24,7 +24,7 @@ env:
   GKE_ZONE: europe-west1-b
   DEPLOYMENT_NAME: reseau-deployment
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: co-bdt/reseau
   MAJOR: ${{ secrets.MAJOR_VERSION }}
   MINOR: ${{ secrets.MINOR_VERSION }}
   NEW_PATCH_VERSION: ${{ secrets.MINOR_VERSION }}
