@@ -12,6 +12,10 @@
 
 name: Build and Deploy to GKE
 
+permissions:
+  contents: read
+  packages: write
+
 on:
   [workflow_dispatch]
   #push:
@@ -22,12 +26,10 @@ env:
   GCP_LOCATION: europe-west1
   GKE_CLUSTER_NAME: ${{ secrets.GKE_CLUSTER_NAME }}
   GKE_ZONE: europe-west1-b
-  DEPLOYMENT_NAME: reseau-deployment
   REGISTRY: ghcr.io
   IMAGE_NAME: co-bdt/reseau
   MAJOR: ${{ secrets.MAJOR_VERSION }}
   MINOR: ${{ secrets.MINOR_VERSION }}
-  NEW_PATCH_VERSION: ${{ secrets.MINOR_VERSION }}
   REPO_ACCESS_TOKEN: ${{ secrets.ACTIONS_ACCESS_TOKEN }}
 
 jobs:
@@ -46,21 +48,6 @@ jobs:
       with:
         ref: main
 
-    #- name: Increment a new patch version 
-    #  run: |-
-    #    echo $MINOR
-    #    echo "NEW_PATCH_VERSION=$((${{ secrets.MINOR_VERSION }}+1))" >> $GITHUB_ENV
-    #    echo $NEW_PATCH_VERSION
-
-    # Increment the Docker image version
-    #- name: Increment Minor version
-    #  uses: hmanzur/actions-set-secret@v2.0.0
-    #  with:
-    #    name: 'MINOR_VERSION'
-    #    value: $MINOR
-    #    repository: Co-Bdt/Reseau
-    #    token: ${{ secrets.GITHUB_TOKEN }}
-
     # Build the Docker image
     #- name: Build
     #  run: |-
@@ -77,7 +64,7 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build and push
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v6
       with:
         context: reseau/
         file: reseau/app.Dockerfile
