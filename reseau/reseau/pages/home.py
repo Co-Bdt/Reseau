@@ -163,6 +163,7 @@ def home_page() -> rx.Component:
                 direction="row",
                 spacing="3",
                 flex_wrap="wrap",
+                justify="center",
             ),
             rx.cond(
                 HomeState.city_searched,

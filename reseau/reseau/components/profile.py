@@ -18,6 +18,7 @@ def profile(
                         \nQu'est-ce qui te fait vibrer ?",
                     width="80%",
                     size="3",
+                    height="9vh",
                     max_length=300,
                     rows="2",
                     on_change=set_profile_text,
