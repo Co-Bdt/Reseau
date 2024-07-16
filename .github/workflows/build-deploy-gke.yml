@@ -54,22 +54,6 @@ jobs:
               "appVersion": "${{ vars.MAJOR_VERSION }}.${{ vars.MINOR_VERSION }}"
             }
 
-    # Increment the Image Minor Version variable
-    - name: Increment Minor Version
-      uses: action-pack/increment@v2
-      with:
-        name: 'MINOR_VERSION'
-        repository: ${{ github.repository }}
-        token: ${{ env.TOKEN }}
-
-    # Increment the Helm Chart Minor Version variable
-    - name: Increment Minor Version
-      uses: action-pack/increment@v2
-      with:
-        name: 'HELM_CHART_MINOR_VERSION'
-        repository: ${{ github.repository }}
-        token: ${{ env.TOKEN }}
-
     # Build the Docker image and Push it to GHCR
     - name: Build and Push
       uses: docker/build-push-action@v6
@@ -116,3 +100,19 @@ jobs:
     - name: Verify deployment
       run: |-
         helm list
+
+    # Increment the Image Minor Version variable
+    - name: Increment Minor Version
+      uses: action-pack/increment@v2
+      with:
+        name: 'MINOR_VERSION'
+        repository: ${{ github.repository }}
+        token: ${{ env.TOKEN }}
+
+    # Increment the Helm Chart Minor Version variable
+    - name: Increment Minor Version
+      uses: action-pack/increment@v2
+      with:
+        name: 'HELM_CHART_MINOR_VERSION'
+        repository: ${{ github.repository }}
+        token: ${{ env.TOKEN }}
