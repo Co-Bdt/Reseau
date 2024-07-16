@@ -12,10 +12,6 @@
 
 name: Build and Deploy to GKE
 
-permissions:
-  contents: read
-  packages: write
-
 on:
   [workflow_dispatch]
   #push:
@@ -33,13 +29,13 @@ env:
   REPO_ACCESS_TOKEN: ${{ secrets.ACTIONS_ACCESS_TOKEN }}
 
 jobs:
-  setup-build-publish-deploy:
-    name: Setup, Build, Publish, and Deploy
+  build-publish-deploy:
+    name: Build, Publish and Deploy
     runs-on: ubuntu-latest
-    environment: production
-
+    #environment: production
     permissions:
       contents: 'read'
+      packages: 'write'
       id-token: 'write'
 
     steps:
