@@ -82,7 +82,7 @@ jobs:
         context: reseau/
         file: reseau/app.Dockerfile
         push: true
-        tags: ${{ REGISTRY }}/${{ IMAGE_NAME }}:${{ MAJOR }}.5
+        tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.MAJOR }}.5
 
     # Login to GitHub Artifact Registry
     #- name: Login
