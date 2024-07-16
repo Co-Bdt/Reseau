@@ -48,7 +48,7 @@ jobs:
       uses: hmanzur/actions-set-secret@v2.0.0
       with:
         name: 'MINOR_VERSION'
-        value: $(($MINOR))
+        value: $((${{ secrets.MINOR_VERSION }}))
         repository: Co-Bdt/Reseau
         token: ${{ secrets.ACTIONS_ACCESS_TOKEN }}
 
