@@ -26,6 +26,7 @@ env:
   IMAGE: ghcr.io/co-bdt/reseau
   MAJOR: ${{ secrets.MAJOR_VERSION }}
   MINOR: ${{ secrets.MINOR_VERSION }}
+  NEW_PATCH_VERSION: ${{ secrets.MINOR_VERSION }}
 
 jobs:
   setup-build-publish-deploy:
@@ -46,7 +47,7 @@ jobs:
     - name: Increment a new patch version 
       run: |-
         echo "NEW_PATCH_VERSION=$((${{ secrets.MINOR_VERSION }}+1))" >> $GITHUB_ENV
-        echo $GITHUB_ENV
+        echo $NEW_PATCH_VERSION
 
     # Increment the Docker image version
     - name: Increment Minor version
@@ -55,7 +56,7 @@ jobs:
         name: 'MINOR_VERSION'
         value: $MINOR
         repository: Co-Bdt/Reseau
-        token: ${{ secrets.ACTIONS_ACCESS_TOKEN }}
+        token: ${{ secrets.GITHUB_TOKEN }}
 
     # Build the Docker image
     - name: Build
@@ -64,6 +65,12 @@ jobs:
           --tag "$IMAGE:$MAJOR.$MINOR" \
           --file reseau/app.Dockerfile \
           reseau/.
+
+    # Login to GitHub Artifact Registry
+    - name: Login
+      run: |-
+        docker login ghcr.io/co-bdt \
+          -p ${{ secrets.GITHUB_TOKEN }}
 
     # Push the Docker image to GitHub Artifact Registry
     - name: Publish
