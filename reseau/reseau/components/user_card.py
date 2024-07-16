@@ -26,7 +26,7 @@ def user_card(
                         style={"text-align": "end"}
                     ),
                     width="100%",
-                    align="center",
+                    align="start",
                 ),
                 rx.text(
                     f"{user.email}",
@@ -56,7 +56,7 @@ def user_card(
                     margin="1em 0 0 0"
                 ),
             ),
-            width=["100%", "100%", "100%", "24.45%"],
+            width=["100%", "49.1%", "32.2%", "32.2%", "24.1%"],
         ),
         as_child=True,
         size="3",

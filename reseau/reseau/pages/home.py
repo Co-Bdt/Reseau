@@ -28,7 +28,7 @@ class HomeState(BaseState):
     def init_home(self):
         self.profile_text = self.authenticated_user.profile_text
         self.load_all_users()
-    
+
     def load_all_users(self):
         self.users_displayed = []
         with rx.session() as session:
@@ -61,11 +61,11 @@ class HomeState(BaseState):
         # Update the authenticated user's profile text
         self.set_profile_text(profile_text_cleaned)
 
-        return rx.toast("Profil mis à jour.")
+        return rx.toast.success("Profil mis à jour.")
 
     def search_city(self, form_data):
         self.search_term = form_data["search_term"]
-        
+
         # If no search term, display all users.
         if not self.search_term:
             return self.load_all_users()
@@ -163,6 +163,7 @@ def home_page() -> rx.Component:
                 direction="row",
                 spacing="3",
                 flex_wrap="wrap",
+                justify="center",
             ),
             rx.cond(
                 HomeState.city_searched,

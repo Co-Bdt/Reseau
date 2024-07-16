@@ -3,10 +3,8 @@ import asyncio
 from collections.abc import AsyncGenerator
 from re import match
 import reflex as rx
-from unidecode import unidecode
 
 from ..reseau import REGISTER_ROUTE
-
 from ..models.city import City
 from ..components.sidebar import sidebar
 from ..base_state import BaseState
@@ -19,7 +17,6 @@ class RegistrationState(BaseState):
     redirect to login page after registration."""
 
     success: bool = False
-    error_message: str = ""
 
     cities_as_str: list[str] = []
 
@@ -29,7 +26,7 @@ class RegistrationState(BaseState):
             cities = session.exec(
                 City.select().order_by(City.name)
             ).all()
-        self.cities_as_str = [f"{unidecode(city.name)} ({city.postal_code})"
+        self.cities_as_str = [f"{city.name} ({city.postal_code})"
                               for city in cities]
         self.cities_as_str = sorted(self.cities_as_str)
 
@@ -37,52 +34,70 @@ class RegistrationState(BaseState):
         self, form_data
     ) -> AsyncGenerator[rx.event.EventSpec |
                         list[rx.event.EventSpec] | None, None]:
-        """Handle registration form on_submit.
-
-        Set error_message appropriately based on validation results.
-
+        """Handle registration form on_submit.Merci 
         Args:
             form_data: A dict of form fields and values.
         """
         with rx.session() as session:
             username = form_data["username"]
             if not username:
-                self.error_message = "Le nom ne peut pas être vide."
                 yield rx.set_focus("username")
+                yield rx.toast.error("Le nom ne peut pas être vide.")
                 return
             existing_user = session.exec(
                 UserAccount.select().where(UserAccount.username == username)
             ).one_or_none()
             if existing_user is not None:
-                self.error_message = (
-                    f"Le nom {username} est déjà utilisé. \
-                        Essaye-en un autre."
+                yield rx.set_focus("username")
+                yield rx.toast.error(
+                    f"Le nom d'utilisateur {username} est déjà utilisé. \
+                        Essaie-en un autre."
                 )
-                yield [rx.set_value("username", ""), rx.set_focus("username")]
                 return
             email = form_data["email"]
             if not email:
-                self.error_message = "L'email ne peut pas être vide."
                 yield rx.set_focus("email")
+                yield rx.toast.error("L'email ne peut pas être vide.")
                 return
             # Define a regex pattern for validating the email
             pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
             # Use the re package to check if the email matches the pattern
             if not match(pattern, email):
-                self.error_message = "L'email n'est pas valide."
                 yield rx.set_focus("email")
+                yield rx.toast.error("L'email n'est pas valide.")
                 return
-            password = form_data["password"]
+            # password = form_data["password"]
+            password = "SisiG@ming123"
             if not password:
-                self.error_message = "Le mot de passe ne peut pas être vide."
                 yield rx.set_focus("password")
+                yield rx.toast.error("Le mot de passe ne peut pas être vide.")
+                return
+            # Define a regex pattern for validating that the password contains
+            # at least one digit, one uppercase letter, one lowercase letter,
+            # one special character, and is at least ten characters long.
+            pattern = (
+                r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])"
+                r"[A-Za-z\d@$!%*?&]{10,}$"
+            )
+            # Use the re package to check if the password matches the pattern
+            if not match(pattern, password):
+                yield [
+                    rx.set_value("password", ""),
+                    rx.set_focus("password"),
+                ]
+                yield rx.toast.error(
+                    "Le mot de passe doit contenir un chiffre, \
+                        une lettre majuscule, une lettre minuscule, \
+                        un caractère spécial et comporter au moins \
+                        dix caractères."
+                )
                 return
             if password != form_data["confirm_password"]:
-                self.error_message = "Les mots de passe ne correspondent pas."
                 yield [
                     rx.set_value("confirm_password", ""),
                     rx.set_focus("confirm_password"),
                 ]
+                yield rx.toast.error("Les mots de passe ne correspondent pas.")
                 return
             # Create the new user and add it to the database.
             new_user = UserAccount()  # type: ignore
@@ -101,10 +116,9 @@ class RegistrationState(BaseState):
             session.add(new_user)
             session.commit()
         # Set success and redirect to login page after a brief delay.
-        self.error_message = ""
         self.success = True
         yield
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(1)
         yield [rx.redirect(LOGIN_ROUTE), RegistrationState.set_success(False)]
 
 
@@ -127,6 +141,7 @@ def registration_page() -> rx.Component:
                 rx.input(
                     id="username",
                     size="3",
+                    width="100%",
                 ),
                 justify="start",
                 spacing="2",
@@ -150,8 +165,8 @@ def registration_page() -> rx.Component:
                 ),
                 rx.input(
                     id="email",
-                    # type="email",
                     size="3",
+                    width="100%",
                 ),
                 justify="start",
                 spacing="2",
@@ -168,6 +183,7 @@ def registration_page() -> rx.Component:
                     id="password",
                     type="password",
                     size="3",
+                    width="100%",
                 ),
                 justify="start",
                 spacing="2",
@@ -184,6 +200,7 @@ def registration_page() -> rx.Component:
                     id="confirm_password",
                     type="password",
                     size="3",
+                    width="100%",
                 ),
                 justify="start",
                 spacing="2",
@@ -228,37 +245,39 @@ def registration_page() -> rx.Component:
                 spacing="5",
                 width="100%",
             ),
+            width="100%",
             justify="center",
             min_height="85vh",
         ),
+        margin="0",
         on_submit=RegistrationState.handle_registration,
     )
     return rx.fragment(
-        rx.container(
-            rx.hstack(
-                sidebar(),
-                rx.cond(
-                    RegistrationState.success,
-                    rx.center(
-                        rx.vstack(
-                            rx.text("Compte créé avec succès."),
-                            rx.spinner(),
-                            align="center",
-                        ),
-                        width="100%",
-                    ),
+        rx.vstack(
+            rx.container(
+                rx.hstack(
+                    sidebar(),
                     rx.vstack(
                         register_form,
-                        rx.center(
-                            rx.cond(  # conditionally show error messages
-                                RegistrationState.error_message != "",
-                                rx.text(RegistrationState.error_message),
+                        rx.cond(
+                            RegistrationState.success,
+                            rx.center(
+                                rx.vstack(
+                                    rx.spinner(),
+                                    rx.text(
+                                        "Inscription réussie",
+                                        size="3",
+                                        weight="medium",
+                                    ),
+                                    align="center",
+                                ),
+                                width="100%",
                             ),
-                            width="100%",
                         ),
                     ),
+                    spacing="0",
                 ),
-                justify="center",
-            )
-        )
+            ),
+            align="center",
+        ),
     )

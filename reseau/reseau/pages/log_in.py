@@ -1,3 +1,5 @@
+import asyncio
+from collections.abc import AsyncGenerator
 import reflex as rx
 
 from ..reseau import LOGIN_ROUTE, REGISTER_ROUTE
@@ -10,10 +12,14 @@ class LogInState(BaseState):
     """Handle login form submission and
     redirect to proper routes after authentication."""
 
-    error_message: str = ""
+    success: bool = False
     redirect_to: str = ""
 
-    def on_submit(self, form_data) -> rx.event.EventSpec:
+    async def on_submit(
+            self,
+            form_data
+    ) -> AsyncGenerator[rx.event.EventSpec |
+                        list[rx.event.EventSpec] | None, None]:
         """Handle login form on_submit.
 
         Args:
@@ -27,21 +33,25 @@ class LogInState(BaseState):
                 UserAccount.select().where(UserAccount.username == username)
             ).one_or_none()
         if user is not None and not user.enabled:
-            self.error_message = "This account is disabled."
-            return rx.set_value("password", "")
+            yield rx.set_value("password", "")
+            yield rx.toast.error("Ce compte est désactivé.")
+            return
         if user is None or not user.verify_password(password):
-            self.error_message = "Les identifiants sont incorrects."
-            return rx.set_value("password", "")
+            yield rx.set_value("password", "")
+            yield rx.toast.error("Les identifiants sont incorrects.")
+            return
         if (
             user is not None
             and user.id is not None
             # and user.enabled
             and user.verify_password(password)
         ):
-            # mark the user as logged in
+            # Set success and mark the user as logged in
+            self.success = True
+            yield
             self._login(user.id)
-        self.error_message = ""
-        return LogInState.redir()  # type: ignore
+        await asyncio.sleep(0.5)
+        yield [LogInState.redir(), LogInState.set_success(False)]
 
     def redir(self) -> rx.event.EventSpec | None:
         """Redirect to the redirect_to route if logged in,
@@ -131,13 +141,25 @@ def log_in_page() -> rx.Component:
                 rx.cond(
                     LogInState.is_hydrated,  # type: ignore
                     rx.vstack(
-                        rx.cond(  # conditionally show error messages
-                            LogInState.error_message != "",
-                            rx.text(LogInState.error_message),
-                        ),
                         login_form,
+                        rx.cond(  # conditionally show error messages
+                            LogInState.success,
+                            rx.center(
+                                rx.vstack(
+                                    rx.spinner(),
+                                    rx.text(
+                                        "Connexion réussie",
+                                        size="3",
+                                        weight="medium",
+                                    ),
+                                    align="center",
+                                ),
+                                width="100%",
+                            ),
+                        ),
                     ),
                 ),
+                spacing="0",
                 justify="center",
             )
         )
