@@ -44,26 +44,26 @@ jobs:
       with:
         ref: main
 
-    - name: Increment a new patch version 
-      run: |-
-        echo $MINOR
-        echo "NEW_PATCH_VERSION=$((${{ secrets.MINOR_VERSION }}+1))" >> $GITHUB_ENV
-        echo $NEW_PATCH_VERSION
+    #- name: Increment a new patch version 
+    #  run: |-
+    #    echo $MINOR
+    #    echo "NEW_PATCH_VERSION=$((${{ secrets.MINOR_VERSION }}+1))" >> $GITHUB_ENV
+    #    echo $NEW_PATCH_VERSION
 
     # Increment the Docker image version
-    - name: Increment Minor version
-      uses: hmanzur/actions-set-secret@v2.0.0
-      with:
-        name: 'MINOR_VERSION'
-        value: $MINOR
-        repository: Co-Bdt/Reseau
-        token: ${{ secrets.GITHUB_TOKEN }}
+    #- name: Increment Minor version
+    #  uses: hmanzur/actions-set-secret@v2.0.0
+    #  with:
+    #    name: 'MINOR_VERSION'
+    #    value: $MINOR
+    #    repository: Co-Bdt/Reseau
+    #    token: ${{ secrets.GITHUB_TOKEN }}
 
     # Build the Docker image
     - name: Build
       run: |-
         docker build \
-          --tag "$IMAGE:$MAJOR.$MINOR" \
+          --tag "$IMAGE:$MAJOR.5" \
           --file reseau/app.Dockerfile \
           reseau/.
 
@@ -71,12 +71,12 @@ jobs:
     - name: Login
       run: |-
         docker login ghcr.io/co-bdt \
-          -p ${{ secrets.GITHUB_TOKEN }}
+          -p ${{ secrets.ACTIONS_ACCESS_TOKEN }}
 
     # Push the Docker image to GitHub Artifact Registry
     - name: Publish
       run: |-
-        docker push "$IMAGE:$MAJOR.$MINOR"
+        docker push "$IMAGE:$MAJOR.5"
 
     # Configure Workload Identity Federation and generate an access token.
     - id: 'auth'
