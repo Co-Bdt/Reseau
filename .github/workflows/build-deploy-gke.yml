@@ -55,8 +55,7 @@ jobs:
         propertyPath: 'appVersion'
         value: ${{ vars.MAJOR_VERSION }}.6
         branch: main
-        #targetBranch: development
-        #createPR: true
+        createPR: false
         message: 'Update Helm Chart appVersion [skip ci]'
 
     # Build the Docker image and Push it to GHCR
