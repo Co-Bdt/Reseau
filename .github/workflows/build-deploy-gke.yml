@@ -54,6 +54,7 @@ jobs:
         valueFile: 'helm/reseau/Chart.yaml'
         propertyPath: 'appVersion'
         value: ${{ vars.MAJOR_VERSION }}.6
+        token: ${{ env.TOKEN }}
         masterBranchName: main
         branch: main
         targetBranch: main
