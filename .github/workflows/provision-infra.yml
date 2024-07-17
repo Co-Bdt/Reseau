@@ -67,7 +67,7 @@ jobs:
 
     # Authenticate and connect to GCloud and GKE
     - name: GCloud and GKE setup
-      uses: ./.github/composites
+      uses: ./.github/gcloud-gke-setup
       with:
         WORKLOAD_IDENTITY_PROVIDER_ID: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
         PROJECT_ID: ${{ env.PROJECT_ID }}
