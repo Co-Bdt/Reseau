@@ -39,6 +39,7 @@ jobs:
       working-directory: terraform/prod/
       run: |-
         terraform version
+        terraform init
         terraform plan -out tfplan -var project_id=$PROJECT_ID
     
     #- run: echo ${{ steps.plan.outputs.stdout }}
