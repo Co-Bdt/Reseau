@@ -31,10 +31,18 @@ jobs:
       with:
         ref: main
 
+    # Configure Workload Identity Federation and generate an access token.
+    - name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        workload_identity_provider: '${{ env.WORKLOAD_IDENTITY_PROVIDER }}'
+
+    # Install and setup Terraform
     - uses: hashicorp/setup-terraform@v3
       with:
         terraform_version: "${{ env.TERRAFORM_VERSION }}"
 
+    # Plan changes to be applied by Terraform
     - name: Plan changes
       working-directory: terraform/prod/
       run: |-
