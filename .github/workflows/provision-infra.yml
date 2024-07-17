@@ -63,4 +63,6 @@ jobs:
         
     - name: Create DockerConfig Secret
       run: |-
-        kubectl get all
+        cat /home/$USER/.docker/config.json
+        kubectl create secret docker-registry reseau-dockerconfig-secret \
+          --from-file=.dockerconfigjson=/home/$USER/.docker/config.json
