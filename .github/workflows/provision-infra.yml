@@ -16,14 +16,13 @@ env:
   TERRAFORM_VERSION: 1.9.2
 
 jobs:
-  run-terraform:
-    name: Run Terraform
+  terraform-plan:
+    name: Terraform Plan
     runs-on: ubuntu-latest
     environment: production
     permissions:
       contents: 'read'
-      packages: 'write'
-      id-token: 'write'
+      id-token: 'read'
 
     steps:
     - name: Checkout
@@ -38,19 +37,41 @@ jobs:
         workload_identity_provider: '${{ env.WORKLOAD_IDENTITY_PROVIDER }}'
 
     # Install and setup Terraform
-    - uses: hashicorp/setup-terraform@v3
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
       with:
         terraform_version: "${{ env.TERRAFORM_VERSION }}"
+
+    - name: Terraform Init
+      working-directory: terraform/prod/
+      run: |-
+        terraform init
 
     # Plan changes to be applied by Terraform
     - name: Plan changes
       working-directory: terraform/prod/
       run: |-
-        terraform version
-        terraform init
         terraform plan -out tfplan -var project_id=$PROJECT_ID
-    
-    #- run: echo ${{ steps.plan.outputs.stdout }}
+
+  terraform-apply:
+      name: Terraform Apply
+      runs-on: ubuntu-latest
+      environment: production
+      permissions:
+        contents: 'read'
+        id-token: 'read'
+  
+      steps:
+      - uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ github.TOKEN }}
+          approvers: Co-Bdt
+  
+      - name: Apply changes
+        working-directory: terraform/prod/
+        run: |-
+          terraform version
+          #terraform apply tfplan -var project_id=$PROJECT_ID
 
   configuration:
     name: Configuration
@@ -58,9 +79,8 @@ jobs:
     environment: production
     permissions:
       contents: 'read'
-      packages: 'write'
-      id-token: 'write'
-    needs: [run-terraform]
+      id-token: 'read'
+    needs: [terraform-apply]
     
     steps:
     - name: Checkout
@@ -73,7 +93,7 @@ jobs:
       with:
         registry: ${{ env.REGISTRY }}
         username: ${{ github.repository_owner }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+        password: ${{ github.TOKEN }}
 
     # Authenticate and connect to GCloud and GKE
     - name: GCloud and GKE setup
