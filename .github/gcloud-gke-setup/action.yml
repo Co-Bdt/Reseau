@@ -30,6 +30,7 @@ runs:
 
     # This plugin seems to be necessary in order to use Kubernetes API and therefore, Helm
     - name: Setup GKE GCloud Auth plugin
+      shell: bash
       run: |-
         gcloud components install gke-gcloud-auth-plugin
         gke-gcloud-auth-plugin --version
