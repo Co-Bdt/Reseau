@@ -36,6 +36,13 @@ jobs:
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
+    # Configure Workload Identity Federation and generate an access token.
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        workload_identity_provider: 'projects/758161621186/locations/global/workloadIdentityPools/github-actions/providers/reseau-gh-repo'
+
     # Required for downloading GKE Cloud auth plugin
     - name: Setup Cloud SDK
       uses: google-github-actions/setup-gcloud@v2
