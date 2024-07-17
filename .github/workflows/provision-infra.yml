@@ -65,7 +65,7 @@ jobs:
       steps:
       - uses: trstringer/manual-approval@v1
         with:
-          secret: ${{ secrets.TOKEN }}
+          secret: ${{ env.TOKEN }}
           approvers: Co-Bdt
   
       - name: Apply changes
@@ -94,7 +94,7 @@ jobs:
       with:
         registry: ${{ env.REGISTRY }}
         username: ${{ github.repository_owner }}
-        password: ${{ secrets.TOKEN }}
+        password: ${{ env.TOKEN }}
 
     # Authenticate and connect to GCloud and GKE
     - name: GCloud and GKE setup
