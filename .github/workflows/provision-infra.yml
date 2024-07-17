@@ -39,7 +39,7 @@ jobs:
       working-directory: terraform/prod/
       run: |-
         terraform version
-        ls -la
+        terraform plan -out tfplan -var project_id=$PROJECT_ID
     
     #- run: echo ${{ steps.plan.outputs.stdout }}
 
@@ -51,6 +51,7 @@ jobs:
       contents: 'read'
       packages: 'write'
       id-token: 'write'
+    needs: [run-terraform]
     
     steps:
     - name: Checkout
