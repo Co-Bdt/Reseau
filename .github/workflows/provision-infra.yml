@@ -1,4 +1,4 @@
-# This workflow will provision the project infrastructure by running Terraform and executing manual configuration for the cluster
+# This workflow will provision the project infrastructure by running Terraform and configure the cluster
 
 name: Provision Infra
 
@@ -12,10 +12,11 @@ env:
   GKE_ZONE: europe-west1-b
   REGISTRY: ghcr.io
   TOKEN: ${{ secrets.ACTIONS_ACCESS_TOKEN }}
+  TERRAFORM_VERSION: 1.9.2
 
 jobs:
-  provision-infra:
-    name: Provision Infra
+  run-terraform:
+    name: Run Terraform
     runs-on: ubuntu-latest
     environment: production
     permissions:
@@ -23,6 +24,25 @@ jobs:
       packages: 'write'
       id-token: 'write'
 
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        ref: main
+
+    - uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "${{ env.TERRAFORM_VERSION }}"
+
+  configuration:
+    name: Configuration
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: 'read'
+      packages: 'write'
+      id-token: 'write'
+    
     steps:
     - name: Checkout
       uses: actions/checkout@v4
