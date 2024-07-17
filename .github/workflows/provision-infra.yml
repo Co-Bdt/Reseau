@@ -34,6 +34,14 @@ jobs:
       with:
         terraform_version: "${{ env.TERRAFORM_VERSION }}"
 
+    - name: Plan changes
+      working-directory: terraform/prod/
+      run: |-
+        terraform version
+        ls -la
+    
+    #- run: echo ${{ steps.plan.outputs.stdout }}
+
   configuration:
     name: Configuration
     runs-on: ubuntu-latest
@@ -80,9 +88,9 @@ jobs:
         cluster_name: ${{ env.GKE_CLUSTER_NAME }}
         location: ${{ env.GCP_LOCATION }}
         project_id: ${{ env.PROJECT_ID }}
-        
-    - name: Create DockerConfig Secret
+
+    # Create the Secret for pulling images with Docker config file
+    - name: Create Docker config Secret
       run: |-
-        cat /home/$USER/.docker/config.json
         kubectl create secret docker-registry reseau-dockerconfig-secret \
           --from-file=.dockerconfigjson=/home/$USER/.docker/config.json
