@@ -14,8 +14,3 @@ variable "project_id" {
 variable "project_name" {
   description = "GCP project name"
 }
-
-variable "user" {
-  description = "the user on GCP"
-  sensitive = true
-}
