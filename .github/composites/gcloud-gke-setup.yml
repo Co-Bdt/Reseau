@@ -1,0 +1,43 @@
+name: 'Connect to GCloud and GKE setup'
+
+inputs:
+  WORKLOAD_IDENTITY_PROVIDER_ID:
+    description: 'Workload Identity Provider ID to use for authenticating to GCloud'
+    required: true
+  PROJECT_ID: 
+    description: 'GCP Project ID'
+    required: true
+  GCP_LOCATION: 
+    description: 'GCP default location for the cluster'
+    required: true
+  GKE_CLUSTER_NAME:
+    description: 'Cluster name in GKE'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    # Configure Workload Identity Federation and generate an access token.
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        workload_identity_provider: '${{ inputs.WORKLOAD_IDENTITY_PROVIDER_ID }}'
+
+    # Required for downloading GKE Cloud auth plugin
+    - name: Setup Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+
+    # This plugin seems to be necessary in order to use Kubernetes API and therefore, Helm
+    - name: Setup GKE GCloud Auth plugin
+      run: |-
+        gcloud components install gke-gcloud-auth-plugin
+        gke-gcloud-auth-plugin --version
+
+    # Get the GKE credentials so we can deploy to the cluster
+    - name: Get cluster credentials
+      uses: google-github-actions/get-gke-credentials@v2
+      with:
+        cluster_name: ${{ inputs.GKE_CLUSTER_NAME }}
+        location: ${{ inputs.GCP_LOCATION }}
+        project_id: ${{ inputs.PROJECT_ID }}
