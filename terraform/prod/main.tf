@@ -46,9 +46,3 @@ resource "google_container_cluster" "cluster" {
 resource "google_compute_global_address" "global_static_ip" {
   name = "${var.project_name}-global-static-ip"
 }
-
-# Write to file the address of the global static IP ressource
-resource "local_file" "global_static_ip_file" {
-  content  = google_compute_global_address.global_static_ip.address
-  filename = "sensitive/prod_global_static_ip.txt"
-}
