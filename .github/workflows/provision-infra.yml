@@ -1,0 +1,58 @@
+# This workflow will provision the project infrastructure by running Terraform and executing manual configuration for the cluster
+
+name: Provision Infra
+
+on:
+  [workflow_dispatch]
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GCP_LOCATION: europe-west1
+  GKE_CLUSTER_NAME: ${{ secrets.GKE_CLUSTER_NAME }}
+  GKE_ZONE: europe-west1-b
+  TOKEN: ${{ secrets.ACTIONS_ACCESS_TOKEN }}
+
+jobs:
+  provision-infra:
+    name: Provision Infra
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: 'read'
+      packages: 'write'
+      id-token: 'write'
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        ref: main
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    # Required for downloading GKE Cloud auth plugin
+    - name: Setup Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+
+    # This plugin seems to be necessary in order to use Kubernetes API and therefore, Helm
+    - name: Setup GKE GCloud Auth plugin
+      run: |-
+        gcloud components install gke-gcloud-auth-plugin
+        gke-gcloud-auth-plugin --version
+
+    # Get the GKE credentials so we can setup the cluster
+    - name: Get cluster credentials
+      uses: google-github-actions/get-gke-credentials@v2
+      with:
+        cluster_name: ${{ env.GKE_CLUSTER_NAME }}
+        location: ${{ env.GCP_LOCATION }}
+        project_id: ${{ env.PROJECT_ID }}
+        
+    - name: Create DockerConfig Secret
+      run: |-
+        kubectl get all
