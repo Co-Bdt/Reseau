@@ -1,0 +1,7 @@
+all:
+  children:
+    clusters:
+      hosts:
+        gke_cluster:
+          ansible_host: localhost #34.77.87.230
+gather_facts: false
