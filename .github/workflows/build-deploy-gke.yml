@@ -17,8 +17,8 @@ env:
   TOKEN: ${{ secrets.ACTIONS_ACCESS_TOKEN }}
 
 jobs:
-  build-publish-deploy:
-    name: Build, Publish and Deploy
+  build-publish:
+    name: Build and Publish
     runs-on: ubuntu-latest
     environment: production
     permissions:
@@ -64,6 +64,22 @@ jobs:
         push: true
         tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ vars.MAJOR_VERSION }}.${{ vars.MINOR_VERSION }}
 
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: 'read'
+      packages: 'write'
+      id-token: 'write'
+    needs: [build-publish]
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        ref: main
+
     # Authenticate and connect to GCloud and GKE
     - name: GCloud and GKE setup
       uses: ./.github/gcloud-gke-setup
@@ -86,6 +102,17 @@ jobs:
       run: |-
         helm list
 
+  auto-increment-version:
+    name: Auto Increment Version
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: 'read'
+      packages: 'write'
+      id-token: 'write'
+    needs: [deploy]
+
+    steps:
     # Increment the Image Minor Version variable
     - name: Increment Minor Version
       uses: action-pack/increment@v2
