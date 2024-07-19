@@ -53,6 +53,14 @@ jobs:
       run: |-
         terraform plan -out tfplan -var project_id=$PROJECT_ID
 
+    # Save plan to GH Artifacts to retrieve it in the next job
+    - name: Save Artifact
+      id: save-artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: tf-plan
+        path: .
+
   terraform-apply:
       name: Terraform Apply
       runs-on: ubuntu-latest
@@ -63,16 +71,23 @@ jobs:
       needs: [terraform-plan]
   
       steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: main
-        
       - name: Manual Approval
         uses: trstringer/manual-approval@v1
         with:
           secret: ${{ env.TOKEN }}
           approvers: Co-Bdt
+          
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Download Plan
+        uses: actions/download-artifact@v4
+        with:
+          name: tf-plan
+          path: .
+          github_token: ${{ env.TOKEN }}
   
       - name: Apply changes
         working-directory: terraform/prod/
