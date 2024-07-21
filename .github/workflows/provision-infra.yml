@@ -175,7 +175,7 @@ jobs:
         curl -X POST https://api.github.com/repos/Co-Bdt/Reseau/dispatches \
         -H 'Accept: application/vnd.github.everest-preview+json' \
         -u $TOKEN }} \
-        --data '{"event_type": "Trigger Workflow", "client_payload": { "repository": "'"$GITHUB_REPOSITORY"'" }}'
+        --data '{"event_type": "Trigger Workflow", "client_payload": { "repository": $GITHUB_REPOSITORY }}'
 
     - name: Checkout
       uses: actions/checkout@v3
