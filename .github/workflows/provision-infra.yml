@@ -47,10 +47,10 @@ jobs:
         aws-region: ${{ env.AWS_LOCATION }}
 
     # Install and setup Terraform
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
-      with:
-        terraform_version: ${{ env.TERRAFORM_VERSION }}
+    #- name: Setup Terraform
+    #  uses: hashicorp/setup-terraform@v3
+    #  with:
+    #    terraform_version: ${{ env.TERRAFORM_VERSION }}
 
     - name: Terraform Init
       working-directory: terraform/prod/
@@ -112,6 +112,11 @@ jobs:
           role-to-assume: ${{ env.AWS_IAM_ROLE }}
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{ env.AWS_LOCATION }}
+
+      - name: Terraform Init
+        working-directory: terraform/prod/
+        run: |-
+          terraform init
   
       - name: Apply changes
         working-directory: terraform/prod/
