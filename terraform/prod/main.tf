@@ -56,25 +56,19 @@ resource "google_compute_global_address" "global_static_ip" {
   name = "${var.project_name}-global-static-ip"
 }
 
+# AWS RDS latest snapshot
+data "aws_db_snapshot" "latest_snapshot" {
+  db_instance_identifier = "${var.project_name}-db-instance"
+  most_recent            = true
+}
+
 # AWS RDS instance
 resource "aws_db_instance" "db_instance" {
   identifier = "${var.project_name}-db-instance"
-  # db_name               = "${var.project_name}-db-instance"
-  engine = "postgres"
-  # engine_version        = "16.3"
   instance_class            = "db.t4g.micro"
-  username                  = "postgres"
-  password                  = var.aws_rds_password
-  allocated_storage         = 20
-  max_allocated_storage     = 1000
-  # snapshot_identifier       = var.aws_rds_snapshot_identifier
-  skip_final_snapshot       = false
+  snapshot_identifier       = data.aws_db_snapshot.latest_snapshot.id
   publicly_accessible       = true
   final_snapshot_identifier = "${var.project_name}-db-instance-final-snapshot"
-  # restore_to_point_in_time {
-  #   source_dbi_resource_id = "${var.project_name}-db-instance2"
-  #   use_latest_restorable_time    = true
-  # }
   storage_encrypted = true # to avoid replacement every time a state is applied
 }
 
