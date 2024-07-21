@@ -3,6 +3,7 @@
 name: Manual Deployment to GKE
 
 on:
+  #[repository_dispatch]
   [workflow_dispatch]
   
 env:
@@ -47,7 +48,7 @@ jobs:
 
     - name: Deploy Chart
       run: |-
-        helm install reseau helm/reseau-*.tgz --wait --dry-run
+        helm install reseau helm/reseau-*.tgz --wait #--dry-run
         
     - name: Verify deployment
       run: |-
