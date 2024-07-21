@@ -1,6 +1,6 @@
 # This workflow deploy the latest Helm Chart to GKE when manually triggered.
 
-name: Manual Deployment to GCP & AWS
+name: Manual Deployment to GKE
 
 on:
   #[repository_dispatch]
