@@ -6,11 +6,14 @@ on:
   [workflow_dispatch]
 
 env:
-  WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+  GCP_ID_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   GCP_LOCATION: europe-west1
   GKE_CLUSTER_NAME: ${{ secrets.GKE_CLUSTER_NAME }}
   GKE_ZONE: europe-west1-b
+  AWS_IAM_ROLE: ${{ secrets.AWS_IAM_ROLE }}
+  AWS_LOCATION: eu-west-3
+  AWS_RDS_PWD: ${{ secrets.AWS_RDS_INSTANCE_PASSWORD }}
   REGISTRY: ghcr.io
   TOKEN: ${{ secrets.ACTIONS_ACCESS_TOKEN }}
   TERRAFORM_VERSION: 1.9.2
@@ -21,8 +24,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     permissions:
-      contents: 'read'
-      id-token: 'write'
+      contents: 'read'  # This is required for actions/checkout
+      id-token: 'write' # This is required for requesting the JWT
 
     steps:
     - name: Checkout
@@ -31,16 +34,28 @@ jobs:
         ref: main
 
     # Configure Workload Identity Federation and generate an access token.
-    - name: Authenticate to Google Cloud
+    - name: Configure GCP Credentials
       uses: 'google-github-actions/auth@v2'
       with:
-        workload_identity_provider: '${{ env.WORKLOAD_IDENTITY_PROVIDER }}'
+        workload_identity_provider: ${{ env.GCP_ID_PROVIDER }}
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ env.AWS_IAM_ROLE }}
+        role-session-name: GitHub_to_AWS_via_FederatedOIDC
+        aws-region: ${{ env.AWS_LOCATION }}
+
+    # Hello from AWS: WhoAmI
+    - name: Sts GetCallerIdentity
+      run: |
+        aws sts get-caller-identity
 
     # Install and setup Terraform
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
       with:
-        terraform_version: "${{ env.TERRAFORM_VERSION }}"
+        terraform_version: ${{ env.TERRAFORM_VERSION }}
 
     - name: Terraform Init
       working-directory: terraform/prod/
@@ -51,7 +66,7 @@ jobs:
     - name: Plan changes
       working-directory: terraform/prod/
       run: |-
-        terraform plan -out tfplan -var project_id=$PROJECT_ID
+        terraform plan -out tfplan -var project_id=$PROJECT_ID -var aws_rds_password=$AWS_RDS_PWD
 
     # Save plan to GH Artifacts to retrieve it in the next job
     - name: Save Artifact
@@ -123,7 +138,7 @@ jobs:
     - name: GCloud and GKE setup
       uses: ./.github/gcloud-gke-setup
       with:
-        WORKLOAD_IDENTITY_PROVIDER_ID: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+        WORKLOAD_IDENTITY_PROVIDER_ID: ${{ env.GCP_ID_PROVIDER }}
         PROJECT_ID: ${{ env.PROJECT_ID }}
         GCP_LOCATION: ${{ env.GCP_LOCATION }}
         GKE_CLUSTER_NAME: ${{ env.GKE_CLUSTER_NAME }}
