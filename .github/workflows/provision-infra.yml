@@ -11,7 +11,7 @@ env:
   GCP_LOCATION: europe-west1
   GKE_CLUSTER_NAME: ${{ secrets.GKE_CLUSTER_NAME }}
   GKE_ZONE: europe-west1-b
-  AWS_ID_PROVIDER: ${{ secrets.AWS_IDENTITY_PROVIDER }}
+  AWS_IAM_ROLE: ${{ secrets.AWS_IAM_ROLE }}
   AWS_LOCATION : eu-west-3
   REGISTRY: ghcr.io
   TOKEN: ${{ secrets.ACTIONS_ACCESS_TOKEN }}
@@ -41,7 +41,7 @@ jobs:
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        role-to-assume: ${{ env.AWS_ID_PROVIDER }}
+        role-to-assume: ${{ env.AWS_IAM_ROLE }}
         role-session-name: GitHub_to_AWS_via_FederatedOIDC
         aws-region: ${{ env.AWS_LOCATION }}
 
@@ -54,7 +54,7 @@ jobs:
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
       with:
-        terraform_version: "${{ env.TERRAFORM_VERSION }}"
+        terraform_version: ${{ env.TERRAFORM_VERSION }}
 
     - name: Terraform Init
       working-directory: terraform/prod/
