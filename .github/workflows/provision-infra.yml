@@ -46,11 +46,6 @@ jobs:
         role-session-name: GitHub_to_AWS_via_FederatedOIDC
         aws-region: ${{ env.AWS_LOCATION }}
 
-    # Hello from AWS: WhoAmI
-    - name: Sts GetCallerIdentity
-      run: |
-        aws sts get-caller-identity
-
     # Install and setup Terraform
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
@@ -104,6 +99,19 @@ jobs:
           name: ${{ github.run_id }}-tfplan
           path: terraform/prod/
           github_token: ${{ env.TOKEN }}
+
+      # Configure Workload Identity Federation and generate an access token.
+      - name: Configure GCP Credentials
+        uses: 'google-github-actions/auth@v2'
+        with:
+          workload_identity_provider: ${{ env.GCP_ID_PROVIDER }}
+  
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_IAM_ROLE }}
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          aws-region: ${{ env.AWS_LOCATION }}
   
       - name: Apply changes
         working-directory: terraform/prod/
