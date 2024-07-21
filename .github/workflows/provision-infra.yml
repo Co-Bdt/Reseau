@@ -6,11 +6,13 @@ on:
   [workflow_dispatch]
 
 env:
-  WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+  GCP_ID_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   GCP_LOCATION: europe-west1
   GKE_CLUSTER_NAME: ${{ secrets.GKE_CLUSTER_NAME }}
   GKE_ZONE: europe-west1-b
+  AWS_ID_PROVIDER: ${{ secrets.AWS_IDENTITY_PROVIDER }}
+  AWS_LOCATION : eu-west-3
   REGISTRY: ghcr.io
   TOKEN: ${{ secrets.ACTIONS_ACCESS_TOKEN }}
   TERRAFORM_VERSION: 1.9.2
@@ -21,8 +23,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     permissions:
-      contents: 'read'
-      id-token: 'write'
+      contents: 'read'  # This is required for actions/checkout
+      id-token: 'write' # This is required for requesting the JWT
 
     steps:
     - name: Checkout
@@ -31,10 +33,22 @@ jobs:
         ref: main
 
     # Configure Workload Identity Federation and generate an access token.
-    - name: Authenticate to Google Cloud
+    - name: Configure GCP Credentials
       uses: 'google-github-actions/auth@v2'
       with:
-        workload_identity_provider: '${{ env.WORKLOAD_IDENTITY_PROVIDER }}'
+        workload_identity_provider: ${{ env.GCP_ID_PROVIDER }}
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ env.AWS_ID_PROVIDER }}
+        role-session-name: GitHub_to_AWS_via_FederatedOIDC
+        aws-region: ${{ env.AWS_LOCATION }}
+
+    # Hello from AWS: WhoAmI
+    - name: Sts GetCallerIdentity
+      run: |
+        aws sts get-caller-identity
 
     # Install and setup Terraform
     - name: Setup Terraform
