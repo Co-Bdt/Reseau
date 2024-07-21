@@ -146,3 +146,23 @@ jobs:
       run: |-
         kubectl create secret docker-registry reseau-dockerconfig-secret \
           --from-file=.dockerconfigjson=/home/$USER/.docker/config.json
+
+  call_deploy_workflow:
+    name: Call Deploy Workflow
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    needs: [configuration]
+
+    steps:
+    - name: Deploy
+      run: |-
+        curl -X POST https://api.github.com/repos/:Co-Bdt/:Reseau/dispatches \
+        -H 'Accept: application/vnd.github.everest-preview+json' \
+        -u $TOKEN }} \
+        --data '{"event_type": "Trigger Workflow", "client_payload": { "repository": "'"$GITHUB_REPOSITORY"'" }}'
+
+    - name: Checkout
+      uses: actions/checkout@v3
