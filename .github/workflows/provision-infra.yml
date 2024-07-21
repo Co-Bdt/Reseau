@@ -12,7 +12,8 @@ env:
   GKE_CLUSTER_NAME: ${{ secrets.GKE_CLUSTER_NAME }}
   GKE_ZONE: europe-west1-b
   AWS_IAM_ROLE: ${{ secrets.AWS_IAM_ROLE }}
-  AWS_LOCATION : eu-west-3
+  AWS_LOCATION: eu-west-3
+  AWS_RDS_PWD: ${{ secrets.AWS_RDS_INSTANCE_PASSWORD }}
   REGISTRY: ghcr.io
   TOKEN: ${{ secrets.ACTIONS_ACCESS_TOKEN }}
   TERRAFORM_VERSION: 1.9.2
@@ -65,7 +66,7 @@ jobs:
     - name: Plan changes
       working-directory: terraform/prod/
       run: |-
-        terraform plan -out tfplan -var project_id=$PROJECT_ID
+        terraform plan -out tfplan -var project_id=$PROJECT_ID -var aws_rds_password=$AWS_RDS_PWD
 
     # Save plan to GH Artifacts to retrieve it in the next job
     - name: Save Artifact
