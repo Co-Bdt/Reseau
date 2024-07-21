@@ -172,7 +172,7 @@ jobs:
     steps:
     - name: Deploy
       run: |-
-        curl -X POST https://api.github.com/repos/:Co-Bdt/:Reseau/dispatches \
+        curl -X POST https://api.github.com/repos/Co-Bdt/Reseau/dispatches \
         -H 'Accept: application/vnd.github.everest-preview+json' \
         -u $TOKEN }} \
         --data '{"event_type": "Trigger Workflow", "client_payload": { "repository": "'"$GITHUB_REPOSITORY"'" }}'
