@@ -11,12 +11,12 @@ env:
   GCP_LOCATION: europe-west1
   GKE_CLUSTER_NAME: ${{ secrets.GKE_CLUSTER_NAME }}
   GKE_ZONE: europe-west1-b
+  GKE_SECRET_TOKEN: ${{ secrets.K8S_SECRET_ACCESS_TOKEN }}
   AWS_IAM_ROLE: ${{ secrets.AWS_IAM_ROLE }}
   AWS_LOCATION: eu-west-3
   AWS_RDS_PWD: ${{ secrets.AWS_RDS_INSTANCE_PASSWORD }}
   REGISTRY: ghcr.io
   TOKEN: ${{ secrets.ACTIONS_ACCESS_TOKEN }}
-  TERRAFORM_VERSION: 1.9.2
 
 jobs:
   terraform-plan:
@@ -45,12 +45,6 @@ jobs:
         role-to-assume: ${{ env.AWS_IAM_ROLE }}
         role-session-name: GitHub_to_AWS_via_FederatedOIDC
         aws-region: ${{ env.AWS_LOCATION }}
-
-    # Install and setup Terraform
-    #- name: Setup Terraform
-    #  uses: hashicorp/setup-terraform@v3
-    #  with:
-    #    terraform_version: ${{ env.TERRAFORM_VERSION }}
 
     - name: Terraform Init
       working-directory: terraform/prod/
@@ -143,7 +137,7 @@ jobs:
       with:
         registry: ${{ env.REGISTRY }}
         username: ${{ github.repository_owner }}
-        password: ${{ env.TOKEN }}
+        password: ${{ env.GKE_SECRET_TOKEN }}
 
     # Authenticate and connect to GCloud and GKE
     - name: GCloud and GKE setup
