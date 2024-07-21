@@ -108,9 +108,7 @@ jobs:
       - name: Apply changes
         working-directory: terraform/prod/
         run: |-
-          terraform version
-          ls -la
-          #terraform apply tfplan -var project_id=$PROJECT_ID
+          terraform apply tfplan
 
   configuration:
     name: Configuration
