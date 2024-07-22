@@ -1,15 +1,20 @@
 from datetime import datetime
 import reflex as rx
 
+
 from ..reseau import HOME_ROUTE
 from ..common.base_state import BaseState
+from ..models.comment import Comment
 from ..components.landing import landing
 from ..models.post import Post
+from ..components.post_dialog import post_dialog
 from ..common.template import template
+from ..components.write_post_dialog import write_post_dialog
 
 
 class HomeState(BaseState):
     posts_displayed: list[Post] = []  # posts to display
+    post_comments: list[Comment] = []  # comments of a post
 
     def run_script(self):
         """Uncomment any one-time script needed for app initialization here."""
@@ -30,7 +35,17 @@ class HomeState(BaseState):
             ).all()
         self.posts_displayed = posts
 
-    def publish_post(self, form_data):
+    def load_post_comments(self, post_id):
+        self.post_comments = []
+        with rx.session() as session:
+            comments = session.exec(
+                Comment.select()
+                .where(Comment.post_id == post_id)
+                .order_by(Comment.published_at.desc())
+            ).all()
+        self.post_comments = comments
+
+    def publish_post(self, form_data: dict):
         title = form_data["title"]
         content = form_data["content"]
         post = Post(
@@ -45,6 +60,21 @@ class HomeState(BaseState):
 
         self.load_all_posts()
         return rx.toast.success("Post publié.")
+
+    def publish_comment(self, form_data: dict):
+        post_id = form_data["post_id"]
+        comment = Comment(
+            content=form_data["content"],
+            post_id=post_id,
+            author_id=self.authenticated_user.id,
+            published_at=Comment.format_datetime(datetime.now()),
+        )
+        with rx.session() as session:
+            session.add(comment)
+            session.commit()
+
+        self.load_post_comments(post_id)
+        return rx.toast.success("Commentaire publié.")
 
 
 @rx.page(title="Reseau", route=HOME_ROUTE, on_load=HomeState.init)
@@ -64,68 +94,7 @@ def home_page() -> rx.Component:
         rx.cond(
             BaseState.is_authenticated,
             rx.vstack(
-                rx.dialog.root(
-                    rx.dialog.trigger(
-                        rx.button(
-                            "Ecrire un post",
-                            width="100%",
-                            size="3",
-                            variant="outline",
-                            color_scheme="gray",
-                            radius="large",
-                            style={"justify-content": "start"},
-                        ),
-                    ),
-                    rx.dialog.content(
-                        rx.dialog.title("Nouveau post"),
-                        rx.form.root(
-                            rx.flex(
-                                rx.input(
-                                    name="title",
-                                    placeholder="Titre",
-                                    width="100%",
-                                    size="2",
-                                    variant="soft",
-                                    style={
-                                        "background-color": "white",
-                                    },
-                                ),
-                                rx.input(
-                                    name="content",
-                                    placeholder="Qu'as-tu en tête ?",
-                                    width="100%",
-                                    size="2",
-                                    variant="soft",
-                                    autofocus=True,
-                                    style={"background-color": "white"},
-                                ),
-                                direction="column",
-                                spacing="2",
-                            ),
-                            rx.flex(
-                                rx.dialog.close(
-                                    rx.button(
-                                        "Annuler",
-                                        color_scheme="gray",
-                                        variant="soft",
-                                    ),
-                                ),
-                                rx.dialog.close(
-                                    rx.form.submit(
-                                        rx.button(
-                                            "Publier",
-                                            type="submit",
-                                        ),
-                                    ),
-                                ),
-                                spacing="3",
-                                margin_top="16px",
-                                justify="end",
-                            ),
-                            on_submit=HomeState.publish_post,
-                        ),
-                    ),
-                ),
+                write_post_dialog(HomeState.publish_post),
                 rx.center(
                     rx.divider(size="3"),
                     width="100%",
@@ -134,9 +103,11 @@ def home_page() -> rx.Component:
                     rx.foreach(
                         HomeState.posts_displayed,
                         lambda post: rx.card(
-                            rx.vstack(
-                                rx.text(f"{post.title} - {post.published_at}"),
-                                rx.text(f"{post.content}"),
+                            post_dialog(
+                                post,
+                                HomeState.post_comments,
+                                HomeState.load_post_comments,
+                                HomeState.publish_comment,
                             ),
                             as_child=True,
                         ),

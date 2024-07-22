@@ -3,7 +3,8 @@ from .models import (
     auth_session,
     city,
     user_account,
-    post
+    post,
+    comment,
 )
 from .pages import (
     home,
@@ -20,6 +21,7 @@ __all__ = [
     "city",
     "user_account",
     "post",
+    "comment",
     "home",
     "log_in",
     "registration",
