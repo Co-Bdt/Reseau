@@ -6,9 +6,9 @@ import reflex as rx
 
 from ..reseau import REGISTER_ROUTE
 from ..models.city import City
-from ..components.sidebar import sidebar
-from ..base_state import BaseState
+from ..common.base_state import BaseState
 from .log_in import LOGIN_ROUTE
+from ..common.template import template
 from ..models.user_account import UserAccount
 
 
@@ -123,6 +123,7 @@ class RegistrationState(BaseState):
 
 
 @rx.page(route=REGISTER_ROUTE, on_load=RegistrationState.load_cities)
+@template
 def registration_page() -> rx.Component:
     """Render the registration page.
 
@@ -252,32 +253,28 @@ def registration_page() -> rx.Component:
         margin="0",
         on_submit=RegistrationState.handle_registration,
     )
-    return rx.fragment(
+    return rx.cond(
+        RegistrationState.is_hydrated,
         rx.vstack(
-            rx.container(
-                rx.hstack(
-                    sidebar(),
+            register_form,
+            rx.cond(
+                RegistrationState.success,
+                rx.center(
                     rx.vstack(
-                        register_form,
-                        rx.cond(
-                            RegistrationState.success,
-                            rx.center(
-                                rx.vstack(
-                                    rx.spinner(),
-                                    rx.text(
-                                        "Inscription réussie",
-                                        size="3",
-                                        weight="medium",
-                                    ),
-                                    align="center",
-                                ),
-                                width="100%",
-                            ),
+                        rx.spinner(),
+                        rx.text(
+                            "Inscription réussie",
+                            size="3",
+                            weight="medium",
                         ),
+                        align="center",
                     ),
-                    spacing="0",
+                    width="100%",
                 ),
             ),
-            align="center",
+            position="absolute",
+            top="50%",
+            left="50%",
+            transform="translateX(-50%) translateY(-50%)",
         ),
     )

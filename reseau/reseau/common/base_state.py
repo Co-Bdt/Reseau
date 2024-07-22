@@ -3,8 +3,8 @@ import reflex as rx
 from secrets import token_urlsafe
 from sqlmodel import select
 
-from .models.auth_session import AuthSession
-from .models.user_account import UserAccount
+from ..models.auth_session import AuthSession
+from ..models.user_account import UserAccount
 
 
 AUTH_TOKEN_LOCAL_STORAGE_KEY = "_auth_tokens"

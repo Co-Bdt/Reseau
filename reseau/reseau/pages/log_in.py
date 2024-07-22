@@ -2,10 +2,10 @@ import asyncio
 from collections.abc import AsyncGenerator
 import reflex as rx
 
+from ..common.base_state import BaseState
 from ..reseau import LOGIN_ROUTE, REGISTER_ROUTE
 from ..models.user_account import UserAccount
-from ..components.sidebar import sidebar
-from ..base_state import BaseState
+from ..common.template import template
 
 
 class LogInState(BaseState):
@@ -27,7 +27,15 @@ class LogInState(BaseState):
         """
         self.error_message = ""
         username = form_data["username"]
+        if not username:
+            yield rx.set_focus("username")
+            yield rx.toast.error("Le nom d'utilisateur est requis.")
+            return
         password = form_data["password"]
+        if not password:
+            yield rx.set_focus("password")
+            yield rx.toast.error("Le mot de passe est requis.")
+            return
         with rx.session() as session:
             user = session.exec(
                 UserAccount.select().where(UserAccount.username == username)
@@ -68,6 +76,7 @@ class LogInState(BaseState):
 
 
 @rx.page(route=LOGIN_ROUTE)
+@template
 def log_in_page() -> rx.Component:
     """Render the login page.
 
@@ -134,36 +143,31 @@ def log_in_page() -> rx.Component:
         on_submit=LogInState.on_submit
     )
 
-    return rx.fragment(
-        rx.container(
-            rx.hstack(
-                sidebar(),
-                rx.cond(
-                    LogInState.is_hydrated,  # type: ignore
-                    rx.vstack(
-                        login_form,
-                        rx.cond(  # conditionally show error messages
-                            LogInState.success,
-                            rx.center(
-                                rx.vstack(
-                                    rx.spinner(),
-                                    rx.text(
-                                        "Connexion réussie",
-                                        size="3",
-                                        weight="medium",
-                                    ),
-                                    align="center",
-                                ),
-                                width="100%",
+    return rx.cond(
+            LogInState.is_hydrated,
+            rx.vstack(
+                login_form,
+                rx.cond(  # conditionally show error messages
+                    LogInState.success,
+                    rx.center(
+                        rx.vstack(
+                            rx.spinner(),
+                            rx.text(
+                                "Connexion réussie",
+                                size="3",
+                                weight="medium",
                             ),
+                            align="center",
                         ),
+                        width="100%",
                     ),
                 ),
-                spacing="0",
-                justify="center",
-            )
+                position="absolute",
+                top="50%",
+                left="50%",
+                transform="translateX(-50%) translateY(-50%)",
+            ),
         )
-    )
 
 
 # Will be useful later for futur pages

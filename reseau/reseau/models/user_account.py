@@ -17,7 +17,6 @@ class UserAccount(
     city: int = Field(nullable=False)
     profile_text: str = Field(nullable=True)
     enabled: bool = Field(default=True)
-    # TODO Add enabled flag to disable accounts instead of deleting them
 
     @staticmethod
     def hash_password(secret: str) -> str:

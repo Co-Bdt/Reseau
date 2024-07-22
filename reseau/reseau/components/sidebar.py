@@ -1,8 +1,9 @@
 import reflex as rx
 from typing import Callable
 
+from ..reseau import MEMBERS_ROUTE, PROFILE_ROUTE
 from ..pages.home import HOME_ROUTE
-from ..base_state import BaseState
+from ..common.base_state import BaseState
 
 
 class Sidebar(rx.ComponentState):
@@ -43,9 +44,22 @@ class Sidebar(rx.ComponentState):
         def sidebar_items() -> rx.Component:
             """A list of sidebar links."""
             return rx.vstack(
+                sidebar_item("Home", "school", None, HOME_ROUTE),
                 rx.cond(
-                    ~BaseState.is_authenticated,
-                    sidebar_item("Home", "school", None, HOME_ROUTE),
+                    BaseState.is_authenticated,
+                    sidebar_item(
+                        "Membres",
+                        "user-search",
+                        None,
+                        MEMBERS_ROUTE),
+                ),
+                rx.cond(
+                    BaseState.is_authenticated,
+                    sidebar_item(
+                        "Profil",
+                        "user",
+                        None,
+                        PROFILE_ROUTE,),
                 ),
                 rx.cond(
                     BaseState.is_authenticated,
