@@ -1,10 +1,12 @@
 from __future__ import annotations
-import asyncio
 from collections.abc import AsyncGenerator
 from re import match
+
+import asyncio
+import boto3
 import reflex as rx
 
-from ..reseau import REGISTER_ROUTE
+from ..reseau import REGISTER_ROUTE, S3_BUCKET_NAME
 from ..models.city import City
 from ..common.base_state import BaseState
 from .log_in import LOGIN_ROUTE
@@ -15,9 +17,8 @@ from ..models.user_account import UserAccount
 class RegistrationState(BaseState):
     """Handle registration form submission and
     redirect to login page after registration."""
-
     success: bool = False
-
+    profile_img: str = ""
     cities_as_str: list[str] = []
 
     def load_cities(self):
@@ -30,6 +31,23 @@ class RegistrationState(BaseState):
                               for city in cities]
         self.cities_as_str = sorted(self.cities_as_str)
 
+    async def handle_upload(self, files: list[rx.UploadFile]):
+        """Handle the upload of file(s).
+
+        Args:
+            files: The uploaded file(s).
+        """
+        for file in files:
+            upload_data = await file.read()
+            outfile = rx.get_upload_dir() / file.filename
+
+            # Save the file.
+            with outfile.open("wb") as file_object:
+                file_object.write(upload_data)
+
+        # Update the profile_img var.
+        self.profile_img = file.filename
+
     async def handle_registration(
         self, form_data
     ) -> AsyncGenerator[rx.event.EventSpec |
@@ -38,7 +56,13 @@ class RegistrationState(BaseState):
         Args:
             form_data: A dict of form fields and values.
         """
+        s3 = boto3.resource('s3')
+        bucket = s3.Bucket(S3_BUCKET_NAME)
+
         with rx.session() as session:
+            if not self.profile_img:
+                yield rx.toast.error("Veuillez ajouter une photo de profil.")
+                return
             username = form_data["username"]
             if not username:
                 yield rx.set_focus("username")
@@ -66,8 +90,7 @@ class RegistrationState(BaseState):
                 yield rx.set_focus("email")
                 yield rx.toast.error("L'email n'est pas valide.")
                 return
-            # password = form_data["password"]
-            password = "SisiG@ming123"
+            password = form_data["password"]
             if not password:
                 yield rx.set_focus("password")
                 yield rx.toast.error("Le mot de passe ne peut pas être vide.")
@@ -115,6 +138,16 @@ class RegistrationState(BaseState):
             new_user.city = city.id
             session.add(new_user)
             session.commit()
+            
+            # To make sure we get the id of the new user,
+            # we need to refresh the session.
+            session.refresh(new_user)
+            # Upload the profile picture to S3
+            bucket.upload_file(
+                f"{rx.get_upload_dir()}/{self.profile_img}",
+                f"{new_user.id}/profile_picture"
+            )
+
         # Set success and redirect to login page after a brief delay.
         self.success = True
         yield
@@ -132,6 +165,32 @@ def registration_page() -> rx.Component:
     """
     register_form = rx.form(
         rx.vstack(
+            rx.hstack(
+                rx.upload(
+                    rx.image(
+                        src=rx.get_upload_url(RegistrationState.profile_img),
+                        width="9vh",
+                        height="9vh",
+                        border="3px solid #ccc",
+                        border_radius="50%",
+                    ),
+                    id="profile_img",
+                    padding="0px",
+                    width="10vh",
+                    height="10vh",
+                    border="none",
+                    multiple=False,
+                    accept={
+                        "image/png": [".png"],
+                        "image/jpeg": [".jpg", ".jpeg"],
+                    },
+                    on_drop=RegistrationState.handle_upload(
+                        rx.upload_files(upload_id="profile_img")
+                    ),
+                ),
+                width="100%",
+                justify="center",
+            ),
             rx.vstack(
                 rx.text(
                     "Nom d'utilisateur",

@@ -9,7 +9,6 @@ def profile(
 ) -> rx.Component:
     """Render the profile section."""
     return rx.box(
-        rx.heading("Ton profil", size="5", style={"margin-bottom": "1em"}),
         rx.desktop_only(
             rx.hstack(
                 rx.text_area(
