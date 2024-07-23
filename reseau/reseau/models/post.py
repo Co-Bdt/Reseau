@@ -1,5 +1,6 @@
 from datetime import datetime
 import reflex as rx
+from sqlmodel import Field
 
 
 class Post(
@@ -8,10 +9,10 @@ class Post(
 ):
     """A Post model."""
 
-    title: str
-    content: str
-    author_id: int
-    published_at: datetime
+    title: str = Field(nullable=False)
+    content: str = Field(nullable=False)
+    author_id: int = Field(nullable=False)
+    published_at: datetime = Field(nullable=False)
     published: bool = True
 
     @staticmethod

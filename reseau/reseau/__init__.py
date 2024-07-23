@@ -5,6 +5,7 @@ from .models import (
     user_account,
     post,
     comment,
+    interest,
 )
 from .pages import (
     home,
@@ -27,4 +28,5 @@ __all__ = [
     "registration",
     "profile",
     "members",
+    "interest",
 ]

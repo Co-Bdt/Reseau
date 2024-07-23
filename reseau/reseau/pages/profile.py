@@ -2,15 +2,18 @@ import boto3
 import reflex as rx
 
 from ..common.base_state import BaseState
-from ..components.profile import profile
-from ..reseau import PROFILE_ROUTE, S3_BUCKET_NAME
 from ..common.template import template
+from ..components.profile import profile
+from ..components.profile_chips import profile_chips
+from ..models.interest import Interest
 from ..models.user_account import UserAccount
+from ..reseau import PROFILE_ROUTE, S3_BUCKET_NAME
 
 
 class ProfileState(BaseState):
     profile_text: str = ""  # the user's profile text
     profile_img: str = ""  # the user's profile image
+    selected_items: list[str] = []  # the user's selected interests
 
     def init(self):
         self.profile_text = self.authenticated_user.profile_text
@@ -43,12 +46,40 @@ class ProfileState(BaseState):
         # Update the profile_img var.
         self.profile_img = file.filename
 
+    def add_selected(self, item: str):
+        # limit selected items to 2
+        if len(self.selected_items) < 2:
+            self.selected_items.append(item)
+            print("Selected items:", self.selected_items)
+        else:
+            return rx.toast.warning("Tu ne peux sélectionner que 2 intérêts.")
+
+    def remove_selected(self, item: str):
+        self.selected_items.remove(item)
+
     def save_profile(self) -> rx.event.EventSpec:
         profile_text_cleaned = self.authenticated_user.clean_profile_text(
             self.profile_text
         )
         s3 = boto3.resource('s3')
         bucket = s3.Bucket(S3_BUCKET_NAME)
+
+        # Upload the profile picture to S3
+        bucket.upload_file(
+            f"{rx.get_upload_dir()}/{self.profile_img}",
+            f"{self.authenticated_user.id}/profile_picture"
+        )
+
+        # Get the corresponding interest objects from the database
+        # and store their ids in a list
+        selected_interests: list[Interest] = []
+        with rx.session() as session:
+            selected_interests = session.exec(
+                Interest.select()
+                .where(Interest.name.in_(self.selected_items))
+            ).all()
+        selected_interests_ids = [str(interest.id) for interest in selected_interests]
+        print("selected_interests_ids:", selected_interests_ids)
 
         # Retrieve the authenticated user with its id
         with rx.session() as session:
@@ -58,17 +89,14 @@ class ProfileState(BaseState):
                 )
             ).first()
             user.profile_text = profile_text_cleaned
+            user.interests = ",".join(selected_interests_ids)
+
             session.add(user)
-            session.commit()
+            print("added interests:", user.interests)
+            # session.commit()
 
         # Update the authenticated user's profile text
         self.set_profile_text(profile_text_cleaned)
-
-        # Upload the profile picture to S3
-        bucket.upload_file(
-            f"{rx.get_upload_dir()}/{self.profile_img}",
-            f"{self.authenticated_user.id}/profile_picture"
-        )
 
         return rx.toast.success("Profil mis à jour.")
 
@@ -105,8 +133,7 @@ def profile_page() -> rx.Component:
                 ),
                 profile(
                     ProfileState.profile_text,
-                    ProfileState.set_profile_text,
-                    ProfileState.save_profile
+                    ProfileState.set_profile_text
                 ),
                 width="100%",
             ),
@@ -114,7 +141,20 @@ def profile_page() -> rx.Component:
                 rx.divider(size="3"),
                 width="100%",
             ),
-            rx.text("Tags..."),
+            profile_chips(
+                selected_items=ProfileState.selected_items,
+                add_selected=ProfileState.add_selected,
+                remove_selected=ProfileState.remove_selected,
+            ),
+            rx.hstack(
+                rx.button(
+                    "Valider",
+                    size="3",
+                    on_click=ProfileState.save_profile
+                ),
+                width="100%",
+                justify="end",
+            ),
             width="100%",
         ),
     ),

@@ -4,8 +4,7 @@ import reflex as rx
 
 def profile(
     profile_text: str,
-    set_profile_text: Callable,
-    save_profile_text: Callable
+    set_profile_text: Callable
 ) -> rx.Component:
     """Render the profile section."""
     return rx.box(
@@ -15,18 +14,12 @@ def profile(
                     value=profile_text,
                     placeholder="Quelles sont tes passions ?\
                         \nQu'est-ce qui te fait vibrer ?",
-                    width="80%",
+                    width="100%",
                     size="3",
                     height="9vh",
                     max_length=300,
                     rows="2",
                     on_change=set_profile_text,
-                ),
-                rx.button(
-                    "Valider",
-                    width="20%",
-                    size="3",
-                    on_click=save_profile_text
                 ),
             ),
             width="100%",
@@ -43,12 +36,6 @@ def profile(
                     max_length=300,
                     rows="4",
                     on_change=set_profile_text,
-                ),
-                rx.button(
-                    "Valider",
-                    width="100%",
-                    size="3",
-                    on_click=save_profile_text
                 ),
                 width="100%",
             ),

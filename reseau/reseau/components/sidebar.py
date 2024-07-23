@@ -1,8 +1,7 @@
 import reflex as rx
 from typing import Callable
 
-from ..reseau import MEMBERS_ROUTE, PROFILE_ROUTE
-from ..pages.home import HOME_ROUTE
+from ..reseau import MEMBERS_ROUTE, PROFILE_ROUTE, HOME_ROUTE
 from ..common.base_state import BaseState
 
 

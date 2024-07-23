@@ -16,6 +16,7 @@ class UserAccount(
     password_hash: str = Field(nullable=False)
     city: int = Field(nullable=False)
     profile_text: str = Field(nullable=True)
+    interests: str = Field(nullable=True)
     enabled: bool = Field(default=True)
 
     @staticmethod

@@ -1,14 +1,14 @@
 from datetime import datetime
 import reflex as rx
 
-from ..reseau import HOME_ROUTE
 from ..common.base_state import BaseState
-from ..models.comment import Comment
-from ..components.landing import landing
-from ..models.post import Post
-from ..components.post_dialog import post_dialog
 from ..common.template import template
+from ..components.landing import landing
+from ..components.post_dialog import post_dialog
 from ..components.write_post_dialog import write_post_dialog
+from ..models.comment import Comment
+from ..models.post import Post
+from ..reseau import HOME_ROUTE
 
 
 class HomeState(BaseState):
@@ -21,8 +21,10 @@ class HomeState(BaseState):
         # delete_cities()
         # insert_cities()
         # delete_users()
+        # insert_interests()
 
     def init(self):
+        # self.run_script()
         self.load_all_posts()
 
     def load_all_posts(self):
