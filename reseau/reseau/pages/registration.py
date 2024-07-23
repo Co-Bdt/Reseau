@@ -66,8 +66,7 @@ class RegistrationState(BaseState):
                 yield rx.set_focus("email")
                 yield rx.toast.error("L'email n'est pas valide.")
                 return
-            # password = form_data["password"]
-            password = "SisiG@ming123"
+            password = form_data["password"]
             if not password:
                 yield rx.set_focus("password")
                 yield rx.toast.error("Le mot de passe ne peut pas être vide.")

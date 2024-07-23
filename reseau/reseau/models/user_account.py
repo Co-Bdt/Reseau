@@ -54,4 +54,6 @@ class UserAccount(
         Returns:
             The cleaned profile text.
         """
-        return profile_text.replace("\n", " ")
+        if profile_text:
+            return profile_text.replace("\n", " ")
+        return profile_text
