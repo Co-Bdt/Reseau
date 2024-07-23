@@ -1,7 +1,6 @@
 from datetime import datetime
 import reflex as rx
 
-
 from ..reseau import HOME_ROUTE
 from ..common.base_state import BaseState
 from ..models.comment import Comment
@@ -13,6 +12,7 @@ from ..components.write_post_dialog import write_post_dialog
 
 
 class HomeState(BaseState):
+    user_id: int = 0
     posts_displayed: list[Post] = []  # posts to display
     post_comments: list[Comment] = []  # comments of a post
 
@@ -86,6 +86,7 @@ def home_page() -> rx.Component:
     Returns:
         A reflex component.
     """
+    HomeState.set_user_id(BaseState.authenticated_user.id),
     return rx.cond(
         HomeState.is_hydrated,
         # toggle dark/light mode using right top corner button
@@ -104,10 +105,10 @@ def home_page() -> rx.Component:
                         HomeState.posts_displayed,
                         lambda post: rx.card(
                             post_dialog(
-                                post,
-                                HomeState.post_comments,
-                                HomeState.load_post_comments,
-                                HomeState.publish_comment,
+                                post=post,
+                                post_comments=HomeState.post_comments,
+                                load_comments=HomeState.load_post_comments,
+                                publish_comment=HomeState.publish_comment,
                             ),
                             as_child=True,
                         ),

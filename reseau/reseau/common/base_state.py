@@ -51,7 +51,7 @@ class BaseState(rx.State):
             False otherwise.
         """
         return self.authenticated_user.id >= 0
-    
+
     def generate_auth_token(self) -> str:
         """
         Creates a cryptographically-secure, URL-safe string
