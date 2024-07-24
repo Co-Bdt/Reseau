@@ -1,7 +1,6 @@
 import reflex as rx
 
-from ..models.comment import Comment
-from ..models.post import Post
+from ..models.user_account import Comment, Post
 
 
 class PostDialog(rx.ComponentState):

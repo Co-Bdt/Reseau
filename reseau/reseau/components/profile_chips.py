@@ -1,6 +1,6 @@
 import reflex as rx
 
-from ..models.interest import Interest
+from ..models.user_account import Interest
 
 
 chip_props = {
@@ -23,7 +23,6 @@ class ProfileChips(rx.ComponentState):
                 .order_by(Interest.name.asc())
             ).all()
             interests_names = [interest.name for interest in interests]
-        print("interests_names:", interests_names)
 
         selected_items: list[str] = props.pop("selected_items", [])
         add_selected = props.pop("add_selected")

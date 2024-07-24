@@ -1,20 +1,8 @@
-# from typing import Optional
 # import reflex as rx
 # from sqlmodel import Field, Relationship
 
-
-# class Interest(
-#     rx.Model,
-#     table=True
-# ):
-#     """An Interest model."""
-
-#     name: str = Field(nullable=False)
-
-#     # Relationships
-#     user_list: Optional[list["UserInterest"]] = Relationship(
-#         back_populates="interest"
-#     )
+# from .user_account import UserAccount
+# from .interest import Interest
 
 
 # class UserInterest(

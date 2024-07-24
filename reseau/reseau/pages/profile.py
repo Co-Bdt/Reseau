@@ -5,8 +5,7 @@ from ..common.base_state import BaseState
 from ..common.template import template
 from ..components.profile import profile
 from ..components.profile_chips import profile_chips
-from ..models.interest import Interest
-from ..models.user_account import UserAccount
+from ..models.user_account import Interest, UserAccount
 from ..reseau import PROFILE_ROUTE, S3_BUCKET_NAME
 
 
@@ -50,7 +49,6 @@ class ProfileState(BaseState):
         # limit selected items to 2
         if len(self.selected_items) < 2:
             self.selected_items.append(item)
-            print("Selected items:", self.selected_items)
         else:
             return rx.toast.warning("Tu ne peux sélectionner que 2 intérêts.")
 
@@ -70,18 +68,7 @@ class ProfileState(BaseState):
             f"{self.authenticated_user.id}/profile_picture"
         )
 
-        # Get the corresponding interest objects from the database
-        # and store their ids in a list
-        selected_interests: list[Interest] = []
-        with rx.session() as session:
-            selected_interests = session.exec(
-                Interest.select()
-                .where(Interest.name.in_(self.selected_items))
-            ).all()
-        selected_interests_ids = [str(interest.id) for interest in selected_interests]
-        print("selected_interests_ids:", selected_interests_ids)
-
-        # Retrieve the authenticated user with its id
+        # Retrieve the authenticated user with its id and update it
         with rx.session() as session:
             user: UserAccount = session.exec(
                 UserAccount.select().where(
@@ -89,14 +76,36 @@ class ProfileState(BaseState):
                 )
             ).first()
             user.profile_text = profile_text_cleaned
-            user.interests = ",".join(selected_interests_ids)
-
             session.add(user)
-            print("added interests:", user.interests)
-            # session.commit()
+            session.commit()
 
         # Update the authenticated user's profile text
         self.set_profile_text(profile_text_cleaned)
+
+        # Get the corresponding interest objects from the database
+        # and store their ids in a list
+        print("selected_items:", self.selected_items)
+        selected_interests: list[Interest] = []
+        with rx.session() as session:
+            selected_interests = session.exec(
+                Interest.select()
+                .where(Interest.name.in_(self.selected_items))
+            ).all()
+        selected_interests_ids = [
+            str(interest.id) for interest in selected_interests
+        ]
+        print("selected_interests_ids:", selected_interests_ids)
+
+        # Update the authenticated user's interests in the joint table
+        # with rx.session() as session:
+        #     session.exec(
+        #         UserInterest.delete().where(
+        #         f"DELETE FROM user_account_interest WHERE user_account_id = {self.authenticated_user.id}"
+        #     )
+        #     for interest_id in selected_interests_ids:
+        #         session.exec(
+        #             f"INSERT INTO user_account_interest (user_account_id, interest_id) VALUES ({self.authenticated_user.id}, {interest_id})"
+        #         )
 
         return rx.toast.success("Profil mis à jour.")
 

@@ -7,7 +7,7 @@ import boto3
 import reflex as rx
 
 from ..reseau import REGISTER_ROUTE, S3_BUCKET_NAME
-from ..models.city import City
+from ..models.user_account import City
 from ..common.base_state import BaseState
 from .log_in import LOGIN_ROUTE
 from ..common.template import template
@@ -135,7 +135,7 @@ class RegistrationState(BaseState):
                     City.name == city_str, City.postal_code == postal_code_str
                 )
             ).one_or_none()
-            new_user.city = city.id
+            new_user.city_id = city.id
             session.add(new_user)
             session.commit()
             

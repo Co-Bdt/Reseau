@@ -1,7 +1,6 @@
 import reflex as rx
 
-from ..models.user_account import UserAccount
-from ..models.city import City
+from ..models.user_account import City, UserAccount
 
 
 def user_card(

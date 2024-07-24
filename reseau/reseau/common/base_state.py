@@ -3,7 +3,6 @@ import reflex as rx
 from secrets import token_urlsafe
 from sqlmodel import select
 
-from ..models.auth_session import AuthSession
 from ..models.user_account import UserAccount
 
 
@@ -28,13 +27,13 @@ class BaseState(rx.State):
         """
         with rx.session() as session:
             result = session.exec(
-                select(UserAccount, AuthSession)
+                select(UserAccount, auth_session_module)
                 .where(
-                    AuthSession.session_id == self.auth_token,
-                    AuthSession.expiration >= datetime.datetime.now(
+                    auth_session_module.session_id == self.auth_token,
+                    auth_session_module.expiration >= datetime.datetime.now(
                         datetime.timezone.utc
                     ),
-                    UserAccount.id == AuthSession.user_id,
+                    UserAccount.id == auth_session_module.user_id,
                 )
             ).first()
             if result:
@@ -62,8 +61,8 @@ class BaseState(rx.State):
         """Destroy AuthSessions associated with the auth_token."""
         with rx.session() as session:
             for auth_session in session.exec(
-                AuthSession.select().where(
-                    AuthSession.session_id == self.auth_token
+                auth_session_module.select().where(
+                    auth_session_module.session_id == self.auth_token
                 )
             ).all():
                 session.delete(auth_session)
@@ -94,7 +93,7 @@ class BaseState(rx.State):
         self.set_auth_token(self.generate_auth_token())
         with rx.session() as session:
             session.add(
-                AuthSession(  # type: ignore
+                auth_session_module(  # type: ignore
                     user_id=user_id,
                     session_id=self.auth_token,
                     expiration=datetime.datetime.now(datetime.timezone.utc)

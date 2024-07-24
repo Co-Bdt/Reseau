@@ -6,8 +6,7 @@ from ..common.template import template
 from ..components.landing import landing
 from ..components.post_dialog import post_dialog
 from ..components.write_post_dialog import write_post_dialog
-from ..models.comment import Comment
-from ..models.post import Post
+from ..models.user_account import Comment, Post
 from ..reseau import HOME_ROUTE
 
 
@@ -53,7 +52,7 @@ class HomeState(BaseState):
         post = Post(
             title=title,
             content=content,
-            author_id=self.authenticated_user.id,
+            user_account_id=self.authenticated_user.id,
             published_at=Post.format_datetime(datetime.now()),
         )
         with rx.session() as session:

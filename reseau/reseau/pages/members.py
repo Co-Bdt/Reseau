@@ -4,10 +4,9 @@ import reflex as rx
 from sqlalchemy import func
 
 from ..common.base_state import BaseState
-from ..models.city import City
 from ..reseau import MEMBERS_ROUTE
 from ..common.template import template
-from ..models.user_account import UserAccount
+from ..models.user_account import City, UserAccount
 from ..components.user_card import user_card
 
 
@@ -27,7 +26,7 @@ class MembersState(BaseState):
 
         for user in users:
             city = session.exec(
-                City.select().where(City.id == user.city)
+                City.select().where(City.id == user.city_id)
             ).first()
             self.users_displayed.append((user, city))
 
@@ -53,7 +52,7 @@ class MembersState(BaseState):
         users = []
         if city is not None:
             users = session.exec(
-                UserAccount.select().where(UserAccount.city == city.id)
+                UserAccount.select().where(UserAccount.city_id == city.id)
             ).all()
             self.city_searched = city
 
