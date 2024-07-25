@@ -4,3 +4,5 @@
 alembic/
 alembic.ini
 __pycache__/
+
+uploaded_files/

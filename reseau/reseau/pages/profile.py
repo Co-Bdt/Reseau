@@ -1,32 +1,51 @@
 import boto3
 import reflex as rx
+import sqlalchemy as sa
 
 from ..common.base_state import BaseState
 from ..common.template import template
 from ..components.profile import profile
 from ..components.profile_chips import profile_chips
-from ..models import Interest, UserAccount
+from ..models import Interest, UserAccount, UserInterest
 from ..reseau import PROFILE_ROUTE, S3_BUCKET_NAME
 
 
 class ProfileState(BaseState):
     profile_text: str = ""  # the user's profile text
-    profile_img: str = ""  # the user's profile image
-    selected_items: list[str] = []  # the user's selected interests
+    profile_img: str = ""  # the user's profile image name
+    # the user's selected interests names
+    selected_interests_names: list[str] = []
 
     def init(self):
         self.profile_text = self.authenticated_user.profile_text
+
+        # Load the user's profile picture from S3
         s3 = boto3.resource('s3')
         bucket = s3.Bucket(S3_BUCKET_NAME)
-
         try:
             bucket.download_file(
                 f"{self.authenticated_user.id}/profile_picture",
-                f"./{rx.get_upload_dir()}/profile_picture",
+                f"./{rx.get_upload_dir()}/"
+                f"{self.authenticated_user.id}_profile_picture",
             )
-            self.profile_img = "profile_picture"
+            self.profile_img = f"{self.authenticated_user.id}_profile_picture"
         except Exception:
             self.profile_img = ""
+
+        # Load the user's interests
+        with rx.session() as session:
+            user_interests = session.exec(
+                UserInterest.select()
+                .options(
+                    sa.orm.selectinload(UserInterest.interest)
+                )
+                .where(
+                    UserInterest.useraccount_id == self.authenticated_user.id
+                )
+            ).all()
+            self.selected_interests_names = [
+                interest.interest.name for interest in user_interests
+            ]
 
     async def handle_upload(self, files: list[rx.UploadFile]):
         """Handle the upload of file(s).
@@ -47,13 +66,13 @@ class ProfileState(BaseState):
 
     def add_selected(self, item: str):
         # limit selected items to 2
-        if len(self.selected_items) < 2:
-            self.selected_items.append(item)
+        if len(self.selected_interests_names) < 2:
+            self.selected_interests_names.append(item)
         else:
             return rx.toast.warning("Tu ne peux sélectionner que 2 intérêts.")
 
     def remove_selected(self, item: str):
-        self.selected_items.remove(item)
+        self.selected_interests_names.remove(item)
 
     def save_profile(self) -> rx.event.EventSpec:
         profile_text_cleaned = self.authenticated_user.clean_profile_text(
@@ -84,28 +103,34 @@ class ProfileState(BaseState):
 
         # Get the corresponding interest objects from the database
         # and store their ids in a list
-        print("selected_items:", self.selected_items)
         selected_interests: list[Interest] = []
         with rx.session() as session:
             selected_interests = session.exec(
                 Interest.select()
-                .where(Interest.name.in_(self.selected_items))
+                .where(Interest.name.in_(self.selected_interests_names))
             ).all()
         selected_interests_ids = [
             str(interest.id) for interest in selected_interests
         ]
-        print("selected_interests_ids:", selected_interests_ids)
 
         # Update the authenticated user's interests in the joint table
-        # with rx.session() as session:
-        #     session.exec(
-        #         UserInterest.delete().where(
-        #         f"DELETE FROM user_account_interest WHERE user_account_id = {self.authenticated_user.id}"
-        #     )
-        #     for interest_id in selected_interests_ids:
-        #         session.exec(
-        #             f"INSERT INTO user_account_interest (user_account_id, interest_id) VALUES ({self.authenticated_user.id}, {interest_id})"
-        #         )
+        with rx.session() as session:
+            user_interests = session.exec(
+                UserInterest.select().where(
+                    UserInterest.useraccount_id == self.authenticated_user.id
+                )
+            ).all()
+            for user_interest in user_interests:
+                session.delete(user_interest)
+            # session.commit()
+
+            for interest_id in selected_interests_ids:
+                user_interest = UserInterest(
+                    useraccount_id=self.authenticated_user.id,
+                    interest_id=interest_id
+                )
+                session.add(user_interest)
+            session.commit()
 
         return rx.toast.success("Profil mis à jour.")
 
@@ -151,7 +176,7 @@ def profile_page() -> rx.Component:
                 width="100%",
             ),
             profile_chips(
-                selected_items=ProfileState.selected_items,
+                selected_interests=ProfileState.selected_interests_names,
                 add_selected=ProfileState.add_selected,
                 remove_selected=ProfileState.remove_selected,
             ),

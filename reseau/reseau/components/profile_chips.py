@@ -24,7 +24,7 @@ class ProfileChips(rx.ComponentState):
             ).all()
             interests_names = [interest.name for interest in interests]
 
-        selected_items: list[str] = props.pop("selected_items", [])
+        selected_interests: list[str] = props.pop("selected_interests", [])
         add_selected = props.pop("add_selected")
         remove_selected = props.pop("remove_selected")
 
@@ -39,7 +39,7 @@ class ProfileChips(rx.ComponentState):
 
         def unselected_item_chip(item: str) -> rx.Component:
             return rx.cond(
-                selected_items.contains(item),
+                selected_interests.contains(item),
                 rx.fragment(),
                 rx.badge(
                     item,
@@ -55,8 +55,7 @@ class ProfileChips(rx.ComponentState):
                 rx.hstack(
                     rx.icon("hand-heart", size=20),
                     rx.heading(
-                        "Intérêts"
-                        + f" ({selected_items.length()})",
+                        "Intérêts",
                         size="3",
                     ),
                     spacing="1",
@@ -74,7 +73,7 @@ class ProfileChips(rx.ComponentState):
             # Selected Items
             rx.flex(
                 rx.foreach(
-                    selected_items,
+                    selected_interests,
                     selected_item_chip,
                 ),
                 wrap="wrap",
