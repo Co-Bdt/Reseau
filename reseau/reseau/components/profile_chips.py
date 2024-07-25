@@ -1,6 +1,6 @@
 import reflex as rx
 
-from ..models.user_account import Interest
+from ..models import Interest
 
 
 chip_props = {

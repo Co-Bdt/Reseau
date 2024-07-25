@@ -1,12 +1,5 @@
+from . import models
 from .common import base_state
-from .models import (
-    auth_session,
-    city,
-    user_account,
-    post,
-    comment,
-    interest,
-)
 from .pages import (
     home,
     log_in,
@@ -18,11 +11,7 @@ from .pages import (
 
 __all__ = [
     "base_state",
-    "auth_session",
-    "city",
-    "user_account",
-    "post",
-    "comment",
+    "models",
     "home",
     "log_in",
     "registration",

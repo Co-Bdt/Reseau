@@ -6,12 +6,11 @@ import asyncio
 import boto3
 import reflex as rx
 
-from ..reseau import REGISTER_ROUTE, S3_BUCKET_NAME
-from ..models.user_account import City
 from ..common.base_state import BaseState
-from .log_in import LOGIN_ROUTE
 from ..common.template import template
-from ..models.user_account import UserAccount
+from .log_in import LOGIN_ROUTE
+from ..models import City, UserAccount
+from ..reseau import REGISTER_ROUTE, S3_BUCKET_NAME
 
 
 class RegistrationState(BaseState):

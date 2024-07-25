@@ -5,7 +5,7 @@ from ..common.base_state import BaseState
 from ..common.template import template
 from ..components.profile import profile
 from ..components.profile_chips import profile_chips
-from ..models.user_account import Interest, UserAccount
+from ..models import Interest, UserAccount
 from ..reseau import PROFILE_ROUTE, S3_BUCKET_NAME
 
 

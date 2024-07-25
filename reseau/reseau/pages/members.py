@@ -1,35 +1,37 @@
 from random import shuffle
 from typing import Tuple
 import reflex as rx
-from sqlalchemy import func
+import sqlalchemy as sa
 
 from ..common.base_state import BaseState
-from ..reseau import MEMBERS_ROUTE
 from ..common.template import template
-from ..models.user_account import City, UserAccount
 from ..components.user_card import user_card
+from ..models import City, UserAccount
+from ..reseau import MEMBERS_ROUTE
 
 
 class MembersState(BaseState):
-    users_displayed: list[Tuple[UserAccount, City]] = []  # users to display
+    # users with their city to display
+    users_displayed: list[Tuple[UserAccount, City]] = []
     search_term: str = ""  # the term typed in the search bar
     city_searched: City = None  # the first city detected with the search term
 
     def init(self):
-        self.profile_text = self.authenticated_user.profile_text
         self.load_all_users()
 
     def load_all_users(self):
         self.users_displayed = []
         with rx.session() as session:
-            users = session.exec(UserAccount.select()).all()
+            users = session.exec(
+                UserAccount.select().options(
+                    sa.orm.selectinload(UserAccount.city)
+                )
+            ).all()
 
         for user in users:
-            city = session.exec(
-                City.select().where(City.id == user.city_id)
-            ).first()
-            self.users_displayed.append((user, city))
+            self.users_displayed.append((user, user.city))
 
+        # Display users in random order.
         shuffle(self.users_displayed)
 
     def search_city(self, form_data):
@@ -43,8 +45,8 @@ class MembersState(BaseState):
         with rx.session() as session:
             city: City = session.exec(
                 City.select().where(
-                    func.lower(City.name).startswith(
-                        func.lower(self.search_term)
+                    sa.func.lower(City.name).startswith(
+                        sa.func.lower(self.search_term)
                     )
                 )
             ).first()

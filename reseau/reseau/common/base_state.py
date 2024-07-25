@@ -3,7 +3,7 @@ import reflex as rx
 from secrets import token_urlsafe
 from sqlmodel import select
 
-from ..models.user_account import UserAccount
+from ..models import AuthSession, UserAccount
 
 
 AUTH_TOKEN_LOCAL_STORAGE_KEY = "_auth_tokens"
@@ -27,13 +27,13 @@ class BaseState(rx.State):
         """
         with rx.session() as session:
             result = session.exec(
-                select(UserAccount, auth_session_module)
+                select(UserAccount, AuthSession)
                 .where(
-                    auth_session_module.session_id == self.auth_token,
-                    auth_session_module.expiration >= datetime.datetime.now(
+                    AuthSession.session_id == self.auth_token,
+                    AuthSession.expiration >= datetime.datetime.now(
                         datetime.timezone.utc
                     ),
-                    UserAccount.id == auth_session_module.user_id,
+                    UserAccount.id == AuthSession.useraccount_id,
                 )
             ).first()
             if result:
@@ -61,8 +61,8 @@ class BaseState(rx.State):
         """Destroy AuthSessions associated with the auth_token."""
         with rx.session() as session:
             for auth_session in session.exec(
-                auth_session_module.select().where(
-                    auth_session_module.session_id == self.auth_token
+                AuthSession.select().where(
+                    AuthSession.session_id == self.auth_token
                 )
             ).all():
                 session.delete(auth_session)
@@ -93,8 +93,8 @@ class BaseState(rx.State):
         self.set_auth_token(self.generate_auth_token())
         with rx.session() as session:
             session.add(
-                auth_session_module(  # type: ignore
-                    user_id=user_id,
+                AuthSession(  # type: ignore
+                    useraccount_id=user_id,
                     session_id=self.auth_token,
                     expiration=datetime.datetime.now(datetime.timezone.utc)
                     + expiration_delta,

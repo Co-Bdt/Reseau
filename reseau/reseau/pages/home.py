@@ -1,12 +1,13 @@
 from datetime import datetime
 import reflex as rx
+import sqlalchemy as sa
 
 from ..common.base_state import BaseState
 from ..common.template import template
 from ..components.landing import landing
 from ..components.post_dialog import post_dialog
 from ..components.write_post_dialog import write_post_dialog
-from ..models.user_account import Comment, Post
+from ..models import Comment, Post
 from ..reseau import HOME_ROUTE
 
 
@@ -30,7 +31,9 @@ class HomeState(BaseState):
         self.posts_displayed = []
         with rx.session() as session:
             posts = session.exec(
-                Post.select()
+                Post.select().options(
+                    sa.orm.selectinload(Post.comment_list)
+                )
                 .where(Post.published)
                 .order_by(Post.published_at.desc())
             ).all()
@@ -44,6 +47,8 @@ class HomeState(BaseState):
                 .where(Comment.post_id == post_id)
                 .order_by(Comment.published_at.desc())
             ).all()
+
+        # print("comment_list:", self.posts_displayed[post_id].comment_list)
         self.post_comments = comments
 
     def publish_post(self, form_data: dict):

@@ -4,7 +4,7 @@ import reflex as rx
 
 from ..common.base_state import BaseState
 from ..reseau import LOGIN_ROUTE, REGISTER_ROUTE
-from ..models.user_account import UserAccount
+from ..models import UserAccount
 from ..common.template import template
 
 
