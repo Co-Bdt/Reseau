@@ -3,6 +3,7 @@ from typing import Callable
 import reflex as rx
 
 from ..common.base_state import BaseState
+from ..components.feedback_dialog import feedback_dialog
 from ..components.sidebar import sidebar
 from ..components.site_name import site_name
 
@@ -25,6 +26,12 @@ def template(
             ),
             rx.box(
                 page(),
+            ),
+        ),
+        rx.cond(
+            BaseState.is_authenticated,
+            feedback_dialog(
+                # user=BaseState.authenticated_user,
             ),
         ),
         width="100%",

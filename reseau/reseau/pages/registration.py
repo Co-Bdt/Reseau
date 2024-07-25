@@ -137,7 +137,7 @@ class RegistrationState(BaseState):
             new_user.city_id = city.id
             session.add(new_user)
             session.commit()
-            
+
             # To make sure we get the id of the new user,
             # we need to refresh the session.
             session.refresh(new_user)
