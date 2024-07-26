@@ -121,6 +121,14 @@ class RegistrationState(BaseState):
                 ]
                 yield rx.toast.error("Les mots de passe ne correspondent pas.")
                 return
+            city = form_data["city"]
+            if not city:
+                # yield rx.set_focus("city")
+                yield rx.toast.error("La ville ne peut pas être vide.")
+                return
+            city_str = city.split(" ")[0]
+            postal_code_str = city.split(" ")[1][1:-1]
+
             # Create the new user and add it to the database.
             new_user = UserAccount()  # type: ignore
             new_user.username = username
@@ -313,26 +321,34 @@ def registration_page() -> rx.Component:
     )
     return rx.cond(
         RegistrationState.is_hydrated,
-        rx.vstack(
-            register_form,
-            rx.cond(
-                RegistrationState.success,
-                rx.center(
-                    rx.vstack(
-                        rx.spinner(),
-                        rx.text(
-                            "Inscription réussie",
-                            size="3",
-                            weight="medium",
-                        ),
-                        align="center",
-                    ),
-                    width="100%",
-                ),
+        rx.box(
+            rx.vstack(
+                register_form,
+                position="absolute",
+                top="50%",
+                left="50%",
+                transform="translateX(-50%) translateY(-50%)",
             ),
-            position="absolute",
-            top="50%",
-            left="50%",
-            transform="translateX(-50%) translateY(-50%)",
+            rx.box(
+                rx.cond(
+                    RegistrationState.success,
+                    rx.center(
+                        rx.vstack(
+                            rx.spinner(),
+                            rx.text(
+                                "Inscription réussie",
+                                size="3",
+                                weight="medium",
+                            ),
+                            align="center",
+                        ),
+                        width="100%",
+                    ),
+                ),
+                position="fixed",
+                bottom="50px",
+                left="50%",
+                transform="translateX(-50%) translateY(-50%)",
+            ),
         ),
     )
