@@ -7,6 +7,7 @@ AMAZON_RDS_POSTGRESQL_URL = "postgresql://postgres:5zjbhMflkRoTRhbEtKO3@reseau-d
 
 APP_IP = os.environ.get("APP_IP", "0.0.0.0")
 BACK_PORT = os.environ.get("BACK_PORT", "8000")
+GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD")
 
 config = rx.Config(
     app_name="reseau",

@@ -30,9 +30,7 @@ def template(
         ),
         rx.cond(
             BaseState.is_authenticated,
-            feedback_dialog(
-                # user=BaseState.authenticated_user,
-            ),
+            feedback_dialog(),
         ),
         width="100%",
     )

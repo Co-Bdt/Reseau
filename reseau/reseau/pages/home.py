@@ -12,7 +12,6 @@ from ..reseau import HOME_ROUTE
 
 
 class HomeState(BaseState):
-    user_id: int = 0
     posts_displayed: list[Post] = []  # posts to display
     post_comments: list[Comment] = []  # comments of a post
 
@@ -92,7 +91,6 @@ def home_page() -> rx.Component:
     Returns:
         A reflex component.
     """
-    HomeState.set_user_id(BaseState.authenticated_user.id),
     return rx.cond(
         HomeState.is_hydrated,
         # toggle dark/light mode using right top corner button

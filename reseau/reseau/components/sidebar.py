@@ -56,7 +56,7 @@ class Sidebar(rx.ComponentState):
                     BaseState.is_authenticated,
                     sidebar_item(
                         "Profil",
-                        "user",
+                        "circle-user",
                         None,
                         PROFILE_ROUTE,),
                 ),

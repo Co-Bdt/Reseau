@@ -2,76 +2,122 @@ from email.mime.text import MIMEText
 import reflex as rx
 import smtplib
 
-from ..models import UserAccount
+from ..common.base_state import BaseState
+from rxconfig import GMAIL_APP_PASSWORD
 
 
-class FeedBackDialog(rx.ComponentState):
+class FeedbackDialogState(BaseState):
     message: str = ""
-    user: UserAccount = None
 
     def on_submit(self, form_data: dict):
-        self.message = form_data["feedback"]
+        # Open a plain text file for writing.
+        # This will create the file if it doesn't exist
+        # and truncate (erase) its content if it does.
+        with open(
+            f"./feedbacks/{self.authenticated_user.id}_mail_files.txt",
+                'w') as fp:
+            fp.write(self.message)
 
-        # Open a plain text file for reading.  For this example, assume that
-        # the text file contains only ASCII characters.
-        with open("./mail_files.txt", 'rb') as fp:
-            # Create a text/plain message
+        # Reopen the file in read mode to read its content
+        with open(
+            f"./feedbacks/{self.authenticated_user.id}_mail_files.txt",
+                'r') as fp:
+            fp.seek(0)  # Move the file pointer to the beginning of the file
             msg = MIMEText(fp.read())
 
-        me = self.user.email
-        you = "corentin.baudet.dev@gmail.com"
+        sender = "contact.reseaudevperso@gmail.com"
+        recipient = "contact.reseaudevperso@gmail.com"
 
-        msg['Subject'] = 'Feedback for Reseau'
-        msg['From'] = "corentinb27@gmail.com"
-        # msg['To'] = "contact.reseau-devperso@gmail.com"
-        msg['To'] = "corentin.baudet.dev@gmail.com"
+        msg['Subject'] = 'Feedback Reseau'
+        msg['From'] = sender
+        msg['To'] = recipient
 
-        # Send the message via our own SMTP server, but don't include the
-        # envelope header.
-        s = smtplib.SMTP('localhost')
-        s.sendmail(me, [you], msg.as_string())
+        # Connect to Gmail's SMTP server
+        s = smtplib.SMTP('smtp.gmail.com', 587)
+        # Upgrade the connection to a secure encrypted SSL/TLS connection
+        s.starttls()
+        # Log in to the SMTP server using your email and password
+        s.login(sender, GMAIL_APP_PASSWORD)
+        s.sendmail(sender, [recipient], msg.as_string())
         s.quit()
 
-        return rx.toast.success("Merci pour votre feedback.")
+        self.set_message("")
+        return rx.toast.success(f"Merci {self.authenticated_user.username}\
+                                 pour ton feedback.")
 
-    @classmethod
-    def get_component(cls, **props):
-        # cls.user = props.pop("user")
 
-        return rx.dialog.root(
-            rx.dialog.trigger(
-                rx.button(
-                    rx.icon("message-square-plus"),
-                    color_scheme="gray",
-                    width="48px",
-                    height="48px",
-                    # absolute position in the bottom right corner
-                    position="absolute",
-                    bottom="100px",
-                    right="100px",
-                    # fully rounded
-                    style={"border-radius": "50%"},
-                ),
+def feedback_dialog() -> rx.Component:
+    """
+    Render a dialog to collect feedback from users.
+
+    Returns:
+        A reflex component.
+    """
+    return rx.dialog.root(
+        rx.dialog.trigger(
+            rx.button(
+                rx.icon("message-square-quote"),
+                color_scheme="gray",
+                width="48px",
+                height="48px",
+                # absolute position in the bottom right corner
+                position="absolute",
+                bottom="100px",
+                right="100px",
+                # fully rounded
+                style={"border-radius": "50%"},
             ),
-            rx.dialog.content(
-                rx.dialog.title("Feedback"),
+        ),
+        rx.dialog.content(
+            rx.dialog.title("Feedback"),
+            rx.flex(
+                rx.text("Qu'aimerais-tu ajouter/modifier"
+                        " sur la plateforme ?"),
                 rx.form.root(
-                    rx.input(
-                        name="feedback",
-                        placeholder="Votre message ici...",
-                        multiline=True,
-                        rows=5,
-                        width="100%",
+                    rx.debounce_input(
+                        rx.text_area(
+                            name="feedback",
+                            placeholder="Ton message ici...",
+                            value=FeedbackDialogState.message,
+                            on_change=FeedbackDialogState.set_message,
+                            multiline=True,
+                            rows="5",
+                            width="100%",
+                        ),
+                        debounce_timeout=1000,
                     ),
                     rx.flex(
-                        rx.button("Envoyer"),
+                        rx.dialog.close(
+                            rx.button(
+                                "Annuler",
+                                color_scheme="gray",
+                                variant="soft",
+                            ),
+                        ),
+                        rx.cond(
+                            FeedbackDialogState.message,
+                            rx.dialog.close(
+                                rx.button(
+                                    "Envoyer",
+                                    type="submit"
+                                ),
+                            ),
+                            rx.dialog.close(
+                                rx.button(
+                                    "Envoyer",
+                                    type="submit",
+                                    disabled=True
+                                ),
+                            ),
+                        ),
+                        spacing="3",
                         margin_top="16px",
                         justify="end",
                     ),
-                    on_submit=cls.on_submit,
+                    on_submit=FeedbackDialogState.on_submit,
                 ),
+                direction="column",
+                spacing="3",
             ),
-        )
-
-
-feedback_dialog = FeedBackDialog.create
+        ),
+    )
