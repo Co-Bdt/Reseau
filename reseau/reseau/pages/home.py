@@ -1,19 +1,23 @@
 from datetime import datetime
 import reflex as rx
 import sqlalchemy as sa
+from typing import Tuple
 
 from ..common.base_state import BaseState
 from ..common.template import template
 from ..components.landing import landing
 from ..components.post_dialog import post_dialog
 from ..components.write_post_dialog import write_post_dialog
-from ..models import Comment, Post
+from ..models import Comment, Post, UserAccount
 from ..reseau import HOME_ROUTE
 
 
 class HomeState(BaseState):
-    posts_displayed: list[Post] = []  # posts to display
-    post_comments: list[Comment] = []  # comments of a post
+    # posts to display
+    posts_displayed: list[Tuple[Post, str, UserAccount]] = []
+    post_author: UserAccount = None  # author of a post
+    # comments of a post
+    post_comments: list[Tuple[Comment, str, UserAccount]] = []
 
     def run_script(self):
         """Uncomment any one-time script needed for app initialization here."""
@@ -31,24 +35,37 @@ class HomeState(BaseState):
         with rx.session() as session:
             posts = session.exec(
                 Post.select().options(
-                    sa.orm.selectinload(Post.comment_list)
+                    sa.orm.selectinload(Post.useraccount),
+                    sa.orm.selectinload(Post.comment_list),
                 )
                 .where(Post.published)
                 .order_by(Post.published_at.desc())
             ).all()
-        self.posts_displayed = posts
 
-    def load_post_comments(self, post_id):
+        for post in posts:
+            self.posts_displayed.append(
+                (post,
+                 f"{post.published_at: %d/%m/%y %H:%M}",
+                 post.useraccount)
+            )
+
+    def load_post_details(self, post_id: int):
+        self.post_author = None
         self.post_comments = []
+
         with rx.session() as session:
             comments = session.exec(
                 Comment.select()
+                .options(sa.orm.selectinload(Comment.useraccount))
                 .where(Comment.post_id == post_id)
-                .order_by(Comment.published_at.desc())
+                .order_by(Comment.published_at.asc())
             ).all()
-
-        # print("comment_list:", self.posts_displayed[post_id].comment_list)
-        self.post_comments = comments
+        for comment in comments:
+            self.post_comments.append(
+                (comment,
+                 f"{comment.published_at: %d/%m/%y %H:%M}",
+                 comment.useraccount)
+            )
 
     def publish_post(self, form_data: dict):
         title = form_data["title"]
@@ -56,8 +73,8 @@ class HomeState(BaseState):
         post = Post(
             title=title,
             content=content,
-            user_account_id=self.authenticated_user.id,
-            published_at=Post.format_datetime(datetime.now()),
+            author_id=self.authenticated_user.id,
+            published_at=datetime.now(),
         )
         with rx.session() as session:
             session.add(post)
@@ -72,13 +89,13 @@ class HomeState(BaseState):
             content=form_data["content"],
             post_id=post_id,
             author_id=self.authenticated_user.id,
-            published_at=Comment.format_datetime(datetime.now()),
+            published_at=datetime.now(),
         )
         with rx.session() as session:
             session.add(comment)
             session.commit()
 
-        self.load_post_comments(post_id)
+        self.load_post_details(post_id)
         return rx.toast.success("Commentaire publié.")
 
 
@@ -99,7 +116,10 @@ def home_page() -> rx.Component:
         rx.cond(
             BaseState.is_authenticated,
             rx.vstack(
-                write_post_dialog(HomeState.publish_post),
+                write_post_dialog(
+                    BaseState.authenticated_user,
+                    HomeState.publish_post
+                ),
                 rx.center(
                     rx.divider(size="3"),
                     width="100%",
@@ -107,15 +127,15 @@ def home_page() -> rx.Component:
                 rx.grid(
                     rx.foreach(
                         HomeState.posts_displayed,
-                        lambda post: rx.card(
+                        lambda post:
                             post_dialog(
-                                post=post,
+                                post=post[0],
+                                post_datetime=post[1],
+                                post_author=post[2],
                                 post_comments=HomeState.post_comments,
-                                load_comments=HomeState.load_post_comments,
+                                load_post_details=HomeState.load_post_details,
                                 publish_comment=HomeState.publish_comment,
                             ),
-                            as_child=True,
-                        ),
                     ),
                     columns="1",
                     width="100%",

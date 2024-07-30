@@ -112,7 +112,6 @@ class Sidebar(rx.ComponentState):
                 #     sidebar_items(),
                 # ),
             ),
-            **props,
         )
 
 

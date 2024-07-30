@@ -20,8 +20,7 @@ class RegistrationState(BaseState):
     profile_img: str = ""
     cities_as_str: list[str] = []
 
-    def load_cities(self):
-        """Load cities from the database."""
+    def init(self):
         with rx.session() as session:
             cities = session.exec(
                 City.select().order_by(City.name)
@@ -29,6 +28,8 @@ class RegistrationState(BaseState):
         self.cities_as_str = [f"{city.name} ({city.postal_code})"
                               for city in cities]
         self.cities_as_str = sorted(self.cities_as_str)
+        # Set the default profile image.
+        self.profile_img = "blank_profile_picture.png"
 
     async def handle_upload(self, files: list[rx.UploadFile]):
         """Handle the upload of file(s).
@@ -162,7 +163,7 @@ class RegistrationState(BaseState):
         yield [rx.redirect(LOGIN_ROUTE), RegistrationState.set_success(False)]
 
 
-@rx.page(route=REGISTER_ROUTE, on_load=RegistrationState.load_cities)
+@rx.page(route=REGISTER_ROUTE, on_load=RegistrationState.init)
 @template
 def registration_page() -> rx.Component:
     """Render the registration page.
@@ -176,12 +177,13 @@ def registration_page() -> rx.Component:
                 rx.upload(
                     rx.image(
                         src=rx.get_upload_url(RegistrationState.profile_img),
-                        width="9vh",
-                        height="9vh",
-                        border="3px solid #ccc",
+                        width="10vh",
+                        height="10vh",
+                        border="1px solid #ccc",
                         border_radius="50%",
                     ),
                     id="profile_img",
+                    margin="0 0 1em 0",
                     padding="0px",
                     width="10vh",
                     height="10vh",

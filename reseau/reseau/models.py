@@ -192,11 +192,6 @@ class Post(
         back_populates="post"
     )
 
-    @staticmethod
-    def format_datetime(dt: datetime) -> str:
-        """Format a datetime for display."""
-        return dt.strftime("%Y-%m-%d %H:%M:%S")
-
 
 class Comment(
     rx.Model,
@@ -239,11 +234,6 @@ class Comment(
     useraccount: "UserAccount" = Relationship(
         back_populates="comment_list"
     )
-
-    @staticmethod
-    def format_datetime(dt: datetime) -> str:
-        """Format a datetime for display."""
-        return dt.strftime("%Y-%m-%d %H:%M:%S")
 
 
 class AuthSession(

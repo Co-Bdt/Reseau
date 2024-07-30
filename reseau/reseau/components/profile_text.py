@@ -2,7 +2,7 @@ from typing import Callable
 import reflex as rx
 
 
-def profile(
+def profile_text(
     profile_text: str,
     set_profile_text: Callable
 ) -> rx.Component:

@@ -6,30 +6,40 @@ import sqlalchemy as sa
 from ..common.base_state import BaseState
 from ..common.template import template
 from ..components.user_card import user_card
-from ..models import City, UserAccount
+from ..models import City, Interest, UserAccount, UserInterest
 from ..reseau import MEMBERS_ROUTE
 
 
 class MembersState(BaseState):
     # users with their city to display
-    users_displayed: list[Tuple[UserAccount, City]] = []
+    users_displayed: list[Tuple[UserAccount, City, list[Interest]]] = []
     search_term: str = ""  # the term typed in the search bar
     city_searched: City = None  # the first city detected with the search term
 
     def init(self):
-        self.load_all_users()
+        self.load_users()
 
-    def load_all_users(self):
+    def load_users(self):
         self.users_displayed = []
         with rx.session() as session:
             users = session.exec(
-                UserAccount.select().options(
-                    sa.orm.selectinload(UserAccount.city)
+                UserAccount.select()
+                .options(
+                    sa.orm.selectinload(UserAccount.city),
+                    sa.orm.selectinload(
+                        UserAccount.interest_list
+                    ).selectinload(UserInterest.interest)
                 )
             ).all()
 
         for user in users:
-            self.users_displayed.append((user, user.city))
+            if user.id != self.authenticated_user.id:
+                user_interest_names: list[Interest] = []
+                for interest in user.interest_list:
+                    user_interest_names.append(interest.interest)
+                self.users_displayed.append(
+                    (user, user.city, user_interest_names)
+                )
 
         # Display users in random order.
         shuffle(self.users_displayed)
@@ -39,7 +49,7 @@ class MembersState(BaseState):
 
         # If no search term, display all users.
         if not self.search_term:
-            return self.load_all_users()
+            return self.load_users()
 
         # Fetch the first city matching the search term.
         with rx.session() as session:
@@ -95,9 +105,11 @@ def members_page() -> rx.Component:
                     rx.foreach(
                         MembersState.users_displayed,
                         lambda user: user_card(
-                            user[0],
-                            user[1],
-                            ~user[0].profile_text,),
+                            user=user[0],
+                            city=user[1],
+                            interest_list=user[2],
+                            is_profile_empty=~user[0].profile_text,
+                        ),
                     ),
                     columns="3",
                     width="100%",

@@ -1,101 +1,106 @@
+from typing import Callable, Tuple
 import reflex as rx
 
-from ..models import Comment, Post
+from ..components.comments import comments
+from ..components.write_comment_form import write_comment_form
+from ..models import Comment, Post, UserAccount
 
 
 class PostDialog(rx.ComponentState):
-    post: Post = None
-    post_comments: list[Comment] = []
-    comment_value: str = ""
 
     @classmethod
     def get_component(cls, **props):
-        cls.post = props.pop("post")
-        cls.post_comments = props.pop("post_comments")
-        load_comments = props.pop("load_comments")
-        publish_comment = props.pop("publish_comment")
+        post: Post = props.pop("post", None)
+        post_datetime: str = props.pop("post_datetime", "")
+        author: UserAccount = props.pop("post_author", None)
+        post_comments: list[Tuple[Comment, str, UserAccount]] = props.pop(
+            "post_comments", []
+        )
+        load_post_details: Callable = props.pop("load_post_details")
+        publish_comment: Callable = props.pop("publish_comment")
 
         return rx.dialog.root(
             rx.dialog.trigger(
                 rx.card(
-                    rx.text(
-                        f"{cls.post.title} - \
-                            {cls.post.published_at}"
-                    ),
-                    rx.text(f"{cls.post.content}"),
-                    width="100%",
-                ),
-                on_click=load_comments(cls.post.id)
-            ),
-            rx.dialog.content(
-                rx.dialog.title(cls.post.title),
-                rx.flex(
-                    rx.text(f"{cls.post.published_at}"),
-                    rx.text(f"{cls.post.content}"),
-
-                    # comments of the post
-                    rx.text("Commentaires", size="4", font_weight="bold"),
-                    rx.grid(
-                        rx.foreach(
-                            cls.post_comments,
-                            lambda comment: rx.card(
-                                rx.text(
-                                    comment.published_at,
+                    rx.vstack(
+                        rx.hstack(
+                            rx.image(
+                                src=rx.get_upload_url(
+                                    f"{author.id}_profile_picture"
                                 ),
-                                rx.text(f"{comment.content}"),
-                                width="100%",
+                                border="0.5px solid #ccc",
+                                width="4vh",
+                                height="4vh",
+                                border_radius="50%",
+                            ),
+                            rx.vstack(
+                                rx.text(
+                                    author.username,
+                                    weight="medium",
+                                ),
+                                rx.text(
+                                    post_datetime,
+                                    size="1",
+                                    color_scheme="gray",
+                                ),
+                                spacing="0",
                             ),
                         ),
-                        columns="1",
+                        rx.text(
+                            post.title,
+                            size="4",
+                            weight="bold",
+                        ),
+                        rx.text(
+                            post.content,
+                        ),
                         width="100%",
                     ),
+                    padding="1.2em",
+                    cursor="pointer",
+                ),
+                on_click=load_post_details(post.id)
+            ),
+            rx.dialog.content(
+                rx.flex(
+                    rx.hstack(
+                        rx.image(
+                            src=rx.get_upload_url(
+                                f"{author.id}_profile_picture"
+                            ),
+                            border="0.5px solid #ccc",
+                            width="4vh",
+                            height="4vh",
+                            border_radius="50%",
+                        ),
+                        rx.vstack(
+                            rx.text(
+                                author.username,
+                                weight="medium",
+                            ),
+                            rx.text(
+                                post_datetime,
+                                size="1",
+                                color_scheme="gray",
+                            ),
+                            spacing="0",
+                        ),
+                    ),
+                    rx.text(post.title, size="5", weight="bold"),
+                    rx.text(post.content),
 
+                    rx.separator(),
+                    # comments of the post
+                    comments(
+                        post_comments,
+                    ),
                     # form to comment the post
-                    rx.form.root(
-                        rx.input(
-                            name="post_id",
-                            value=cls.post.id,
-                            style=rx.Style(display="none"),
-                        ),
-                        rx.input(
-                            name="content",
-                            placeholder="Commente...",
-                            value=cls.comment_value,
-                            on_change=cls.set_comment_value,
-                            width="100%",
-                            size="2",
-                            autofocus=True,
-                        ),
-                        rx.flex(
-                            rx.dialog.close(
-                                rx.button(
-                                    "Annuler",
-                                    color_scheme="gray",
-                                    variant="soft",
-                                ),
-                            ),
-                            rx.cond(
-                                cls.comment_value,
-                                rx.form.submit(
-                                    rx.button(
-                                        "Commenter",
-                                        type="submit",
-                                        on_click=cls.set_comment_value(""),
-                                    ),
-                                ),
-                                rx.button(
-                                    "Commenter",
-                                    disabled=True,
-                                ),
-                            ),
-                            spacing="3",
-                            margin_top="16px",
-                            justify="end",
-                        ),
-                        on_submit=publish_comment
+                    write_comment_form(
+                        post=post,
+                        publish_comment=publish_comment,
                     ),
                     direction="column",
-                    spacing="2",
+                    spacing="4",
                 ),
             ),
         )
