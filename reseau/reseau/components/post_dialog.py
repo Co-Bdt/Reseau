@@ -12,9 +12,13 @@ class PostDialog(rx.ComponentState):
     def get_component(cls, **props):
         post: Post = props.pop("post", None)
         post_datetime: str = props.pop("post_datetime", "")
-        author: UserAccount = props.pop("post_author", None)
-        post_comments: list[Tuple[Comment, str, UserAccount]] = props.pop(
-            "post_comments", []
+        post_author: UserAccount = props.pop("post_author", None)
+        post_profile_picture_exist: bool = (
+            props.pop("post_profile_picture_exist", False)
+        )
+
+        post_comments: list[Tuple[Comment, str, UserAccount, bool]] = (
+            props.pop("post_comments", [])
         )
         load_post_details: Callable = props.pop("load_post_details")
         publish_comment: Callable = props.pop("publish_comment")
@@ -24,18 +28,30 @@ class PostDialog(rx.ComponentState):
                 rx.card(
                     rx.vstack(
                         rx.hstack(
-                            rx.image(
-                                src=rx.get_upload_url(
-                                    f"{author.id}_profile_picture"
+                            rx.cond(
+                                post_profile_picture_exist,
+                                rx.image(
+                                    src=rx.get_upload_url(
+                                        f"{post_author.id}_profile_picture.png"
+                                    ),
+                                    border="0.5px solid #ccc",
+                                    width="4vh",
+                                    height="4vh",
+                                    border_radius="50%",
                                 ),
-                                border="0.5px solid #ccc",
-                                width="4vh",
-                                height="4vh",
-                                border_radius="50%",
+                                rx.image(
+                                    src=rx.get_upload_url(
+                                        "blank_profile_picture.png"
+                                    ),
+                                    border="0.5px solid #ccc",
+                                    width="4vh",
+                                    height="4vh",
+                                    border_radius="50%",
+                                ),
                             ),
                             rx.vstack(
                                 rx.text(
-                                    author.username,
+                                    post_author.username,
                                     weight="medium",
                                 ),
                                 rx.text(
@@ -64,18 +80,30 @@ class PostDialog(rx.ComponentState):
             rx.dialog.content(
                 rx.flex(
                     rx.hstack(
-                        rx.image(
-                            src=rx.get_upload_url(
-                                f"{author.id}_profile_picture"
+                        rx.cond(
+                            post_profile_picture_exist,
+                            rx.image(
+                                src=rx.get_upload_url(
+                                    f"{post_author.id}_profile_picture.png"
+                                ),
+                                border="0.5px solid #ccc",
+                                width="4vh",
+                                height="4vh",
+                                border_radius="50%",
                             ),
-                            border="0.5px solid #ccc",
-                            width="4vh",
-                            height="4vh",
-                            border_radius="50%",
+                            rx.image(
+                                src=rx.get_upload_url(
+                                    "blank_profile_picture.png"
+                                ),
+                                border="0.5px solid #ccc",
+                                width="4vh",
+                                height="4vh",
+                                border_radius="50%",
+                            ),
                         ),
                         rx.vstack(
                             rx.text(
-                                author.username,
+                                post_author.username,
                                 weight="medium",
                             ),
                             rx.text(
@@ -92,7 +120,7 @@ class PostDialog(rx.ComponentState):
                     rx.separator(),
                     # comments of the post
                     comments(
-                        post_comments,
+                        post_comments
                     ),
                     # form to comment the post
                     write_comment_form(

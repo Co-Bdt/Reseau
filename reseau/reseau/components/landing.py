@@ -15,14 +15,14 @@ def landing() -> rx.Component:
         ),
         rx.desktop_only(
             rx.text(
-                "Rejoins la première plateforme pour connaître ",
+                "La première plateforme pour connaître ",
                 "des gars en développement personnel",
                 size="5",
             ),
         ),
         rx.mobile_and_tablet(
             rx.text(
-                "Rejoins la première plateforme pour rencontrer ",
+                "La première plateforme pour rencontrer ",
                 "des gars en développement personnel",
                 size="4",
             ),

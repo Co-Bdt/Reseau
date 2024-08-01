@@ -1,6 +1,7 @@
+from typing import Tuple
 import reflex as rx
 
-from ..models import Interest
+from ..models import City, Interest, UserAccount
 
 
 class UserCard(rx.ComponentState):
@@ -15,27 +16,39 @@ class UserCard(rx.ComponentState):
 
     @classmethod
     def get_component(cls, **props) -> rx.Component:
-        user = props.pop("user")
-        city = props.pop("city")
-        is_profile_empty = props.pop("is_profile_empty", True)
+        user: Tuple[UserAccount, bool] = props.pop("user")
+        city: City = props.pop("city")
         interest_list: list[Interest] = props.pop("interest_list", [])
+        is_profile_empty = props.pop("is_profile_empty", True)
 
         return rx.card(
             rx.box(
                 rx.vstack(
                     rx.hstack(
-                        rx.image(
-                            src=rx.get_upload_url(
-                                f"{user.id}_profile_picture"
+                        rx.cond(
+                            user[1],
+                            rx.image(
+                                src=rx.get_upload_url(
+                                    f"{user[0].id}_profile_picture.png"
+                                ),
+                                width="4.5vh",
+                                height="4.5vh",
+                                border="0.5px solid #ccc",
+                                border_radius="50%",
                             ),
-                            width="4.5vh",
-                            height="4.5vh",
-                            border="0.5px solid #ccc",
-                            border_radius="50%",
+                            rx.image(
+                                src=rx.get_upload_url(
+                                    "blank_profile_picture.png"
+                                ),
+                                width="4.5vh",
+                                height="4.5vh",
+                                border="0.5px solid #ccc",
+                                border_radius="50%",
+                            ),
                         ),
                         rx.vstack(
                             rx.text(
-                                f"{user.username}",
+                                f"{user[0].username}",
                                 size="2",
                                 weight="medium",
                             ),
@@ -57,7 +70,7 @@ class UserCard(rx.ComponentState):
                         spacing="1",
                     ),
                     rx.text(
-                        f"{user.email}",
+                        f"{user[0].email}",
                         size="2",
                         color_scheme="gray",
                     ),
@@ -73,7 +86,7 @@ class UserCard(rx.ComponentState):
                                 },
                             ),
                             rx.text(
-                                f"{user.profile_text}",
+                                f"{user[0].profile_text}",
                                 size="2",
                                 style={
                                     "line-height": "1.4",
@@ -92,93 +105,3 @@ class UserCard(rx.ComponentState):
 
 
 user_card = UserCard.create
-
-
-# @rx.page(on_load=UserCardState.init)
-# def user_card(
-#     user: UserAccount,
-#     city: City,
-#     is_profile_empty: bool
-# ) -> rx.Component:
-#     """
-#     Display a user card with the user's profile picture,
-#     username, city, interests, email, and profile text.
-
-#     Returns:
-#         A Reflex Component: The user card.
-#     """
-#     # UserCardState.set_user(user)
-#     # UserCardState.set_city(city)
-#     # UserCardState.set_interests(interests)
-#     # UserCardState.set_is_profile_empty(is_profile_empty)
-
-#     return rx.card(
-#         rx.box(
-#             rx.vstack(
-#                 rx.hstack(
-#                     rx.image(
-#                         src=rx.get_upload_url(f"{user.id}_profile_picture"),
-#                         width="4vh",
-#                         height="4vh",
-#                         border="1px solid #ccc",
-#                         border_radius="50%",
-#                     ),
-#                     rx.vstack(
-#                         rx.text(
-#                             f"{user.username}",
-#                             size="2",
-#                             weight="medium",
-#                         ),
-#                         rx.text(
-#                             f"{city.name} ({city.postal_code})",
-#                             size="2",
-#                             color_scheme="gray",
-#                             # style={"text-"}
-#                         ),
-#                         # spacing="0",
-#                     ),
-#                     width="100%",
-#                     align="start",
-#                 ),
-#                 rx.foreach(
-#                     UserCardState.interests_names,
-#                     selected_item_chip,
-#                 ),
-#                 # rx.text(
-#                 #     "Intérêts",
-#                 #     size="2",
-#                 #     color_scheme="gray",
-#                 # ),
-#                 rx.text(
-#                     f"{user.email}",
-#                     size="2",
-#                     color_scheme="gray",
-#                 ),
-#                 rx.box(
-#                     rx.cond(
-#                         is_profile_empty,
-#                         rx.text(
-#                             "Aucune description",
-#                             size="2",
-#                             color_scheme="gray",
-#                             style={
-#                                 "font-style": "italic",
-#                             },
-#                         ),
-#                         rx.text(
-#                             f"{user.profile_text}",
-#                             size="2",
-#                             style={
-#                                 "line-height": "1.4",
-#                                 "letter-spacing": "0.2px",
-#                             },
-#                         ),
-#                     ),
-#                     margin="1em 0 0 0"
-#                 ),
-#             ),
-#             # width=["100%", "49.1%", "32.2%", "32.2%", "24.1%"],
-#         ),
-#         as_child=True,
-#         size="3",
-#     )

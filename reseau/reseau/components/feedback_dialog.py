@@ -61,7 +61,7 @@ def feedback_dialog() -> rx.Component:
                 width="48px",
                 height="48px",
                 # absolute position in the bottom right corner
-                position="absolute",
+                position="fixed",
                 bottom="100px",
                 right="100px",
                 # fully rounded

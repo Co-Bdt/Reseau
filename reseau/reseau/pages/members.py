@@ -1,3 +1,4 @@
+import os
 from random import shuffle
 from typing import Tuple
 import reflex as rx
@@ -12,7 +13,7 @@ from ..reseau import MEMBERS_ROUTE
 
 class MembersState(BaseState):
     # users with their city to display
-    users_displayed: list[Tuple[UserAccount, City, list[Interest]]] = []
+    users_displayed: list[Tuple[UserAccount, bool, City, list[Interest]]] = []
     search_term: str = ""  # the term typed in the search bar
     city_searched: City = None  # the first city detected with the search term
 
@@ -38,7 +39,11 @@ class MembersState(BaseState):
                 for interest in user.interest_list:
                     user_interest_names.append(interest.interest)
                 self.users_displayed.append(
-                    (user, user.city, user_interest_names)
+                    (user,
+                     os.path.isfile(f"{rx.get_upload_dir()}/{user.id}" +
+                                    "_profile_picture.png"),
+                     user.city,
+                     user_interest_names)
                 )
 
         # Display users in random order.
@@ -105,9 +110,9 @@ def members_page() -> rx.Component:
                     rx.foreach(
                         MembersState.users_displayed,
                         lambda user: user_card(
-                            user=user[0],
-                            city=user[1],
-                            interest_list=user[2],
+                            user=(user[0], user[1]),
+                            city=user[2],
+                            interest_list=user[3],
                             is_profile_empty=~user[0].profile_text,
                         ),
                     ),

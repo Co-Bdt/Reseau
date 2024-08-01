@@ -1,4 +1,5 @@
 from datetime import datetime
+import os
 import reflex as rx
 import sqlalchemy as sa
 from typing import Tuple
@@ -13,11 +14,14 @@ from ..reseau import HOME_ROUTE
 
 
 class HomeState(BaseState):
+    # if current user has a profile picture
+    own_profile_picture_exists: bool = False
     # posts to display
-    posts_displayed: list[Tuple[Post, str, UserAccount]] = []
+    posts_displayed: list[Tuple[Post, str, UserAccount, bool]] = []
     post_author: UserAccount = None  # author of a post
     # comments of a post
-    post_comments: list[Tuple[Comment, str, UserAccount]] = []
+    post_comments: list[Tuple[Comment, str, UserAccount, bool]] = []
+    profile_pictures_exist: list[bool] = []
 
     def run_script(self):
         """Uncomment any one-time script needed for app initialization here."""
@@ -28,6 +32,10 @@ class HomeState(BaseState):
 
     def init(self):
         # self.run_script()
+        self.own_profile_picture_exists = os.path.isfile(
+            f"{rx.get_upload_dir()}/{self.authenticated_user.id}" +
+            "_profile_picture.png"
+        )
         self.load_all_posts()
 
     def load_all_posts(self):
@@ -46,7 +54,9 @@ class HomeState(BaseState):
             self.posts_displayed.append(
                 (post,
                  f"{post.published_at: %d/%m/%y %H:%M}",
-                 post.useraccount)
+                 post.useraccount,
+                 os.path.isfile(f"{rx.get_upload_dir()}/{post.author_id}" +
+                                "_profile_picture.png")),
             )
 
     def load_post_details(self, post_id: int):
@@ -64,12 +74,18 @@ class HomeState(BaseState):
             self.post_comments.append(
                 (comment,
                  f"{comment.published_at: %d/%m/%y %H:%M}",
-                 comment.useraccount)
+                 comment.useraccount,
+                 os.path.isfile(f"{rx.get_upload_dir()}/{comment.author_id}" +
+                                "_profile_picture.png")),
             )
 
     def publish_post(self, form_data: dict):
         title = form_data["title"]
         content = form_data["content"]
+
+        if not content:
+            return rx.toast.warning("Ton post doit avoir un contenu.")
+
         post = Post(
             title=title,
             content=content,
@@ -81,6 +97,7 @@ class HomeState(BaseState):
             session.commit()
 
         self.load_all_posts()
+
         return rx.toast.success("Post publié.")
 
     def publish_comment(self, form_data: dict):
@@ -117,8 +134,9 @@ def home_page() -> rx.Component:
             BaseState.is_authenticated,
             rx.vstack(
                 write_post_dialog(
-                    BaseState.authenticated_user,
-                    HomeState.publish_post
+                    user=[BaseState.authenticated_user,
+                          HomeState.own_profile_picture_exists],
+                    publish_post=HomeState.publish_post
                 ),
                 rx.center(
                     rx.divider(size="3"),
@@ -132,7 +150,9 @@ def home_page() -> rx.Component:
                                 post=post[0],
                                 post_datetime=post[1],
                                 post_author=post[2],
+                                post_profile_picture_exist=post[3],
                                 post_comments=HomeState.post_comments,
+                                profile_pictures_exist=HomeState.profile_pictures_exist,  # noqa
                                 load_post_details=HomeState.load_post_details,
                                 publish_comment=HomeState.publish_comment,
                             ),

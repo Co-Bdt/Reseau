@@ -4,7 +4,7 @@ import sqlalchemy as sa
 
 from ..common.base_state import BaseState
 from ..common.template import template
-from ..components.profile import profile
+from ..components.profile_text import profile_text
 from ..components.profile_chips import profile_chips
 from ..models import Interest, UserAccount, UserInterest
 from ..reseau import PROFILE_ROUTE, S3_BUCKET_NAME
@@ -25,12 +25,15 @@ class ProfileState(BaseState):
         try:
             bucket.download_file(
                 f"{self.authenticated_user.id}/profile_picture",
-                f"./{rx.get_upload_dir()}/"
-                f"{self.authenticated_user.id}_profile_picture",
+                rx.get_upload_dir() /
+                f"{self.authenticated_user.id}_profile_picture.png",
             )
-            self.profile_img = f"{self.authenticated_user.id}_profile_picture"
+            self.profile_img = (
+                f"{self.authenticated_user.id}_"
+                "profile_picture.png"
+            )
         except Exception:
-            self.profile_img = ""
+            self.profile_img = "blank_profile_picture.png"
 
         # Load the user's interests
         with rx.session() as session:
@@ -61,8 +64,8 @@ class ProfileState(BaseState):
             with outfile.open("wb") as file_object:
                 file_object.write(upload_data)
 
-        # Update the profile_img var.
-        self.profile_img = file.filename
+            # Update the profile_img var.
+            self.profile_img = file.filename
 
     def add_selected(self, item: str):
         # limit selected items to 2
@@ -74,10 +77,7 @@ class ProfileState(BaseState):
     def remove_selected(self, item: str):
         self.selected_interests_names.remove(item)
 
-    def save_profile(self) -> rx.event.EventSpec:
-        profile_text_cleaned = self.authenticated_user.clean_profile_text(
-            self.profile_text
-        )
+    def update_profile_picture(self):
         s3 = boto3.resource('s3')
         bucket = s3.Bucket(S3_BUCKET_NAME)
 
@@ -87,20 +87,7 @@ class ProfileState(BaseState):
             f"{self.authenticated_user.id}/profile_picture"
         )
 
-        # Retrieve the authenticated user with its id and update it
-        with rx.session() as session:
-            user: UserAccount = session.exec(
-                UserAccount.select().where(
-                    UserAccount.id == self.authenticated_user.id
-                )
-            ).first()
-            user.profile_text = profile_text_cleaned
-            session.add(user)
-            session.commit()
-
-        # Update the authenticated user's profile text
-        self.set_profile_text(profile_text_cleaned)
-
+    def update_interests(self):
         # Get the corresponding interest objects from the database
         # and store their ids in a list
         selected_interests: list[Interest] = []
@@ -132,6 +119,29 @@ class ProfileState(BaseState):
                 session.add(user_interest)
             session.commit()
 
+    def save_profile(self) -> rx.event.EventSpec:
+        # Update the profile picture
+        self.update_profile_picture()
+
+        profile_text_cleaned = self.authenticated_user.clean_profile_text(
+            self.profile_text
+        )
+        # Retrieve the authenticated user with its id and update it
+        with rx.session() as session:
+            user: UserAccount = session.exec(
+                UserAccount.select().where(
+                    UserAccount.id == self.authenticated_user.id
+                )
+            ).first()
+            user.profile_text = profile_text_cleaned
+            session.add(user)
+            session.commit()
+        # Update the user's profile text visually
+        self.set_profile_text(profile_text_cleaned)
+
+        # Update the user's interests
+        self.update_interests()
+
         return rx.toast.success("Profil mis à jour.")
 
 
@@ -148,7 +158,7 @@ def profile_page() -> rx.Component:
                         src=rx.get_upload_url(ProfileState.profile_img),
                         width="9vh",
                         height="9vh",
-                        border="3px solid #ccc",
+                        border="1px solid #ccc",
                         border_radius="50%",
                     ),
                     id="profile_img",
@@ -165,15 +175,12 @@ def profile_page() -> rx.Component:
                         rx.upload_files(upload_id="profile_img")
                     ),
                 ),
-                profile(
+                profile_text(
                     ProfileState.profile_text,
                     ProfileState.set_profile_text
                 ),
                 width="100%",
-            ),
-            rx.center(
-                rx.divider(size="3"),
-                width="100%",
+                margin_bottom="1em",
             ),
             profile_chips(
                 selected_interests=ProfileState.selected_interests_names,
@@ -188,6 +195,7 @@ def profile_page() -> rx.Component:
                 ),
                 width="100%",
                 justify="end",
+                margin_top="1em",
             ),
             width="100%",
         ),

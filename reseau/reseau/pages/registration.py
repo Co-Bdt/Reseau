@@ -45,23 +45,26 @@ class RegistrationState(BaseState):
             with outfile.open("wb") as file_object:
                 file_object.write(upload_data)
 
-        # Update the profile_img var.
-        self.profile_img = file.filename
+            # Update the profile_img var.
+            self.profile_img = file.filename
 
     async def handle_registration(
         self, form_data
     ) -> AsyncGenerator[rx.event.EventSpec |
                         list[rx.event.EventSpec] | None, None]:
-        """Handle registration form on_submit.Merci 
+        """Handle registration form on_submit.
         Args:
             form_data: A dict of form fields and values.
         """
         s3 = boto3.resource('s3')
         bucket = s3.Bucket(S3_BUCKET_NAME)
+        new_user = UserAccount()  # type: ignore
 
         with rx.session() as session:
-            if not self.profile_img:
-                yield rx.toast.error("Veuillez ajouter une photo de profil.")
+            if self.profile_img == "blank_profile_picture.png":
+                yield rx.toast.error(
+                    "N'oublie pas d'ajouter une photo de profil."
+                )
                 return
             username = form_data["username"]
             if not username:
@@ -106,6 +109,7 @@ class RegistrationState(BaseState):
             if not match(pattern, password):
                 yield [
                     rx.set_value("password", ""),
+                    rx.set_value("confirm_password", ""),
                     rx.set_focus("password"),
                 ]
                 yield rx.toast.error(
@@ -131,7 +135,6 @@ class RegistrationState(BaseState):
             postal_code_str = city.split(" ")[1][1:-1]
 
             # Create the new user and add it to the database.
-            new_user = UserAccount()  # type: ignore
             new_user.username = username
             new_user.email = email
             new_user.password_hash = UserAccount.hash_password(password)
@@ -160,6 +163,14 @@ class RegistrationState(BaseState):
         self.success = True
         yield
         await asyncio.sleep(1)
+
+        # Download the profile picture to make it readable by the app.
+        bucket.download_file(
+            f"{new_user.id}/profile_picture",
+            rx.get_upload_dir() /
+            f"{new_user.id}_profile_picture.png",
+        )
+
         yield [rx.redirect(LOGIN_ROUTE), RegistrationState.set_success(False)]
 
 

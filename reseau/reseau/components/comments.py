@@ -5,22 +5,31 @@ from ..models import Comment, UserAccount
 
 
 def comments(
-    post_comments: list[Tuple[Comment, str, UserAccount]],
+    post_comments: list[Tuple[Comment, str, UserAccount, bool]],
 ) -> rx.Component:
     return rx.grid(
         rx.foreach(
             post_comments,
             lambda comment: rx.card(
                 rx.hstack(
-                    rx.image(
-                        src=rx.get_upload_url(
-                            f"{comment[0].author_id}"
-                            "_profile_picture"
+                    rx.cond(
+                        comment[3],
+                        rx.image(
+                            src=rx.get_upload_url(
+                                f"{comment[0].author_id}_profile_picture.png"
+                            ),
+                            border="0.5px solid #ccc",
+                            width="4vh",
+                            height="4vh",
+                            border_radius="50%",
                         ),
-                        border="0.5px solid #ccc",
-                        width="4vh",
-                        height="4vh",
-                        border_radius="50%",
+                        rx.image(
+                            src=rx.get_upload_url("blank_profile_picture.png"),
+                            border="0.5px solid #ccc",
+                            width="4vh",
+                            height="4vh",
+                            border_radius="50%",
+                        ),
                     ),
                     rx.vstack(
                         rx.hstack(
