@@ -91,10 +91,14 @@ def members_page() -> rx.Component:
     return rx.cond(
         MembersState.is_hydrated,
         rx.vstack(
+            rx.text(
+                "Connecte avec d'autres gars aux mêmes valeurs que toi "
+                "et progresse avec eux.",
+            ),
             rx.form(
                 rx.input(
                     id="search_term",
-                    placeholder="Rechercher une ville",
+                    placeholder="Recherche une ville",
                     width="100%",
                     size="3",
                     variant="surface",
@@ -136,5 +140,6 @@ def members_page() -> rx.Component:
                     ),
                 ),
             ),
+            spacing="5",
         ),
     )

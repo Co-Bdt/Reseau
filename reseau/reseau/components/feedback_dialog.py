@@ -71,8 +71,8 @@ def feedback_dialog() -> rx.Component:
         rx.dialog.content(
             rx.dialog.title("Feedback"),
             rx.flex(
-                rx.text("Qu'aimerais-tu ajouter/modifier"
-                        " sur la plateforme ?"),
+                rx.text("Qu'est-ce qui manque ou qui pourraît"
+                        " être mieux sur la plateforme pour toi ?"),
                 rx.form.root(
                     rx.debounce_input(
                         rx.text_area(
@@ -117,7 +117,7 @@ def feedback_dialog() -> rx.Component:
                     on_submit=FeedbackDialogState.on_submit,
                 ),
                 direction="column",
-                spacing="3",
+                spacing="4",
             ),
         ),
     )

@@ -129,7 +129,6 @@ def home_page() -> rx.Component:
         HomeState.is_hydrated,
         # toggle dark/light mode using right top corner button
         # can't work while icons stay black
-        # rx.color_mode.button(position="top-right"),
         rx.cond(
             BaseState.is_authenticated,
             rx.vstack(
@@ -138,10 +137,7 @@ def home_page() -> rx.Component:
                           HomeState.own_profile_picture_exists],
                     publish_post=HomeState.publish_post
                 ),
-                rx.center(
-                    rx.divider(size="3"),
-                    width="100%",
-                ),
+                rx.spacer(spacing="2"),
                 rx.grid(
                     rx.foreach(
                         HomeState.posts_displayed,

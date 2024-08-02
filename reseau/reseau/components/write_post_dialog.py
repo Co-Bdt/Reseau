@@ -70,18 +70,21 @@ class WritePostDialog(rx.ComponentState):
                         rx.input(
                             id="title",
                             name="title",
-                            # placeholder="Titre",
                             value=cls.title,
                             on_change=cls.set_title,
                             width="100%",
                             size="3",
                             variant="soft",
                             color_scheme="gray",
-                            style=rx.Style(
-                                background_color="white",
-                                color="black",
-                                border="0.5px solid #ccc",
+                            background_color=rx.color_mode_cond(
+                                light="white",
+                                dark="#121212",
                             ),
+                            color=rx.color_mode_cond(
+                                light="black",
+                                dark="white",
+                            ),
+                            border="0.5px solid #ccc",
                         ),
                         rx.text(
                             "Contenu",

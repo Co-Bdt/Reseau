@@ -151,7 +151,18 @@ def profile_page() -> rx.Component:
     return rx.cond(
         ProfileState.is_hydrated,
         rx.vstack(
-            rx.heading("Ton profil", size="5", style={"margin-bottom": "1em"}),
+            rx.hstack(
+                rx.heading(
+                    "Ton profil",
+                    size="5",
+                    style=rx.Style(
+                        margin_bottom="1em"
+                    ),
+                ),
+                rx.color_mode.button(),
+                width="100%",
+                justify="between",
+            ),
             rx.hstack(
                 rx.upload(
                     rx.image(
@@ -193,8 +204,15 @@ def profile_page() -> rx.Component:
                     size="3",
                     on_click=ProfileState.save_profile
                 ),
+                rx.link(
+                    "Se déconnecter",
+                    underline="none",
+                    href="/",
+                    on_click=BaseState.do_logout,
+                ),
                 width="100%",
-                justify="end",
+                justify="between",
+                align="center",
                 margin_top="1em",
             ),
             width="100%",

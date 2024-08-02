@@ -61,7 +61,10 @@ def comments(
                     ),
                 ),
                 width="100%",
-                background_color="#e9e9e9",
+                background_color=rx.color_mode_cond(
+                    light="#e9e9e9",
+                    dark="#191918",
+                ),
                 padding="1em",
             ),
         ),

@@ -10,4 +10,9 @@ MEMBERS_ROUTE = "/membres"
 S3_BUCKET_NAME = "dev-reseau-images-bucket"
 
 
-app = rx.App()
+app = rx.App(
+    theme=rx.theme(
+        appearance="light",
+        accent_color="amber",
+    )
+)
