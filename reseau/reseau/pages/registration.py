@@ -182,7 +182,7 @@ def registration_page() -> rx.Component:
     Returns:
         A reflex component.
     """
-    register_form = rx.form(
+    register_form_desktop_tablet = rx.form(
         rx.vstack(
             rx.hstack(
                 rx.upload(
@@ -332,15 +332,180 @@ def registration_page() -> rx.Component:
         margin="0",
         on_submit=RegistrationState.handle_registration,
     )
+
+    registration_form_mobile = rx.form(
+        rx.vstack(
+            rx.hstack(
+                rx.upload(
+                    rx.image(
+                        src=rx.get_upload_url(RegistrationState.profile_img),
+                        width="10vh",
+                        height="10vh",
+                        border="1px solid #ccc",
+                        border_radius="50%",
+                    ),
+                    id="profile_img",
+                    margin="0 0 1em 0",
+                    padding="0px",
+                    width="10vh",
+                    height="10vh",
+                    border="none",
+                    multiple=False,
+                    accept={
+                        "image/png": [".png"],
+                        "image/jpeg": [".jpg", ".jpeg"],
+                    },
+                    on_drop=RegistrationState.handle_upload(
+                        rx.upload_files(upload_id="profile_img")
+                    ),
+                ),
+                width="100%",
+                justify="center",
+            ),
+            rx.vstack(
+                rx.text(
+                    "Nom d'utilisateur",
+                    size="2",
+                    weight="medium",
+                    text_align="left",
+                ),
+                rx.input(
+                    id="username",
+                    size="3",
+                    width="100%",
+                ),
+                justify="start",
+                spacing="2",
+                width="100%",
+            ),
+            rx.vstack(
+                rx.hstack(
+                    rx.text(
+                        "Email",
+                        size="2",
+                        weight="medium",
+                        text_align="left",
+                    ),
+                    rx.text(
+                        "(visible des autres membres)",
+                        size="2",
+                        weight="regular",
+                        text_align="left",
+                        color_scheme="gray",
+                    ),
+                ),
+                rx.input(
+                    id="email",
+                    size="3",
+                    width="100%",
+                ),
+                justify="start",
+                spacing="2",
+                width="100%",
+            ),
+            rx.vstack(
+                rx.text(
+                    "Mot de passe",
+                    size="2",
+                    weight="medium",
+                    text_align="left",
+                ),
+                rx.input(
+                    id="password",
+                    type="password",
+                    size="3",
+                    width="100%",
+                ),
+                justify="start",
+                spacing="2",
+                width="100%",
+            ),
+            rx.vstack(
+                rx.text(
+                    "Confirmation",
+                    size="2",
+                    weight="medium",
+                    text_align="left",
+                ),
+                rx.input(
+                    id="confirm_password",
+                    type="password",
+                    size="3",
+                    width="100%",
+                ),
+                justify="start",
+                spacing="2",
+                width="100%",
+            ),
+            rx.center(
+                rx.divider(size="3"),
+                width="100%",
+            ),
+            rx.vstack(
+                rx.text(
+                    "Localisation (ou ville proche)",
+                    size="2",
+                    weight="medium",
+                    text_align="left",
+                ),
+                rx.select(
+                    RegistrationState.cities_as_str,
+                    name="city",
+                    placeholder="Sélectionne ta ville",
+                    size="3",
+                    width="100%",
+                ),
+                justify="start",
+                spacing="2",
+                width="100%",
+            ),
+            rx.button(
+                "Rejoindre",
+                type="submit",
+                size="3",
+                width="100%",
+                margin_top="1em",
+            ),
+            rx.center(
+                rx.link(
+                    rx.text("Déjà un compte ?"),
+                    href=LOGIN_ROUTE,
+                    width="100%",
+                    text_align="center",
+                ),
+                direction="column",
+                spacing="5",
+                width="100%",
+            ),
+            width="100%",
+            justify="center",
+            min_height="85vh",
+        ),
+        margin="0",
+        on_submit=RegistrationState.handle_registration,
+    )
+
     return rx.cond(
         RegistrationState.is_hydrated,
         rx.box(
-            rx.vstack(
-                register_form,
-                position="absolute",
-                top="50%",
-                left="50%",
-                transform="translateX(-50%) translateY(-50%)",
+            rx.tablet_and_desktop(
+                rx.vstack(
+                    register_form_desktop_tablet,
+                    position="absolute",
+                    top="50%",
+                    left="50%",
+                    transform="translateX(-50%) translateY(-50%)",
+                ),
+            ),
+            rx.mobile_only(
+                rx.vstack(
+                    registration_form_mobile,
+                    position="absolute",
+                    top="50%",
+                    left="50%",
+                    transform="translateX(-50%) translateY(-50%)",
+                    width="80%",
+                ),
             ),
             rx.box(
                 rx.cond(

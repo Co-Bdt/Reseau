@@ -18,9 +18,10 @@ def template(
                     navbar(),
                     page(),
                     size="4",
+                    padding=["0", "16px"],
                 ),
                 width="100%",
-                margin=["12px", "12px", "12px", "48px 0px"],
+                margin=["0", "12px", "12px", "48px 0px"],
             ),
             rx.box(
                 page(),

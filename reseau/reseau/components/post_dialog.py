@@ -50,9 +50,18 @@ class PostDialog(rx.ComponentState):
                                 ),
                             ),
                             rx.vstack(
-                                rx.text(
-                                    post_author.username,
-                                    weight="medium",
+                                rx.tablet_and_desktop(
+                                    rx.text(
+                                        post_author.username,
+                                        weight="medium",
+                                    ),
+                                ),
+                                rx.mobile_only(
+                                    rx.text(
+                                        post_author.username,
+                                        weight="medium",
+                                        size="2",
+                                    ),
                                 ),
                                 rx.text(
                                     post_datetime,
@@ -62,17 +71,32 @@ class PostDialog(rx.ComponentState):
                                 spacing="0",
                             ),
                         ),
-                        rx.text(
-                            post.title,
-                            size="4",
-                            weight="bold",
+                        rx.tablet_and_desktop(
+                            rx.text(
+                                post.title,
+                                size="4",
+                                weight="bold",
+                                margin_bottom="0.5em",
+                            ),
+                            rx.text(
+                                post.content,
+                            ),
                         ),
-                        rx.text(
-                            post.content,
+                        rx.mobile_only(
+                            rx.text(
+                                post.title,
+                                size="2",
+                                weight="bold",
+                                margin_bottom="0.3em",
+                            ),
+                            rx.text(
+                                post.content,
+                                font_size=["0.8em", "1em"],
+                            ),
                         ),
                         width="100%",
                     ),
-                    padding="1.2em",
+                    padding=["1em", "1.2em"],
                     cursor="pointer",
                 ),
                 on_click=load_post_details(post.id)
@@ -102,9 +126,18 @@ class PostDialog(rx.ComponentState):
                             ),
                         ),
                         rx.vstack(
-                            rx.text(
-                                post_author.username,
-                                weight="medium",
+                            rx.tablet_and_desktop(
+                                    rx.text(
+                                        post_author.username,
+                                        weight="medium",
+                                    ),
+                            ),
+                            rx.mobile_only(
+                                rx.text(
+                                    post_author.username,
+                                    weight="medium",
+                                    size="2",
+                                ),
                             ),
                             rx.text(
                                 post_datetime,
@@ -113,15 +146,42 @@ class PostDialog(rx.ComponentState):
                             ),
                             spacing="0",
                         ),
+                        align="center",
                     ),
-                    rx.text(post.title, size="5", weight="bold"),
-                    rx.text(post.content),
+                    rx.tablet_and_desktop(
+                        rx.vstack(
+                            rx.text(post.title, size="5", weight="bold"),
+                            rx.text(
+                                post.content,
+                                font_size="1em",
+                            ),
+                            spacing="3",
+                        ),
+                    ),
+                    rx.mobile_only(
+                        rx.vstack(
+                            rx.text(post.title, size="3", weight="bold"),
+                            rx.text(
+                                post.content,
+                                font_size="0.9em",
+                            ),
+                            spacing="1",
+                        ),
+                    ),
+                    direction="column",
+                    spacing="4",
+                    padding=["1em 0.5em", "1.5em"],
+                ),
 
-                    rx.separator(),
-                    # comments of the post
-                    comments(
-                        post_comments
-                    ),
+                rx.separator(
+                    margin_bottom="1em",
+                ),
+                # comments of the post
+                comments(
+                    post_comments
+                ),
+
+                rx.vstack(
                     # form to comment the post
                     write_comment_form(
                         post=post,
@@ -129,7 +189,9 @@ class PostDialog(rx.ComponentState):
                     ),
                     direction="column",
                     spacing="4",
+                    padding=["1em 0.5em", "1.5em"],
                 ),
+                padding=["0em 0em", "0em"],
             ),
         )
 

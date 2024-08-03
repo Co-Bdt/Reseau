@@ -28,18 +28,35 @@ class SiteName(rx.ComponentState):
                 margin="0 0 3em 0",
             ),
             rx.mobile_and_tablet(
-                rx.box(
-                    rx.heading(
-                        "Rɘseau",
-                        size="7",
-                        style={
-                            "letter-spacing": "1px"
-                        },
+                rx.link(
+                    "Reseau",
+                    href="/",
+                    underline="none",
+                    size="6",
+                    color=rx.color_mode_cond(
+                        light="black",
+                        dark="white",
                     ),
-                    width="100%",
-                    justify="start",
-                    margin="0 0 3em 0.5em",
+                    style=rx.Style(
+                        font_weight="bold",
+                        letter_spacing="1px",
+                    ),
                 ),
+                width="100%",
+                margin="0",
+                padding="6px",
+                # rx.box(
+                #     rx.heading(
+                #         "Reseau",
+                #         size="7",
+                #         style={
+                #             "letter-spacing": "1px"
+                #         },
+                #     ),
+                #     width="100%",
+                #     justify="start",
+                #     margin="0 0 3em 0.5em",
+                # ),
             ),
             justify="start",
         )

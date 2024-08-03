@@ -25,6 +25,7 @@ class WriteCommentForm(rx.ComponentState):
                 width="100%",
                 size="3",
                 radius="large",
+                font_size=["0.9em", "1em"],
             ),
             rx.flex(
                 rx.dialog.close(

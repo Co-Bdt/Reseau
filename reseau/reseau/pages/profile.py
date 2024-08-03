@@ -148,6 +148,12 @@ class ProfileState(BaseState):
 @rx.page(title="Profil", route=PROFILE_ROUTE, on_load=ProfileState.init)
 @template
 def profile_page() -> rx.Component:
+    """
+    Render the user's profile page.
+    
+    Returns:
+        A reflex component.
+    """
     return rx.cond(
         ProfileState.is_hydrated,
         rx.vstack(
@@ -159,23 +165,26 @@ def profile_page() -> rx.Component:
                         margin_bottom="1em"
                     ),
                 ),
-                rx.color_mode.button(),
+                rx.color_mode.button(
+                    padding_top="0",
+                ),
                 width="100%",
                 justify="between",
+                padding_x=["1em", "0"],
             ),
             rx.hstack(
                 rx.upload(
                     rx.image(
                         src=rx.get_upload_url(ProfileState.profile_img),
-                        width="9vh",
-                        height="9vh",
+                        width=["7vh", "9vh"],
+                        height=["7vh", "9vh"],
                         border="1px solid #ccc",
                         border_radius="50%",
                     ),
                     id="profile_img",
                     padding="0px",
-                    width="10vh",
-                    height="10vh",
+                    width=["8vh", "10vh"],
+                    height=["8vh", "10vh"],
                     border="none",
                     multiple=False,
                     accept={
@@ -191,7 +200,9 @@ def profile_page() -> rx.Component:
                     ProfileState.set_profile_text
                 ),
                 width="100%",
+                align="center",
                 margin_bottom="1em",
+                padding_x=["1em", "0"],
             ),
             profile_chips(
                 selected_interests=ProfileState.selected_interests_names,
@@ -213,8 +224,8 @@ def profile_page() -> rx.Component:
                 width="100%",
                 justify="between",
                 align="center",
-                margin_top="1em",
+                # margin_top="1em",
             ),
-            width="100%",
+            # width="100%",
         ),
     ),

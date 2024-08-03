@@ -19,6 +19,7 @@ def profile_text(
                     height="9vh",
                     max_length=300,
                     rows="2",
+                    font_size=["0.8em", "1em"],
                     on_change=set_profile_text,
                 ),
             ),

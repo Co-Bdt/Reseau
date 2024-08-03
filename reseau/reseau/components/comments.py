@@ -37,6 +37,7 @@ def comments(
                                 comment[2].username,
                                 weight="medium",
                                 trim="both",
+                                font_size=["0.9em", "1em"],
                             ),
                             rx.text(
                                 "•",
@@ -56,6 +57,7 @@ def comments(
                         rx.text(
                             comment[0].content,
                             margin_top="0.5em",
+                            font_size=["0.9em", "1em"],
                         ),
                         spacing="0",
                     ),
@@ -65,7 +67,7 @@ def comments(
                     light="#e9e9e9",
                     dark="#191918",
                 ),
-                padding="1em",
+                padding=["1em 0.5em", "1em"],
             ),
         ),
         columns="1",

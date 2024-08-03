@@ -94,6 +94,7 @@ def members_page() -> rx.Component:
             rx.text(
                 "Connecte avec d'autres gars aux mêmes valeurs que toi "
                 "et progresse avec eux.",
+                margin_x=["1em", "0"],
             ),
             rx.form(
                 rx.input(
@@ -103,6 +104,7 @@ def members_page() -> rx.Component:
                     size="3",
                     variant="surface",
                 ),
+                padding_x=["1em", "0"],
                 on_submit=MembersState.search_city,
             ),
             # display all users by default
@@ -110,20 +112,60 @@ def members_page() -> rx.Component:
             # or a message if no user is found
             rx.cond(
                 MembersState.users_displayed,
-                rx.grid(
-                    rx.foreach(
-                        MembersState.users_displayed,
-                        lambda user: user_card(
-                            user=(user[0], user[1]),
-                            city=user[2],
-                            interest_list=user[3],
-                            is_profile_empty=~user[0].profile_text,
+                rx.box(
+                    rx.desktop_only(
+                        rx.grid(
+                            rx.foreach(
+                                MembersState.users_displayed,
+                                lambda user: user_card(
+                                    user=(user[0], user[1]),
+                                    city=user[2],
+                                    interest_list=user[3],
+                                    is_profile_empty=~user[0].profile_text,
+                                ),
+                            ),
+                            columns="3",
+                            width="100%",
+                            spacing="3",
+                            flex_wrap="wrap",
                         ),
                     ),
-                    columns="3",
+                    rx.tablet_only(
+                        rx.grid(
+                            rx.foreach(
+                                MembersState.users_displayed,
+                                lambda user: user_card(
+                                    user=(user[0], user[1]),
+                                    city=user[2],
+                                    interest_list=user[3],
+                                    is_profile_empty=~user[0].profile_text,
+                                ),
+                            ),
+                            columns="2",
+                            width="100%",
+                            spacing="3",
+                            flex_wrap="wrap",
+                        ),
+                    ),
+                    rx.mobile_only(
+                        rx.grid(
+                            rx.foreach(
+                                MembersState.users_displayed,
+                                lambda user: user_card(
+                                    user=(user[0], user[1]),
+                                    city=user[2],
+                                    interest_list=user[3],
+                                    is_profile_empty=~user[0].profile_text,
+                                ),
+                            ),
+                            columns="1",
+                            width="100%",
+                            spacing="3",
+                            flex_wrap="wrap",
+                        ),
+                    ),
                     width="100%",
-                    spacing="3",
-                    flex_wrap="wrap",
+                    padding=["1em", "0"],
                 ),
                 rx.cond(
                     MembersState.city_searched,

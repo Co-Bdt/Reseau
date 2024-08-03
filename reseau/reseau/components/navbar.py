@@ -7,31 +7,45 @@ from .site_name import site_name
 
 
 class Navbar(rx.ComponentState):
-    is_open: bool = False
-
-    def toggle(self):
-        self.is_open = not self.is_open
 
     @classmethod
     def get_component(cls, **props):
         def sidebar_item(
-            text: str, icon: str, func: Callable, href: str
+            icon: str, func: Callable, href: str
         ) -> rx.Component:
             """A sidebar link."""
             return rx.link(
-                rx.hstack(
-                    rx.color_mode_cond(
-                        light=rx.icon(icon, color="black", size=28),
-                        dark=rx.icon(icon, color="white", size=28),
-                    ),
-                    padding="6px",
-                    align="center",
-                    style={
-                        "_hover": {
-                            "bg": rx.color("gray", 4),
+                rx.tablet_and_desktop(
+                    rx.hstack(
+                        rx.color_mode_cond(
+                            light=rx.icon(icon, color="black", size=28),
+                            dark=rx.icon(icon, color="white", size=28),
+                        ),
+                        padding="6px",
+                        align="center",
+                        style={
+                            "_hover": {
+                                "bg": rx.color("gray", 4),
+                            },
+                            "border-radius": "0.5em",
                         },
-                        "border-radius": "0.5em",
-                    },
+                    ),
+                ),
+                rx.mobile_only(
+                    rx.hstack(
+                        rx.color_mode_cond(
+                            light=rx.icon(icon, color="black", size=24),
+                            dark=rx.icon(icon, color="white", size=24),
+                        ),
+                        padding="6px",
+                        align="center",
+                        style={
+                            "_hover": {
+                                "bg": rx.color("gray", 4),
+                            },
+                            "border-radius": "0.5em",
+                        },
+                    ),
                 ),
                 href=href,
                 on_click=func,
@@ -44,7 +58,6 @@ class Navbar(rx.ComponentState):
                 rx.cond(
                     BaseState.is_authenticated,
                     sidebar_item(
-                        "Membres",
                         "user-search",
                         None,
                         MEMBERS_ROUTE),
@@ -52,7 +65,8 @@ class Navbar(rx.ComponentState):
                 rx.link(
                     rx.image(
                         src=rx.get_upload_url(
-                            f"{BaseState.authenticated_user.id}_profile_picture.png"
+                            f"{BaseState.authenticated_user.id}"
+                            "_profile_picture.png"
                         ),
                         border="0.5px solid #ccc",
                         width="3vh",
@@ -65,6 +79,7 @@ class Navbar(rx.ComponentState):
                 spacing="4",
                 width="100%",
                 justify="end",
+                align="center",
             )
 
         return rx.box(
@@ -77,32 +92,14 @@ class Navbar(rx.ComponentState):
                 ),
             ),
             rx.mobile_and_tablet(
-                # rx.icon_button(
-                #     rx.icon(
-                #         "plus",
-                #     ),
-                #     position="absolute",
-                #     right="15px",
-                #     top="15px",
-                #     variant="solid",
-                #     # color_scheme="blue",
-                #     size="3",
-                #     radius="full",
-                #     on_click=cls.toggle(),
-                # ),
-                rx.vstack(
+                rx.hstack(
+                    site_name(),
                     sidebar_items(),
-                    position="fixed",
-                    right="0px",
-                    top="0px",
-                    padding_x="1em",
                     padding_y="1em",
-                    align="start",
+                    padding_x="0.8em",
+                    justify="start",
+                    align="center",
                 ),
-                # rx.cond(
-                #     cls.is_open,
-                #     sidebar_items(),
-                # ),
             ),
         )
 

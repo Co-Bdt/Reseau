@@ -1,9 +1,22 @@
 *.db
 *.py[cod]
-.web
-alembic/
-alembic.ini
-__pycache__/
 
-uploaded_files/
+.web/.next
+.web/components
+.web/node_modules
+.web/pages
+.web/public
+.web/utils
+.web/*.json
+.web/*.js
+.web/.gitignore
+.web/*.lock*
+.web/reflex*
+
+__pycache__/
+alembic.ini
+alembic/
+assets/external/
 feedbacks/
+uploaded_files/
+.venv/

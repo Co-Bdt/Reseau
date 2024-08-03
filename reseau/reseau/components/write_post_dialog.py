@@ -27,7 +27,11 @@ class WritePostDialog(rx.ComponentState):
                     variant="outline",
                     color_scheme="gray",
                     radius="large",
-                    style=rx.Style(justify_content="start"),
+                    style=rx.Style(
+                        justify_content="start",
+                        background_color="white",
+                        font_size=["0.9em", "1em"],
+                    ),
                 )
             ),
             rx.dialog.content(
@@ -84,7 +88,10 @@ class WritePostDialog(rx.ComponentState):
                                 light="black",
                                 dark="white",
                             ),
-                            border="0.5px solid #ccc",
+                            style=rx.Style(
+                                border="0.5px solid #ccc",
+                                font_size=["0.9em", "1em"],
+                            ),
                         ),
                         rx.text(
                             "Contenu",
@@ -95,6 +102,7 @@ class WritePostDialog(rx.ComponentState):
                         autosize_textarea(
                             id="content",
                             class_name="autosize-textarea",
+                            font_size=["0.9em", "1em"],
                         ),
                         direction="column",
                         spacing="2",
@@ -130,6 +138,7 @@ class WritePostDialog(rx.ComponentState):
                     on_submit=publish_post,
                     reset_on_submit=True,
                 ),
+                padding=["1em 0.5em", "1.5em"],
             ),
         )
 

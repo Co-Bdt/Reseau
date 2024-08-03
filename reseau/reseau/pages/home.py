@@ -137,7 +137,9 @@ def home_page() -> rx.Component:
                           HomeState.own_profile_picture_exists],
                     publish_post=HomeState.publish_post
                 ),
-                rx.spacer(spacing="2"),
+                rx.tablet_and_desktop(
+                    rx.spacer(spacing="2"),
+                ),
                 rx.grid(
                     rx.foreach(
                         HomeState.posts_displayed,
@@ -165,6 +167,7 @@ def home_page() -> rx.Component:
                 top="50%",
                 left="50%",
                 transform="translateX(-50%) translateY(-50%)",
+                width="100%",
             ),
         ),
     )

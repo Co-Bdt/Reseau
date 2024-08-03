@@ -62,8 +62,8 @@ def feedback_dialog() -> rx.Component:
                 height="48px",
                 # absolute position in the bottom right corner
                 position="fixed",
-                bottom="100px",
-                right="100px",
+                bottom=["1em", "100px"],
+                right=["1em", "100px"],
                 # fully rounded
                 style={"border-radius": "50%"},
             ),
@@ -71,7 +71,7 @@ def feedback_dialog() -> rx.Component:
         rx.dialog.content(
             rx.dialog.title("Feedback"),
             rx.flex(
-                rx.text("Qu'est-ce qui manque ou qui pourraît"
+                rx.text("Qu'est-ce qu'il manque ou qui pourraît"
                         " être mieux sur la plateforme pour toi ?"),
                 rx.form.root(
                     rx.debounce_input(
@@ -83,6 +83,7 @@ def feedback_dialog() -> rx.Component:
                             multiline=True,
                             rows="5",
                             width="100%",
+                            padding="1em",
                         ),
                         debounce_timeout=1000,
                     ),
