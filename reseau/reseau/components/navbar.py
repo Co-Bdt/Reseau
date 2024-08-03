@@ -15,7 +15,7 @@ class Navbar(rx.ComponentState):
         ) -> rx.Component:
             """A sidebar link."""
             return rx.link(
-                rx.tablet_and_desktop(
+                rx.desktop_only(
                     rx.hstack(
                         rx.color_mode_cond(
                             light=rx.icon(icon, color="black", size=28),
@@ -31,7 +31,7 @@ class Navbar(rx.ComponentState):
                         },
                     ),
                 ),
-                rx.mobile_only(
+                rx.mobile_and_tablet(
                     rx.hstack(
                         rx.color_mode_cond(
                             light=rx.icon(icon, color="black", size=24),
@@ -69,8 +69,8 @@ class Navbar(rx.ComponentState):
                             "_profile_picture.png"
                         ),
                         border="0.5px solid #ccc",
-                        width="3vh",
-                        height="3vh",
+                        width="4vh",
+                        height="4vh",
                         border_radius="50%",
                     ),
                     href=PROFILE_ROUTE,
@@ -83,20 +83,23 @@ class Navbar(rx.ComponentState):
             )
 
         return rx.box(
-            rx.desktop_only(
+            rx.tablet_and_desktop(
                 rx.hstack(
                     site_name(),
                     sidebar_items(),
                     width="100%",
+                    padding_top="1em",
+                    padding_bottom=["1em", "1em", "1em", "2em"],
                     justify="start",
+                    align="center",
                 ),
             ),
-            rx.mobile_and_tablet(
+            rx.mobile_only(
                 rx.hstack(
                     site_name(),
                     sidebar_items(),
                     padding_y="1em",
-                    padding_x="0.8em",
+                    # padding_x="0.8em",
                     justify="start",
                     align="center",
                 ),

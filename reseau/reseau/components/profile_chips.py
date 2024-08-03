@@ -51,24 +51,17 @@ class ProfileChips(rx.ComponentState):
             )
 
         return rx.vstack(
-            rx.flex(
-                rx.hstack(
-                    rx.icon("hand-heart", size=20),
-                    rx.heading(
-                        "Intérêts",
-                        size="3",
-                    ),
-                    spacing="1",
-                    align="center",
-                    width="100%",
-                    justify_content=["end", "start"],
+            # rx.flex(
+            rx.hstack(
+                rx.icon("hand-heart", size=20),
+                rx.heading(
+                    "Intérêts",
+                    size="3",
                 ),
-                justify="between",
-                flex_direction=["column", "row"],
+                spacing="1",
                 align="center",
-                spacing="2",
-                margin_bottom="10px",
                 width="100%",
+                margin_bottom="0.5em",
             ),
             # Selected Items
             rx.flex(
@@ -94,6 +87,8 @@ class ProfileChips(rx.ComponentState):
             justify_content="start",
             align_items="start",
             width="100%",
+            margin_top="1em",
+            # padding_x="1em",
         )
 
 

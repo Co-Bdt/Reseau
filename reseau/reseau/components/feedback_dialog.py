@@ -62,8 +62,8 @@ def feedback_dialog() -> rx.Component:
                 height="48px",
                 # absolute position in the bottom right corner
                 position="fixed",
-                bottom=["1em", "100px"],
-                right=["1em", "100px"],
+                bottom=["2em", "2em", "2em", "2em", "100px"],
+                right=["2em", "2em", "2em", "2em", "100px"],
                 # fully rounded
                 style={"border-radius": "50%"},
             ),

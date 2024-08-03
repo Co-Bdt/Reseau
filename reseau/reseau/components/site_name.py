@@ -25,7 +25,7 @@ class SiteName(rx.ComponentState):
                     ),
                 ),
                 width="100%",
-                margin="0 0 3em 0",
+                margin="0",
             ),
             rx.mobile_and_tablet(
                 rx.link(
@@ -44,7 +44,7 @@ class SiteName(rx.ComponentState):
                 ),
                 width="100%",
                 margin="0",
-                padding="6px",
+                # padding="6px",
                 # rx.box(
                 #     rx.heading(
                 #         "Reseau",

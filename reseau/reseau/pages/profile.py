@@ -150,7 +150,7 @@ class ProfileState(BaseState):
 def profile_page() -> rx.Component:
     """
     Render the user's profile page.
-    
+
     Returns:
         A reflex component.
     """
@@ -162,47 +162,87 @@ def profile_page() -> rx.Component:
                     "Ton profil",
                     size="5",
                     style=rx.Style(
-                        margin_bottom="1em"
+                        margin_bottom="0.5em"
                     ),
                 ),
-                rx.color_mode.button(
-                    padding_top="0",
+                rx.tablet_and_desktop(
+                    rx.color_mode.button(
+                        padding_top="0",
+                    ),
                 ),
                 width="100%",
                 justify="between",
-                padding_x=["1em", "0"],
             ),
-            rx.hstack(
-                rx.upload(
-                    rx.image(
-                        src=rx.get_upload_url(ProfileState.profile_img),
-                        width=["7vh", "9vh"],
-                        height=["7vh", "9vh"],
-                        border="1px solid #ccc",
-                        border_radius="50%",
+            rx.tablet_and_desktop(
+                rx.hstack(
+                    rx.upload(
+                        rx.image(
+                            src=rx.get_upload_url(
+                                ProfileState.profile_img
+                            ),
+                            border="1px solid #ccc",
+                            border_radius="50%",
+                        ),
+                        id="profile_img",
+                        multiple=False,
+                        accept={
+                            "image/png": [".png"],
+                            "image/jpeg": [".jpg", ".jpeg"],
+                        },
+                        on_drop=ProfileState.handle_upload(
+                            rx.upload_files(upload_id="profile_img")
+                        ),
+                        padding="0",
+                        width=["5em", "6em", "6em"],
+                        height=["5em", "6em", "6em"],
+                        border="none",
                     ),
-                    id="profile_img",
-                    padding="0px",
-                    width=["8vh", "10vh"],
-                    height=["8vh", "10vh"],
-                    border="none",
-                    multiple=False,
-                    accept={
-                        "image/png": [".png"],
-                        "image/jpeg": [".jpg", ".jpeg"],
-                    },
-                    on_drop=ProfileState.handle_upload(
-                        rx.upload_files(upload_id="profile_img")
+                    profile_text(
+                        ProfileState.profile_text,
+                        ProfileState.set_profile_text
                     ),
-                ),
-                profile_text(
-                    ProfileState.profile_text,
-                    ProfileState.set_profile_text
+                    width="100%",
+                    align="center",
                 ),
                 width="100%",
-                align="center",
-                margin_bottom="1em",
-                padding_x=["1em", "0"],
+            ),
+            rx.mobile_only(
+                rx.vstack(
+                    rx.hstack(
+                        rx.upload(
+                            rx.image(
+                                src=rx.get_upload_url(
+                                    ProfileState.profile_img
+                                ),
+                                width=["4em"],
+                                height=["4em"],
+                                border="1px solid #ccc",
+                                border_radius="50%",
+                            ),
+                            id="profile_img",
+                            multiple=False,
+                            accept={
+                                "image/png": [".png"],
+                                "image/jpeg": [".jpg", ".jpeg"],
+                            },
+                            on_drop=ProfileState.handle_upload(
+                                rx.upload_files(upload_id="profile_img")
+                            ),
+                            padding="0",
+                            height=["4em"],
+                            border="none",
+                        ),
+                        rx.color_mode.button(),
+                        width="100%",
+                        justify="between",
+                        align="center",
+                    ),
+                    profile_text(
+                        ProfileState.profile_text,
+                        ProfileState.set_profile_text
+                    ),
+                ),
+                width="100%",
             ),
             profile_chips(
                 selected_interests=ProfileState.selected_interests_names,
@@ -224,8 +264,7 @@ def profile_page() -> rx.Component:
                 width="100%",
                 justify="between",
                 align="center",
-                # margin_top="1em",
+                margin_top="1em",
             ),
-            # width="100%",
         ),
     ),

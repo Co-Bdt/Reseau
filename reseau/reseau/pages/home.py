@@ -167,7 +167,8 @@ def home_page() -> rx.Component:
                 top="50%",
                 left="50%",
                 transform="translateX(-50%) translateY(-50%)",
-                width="100%",
+                width=["80%", "80%", "70%", "60%", "50%"],
+                # padding_x=["1em", "1em", "1em", "1em", "0"],
             ),
         ),
     )
