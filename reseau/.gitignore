@@ -17,7 +17,7 @@ __pycache__/
 alembic.ini
 alembic/
 assets/external/
-feedbacks/*
+feedbacks/*.txt
 uploaded_files/*.png
 uploaded_files/*.jpg
 uploaded_files/*.jpeg

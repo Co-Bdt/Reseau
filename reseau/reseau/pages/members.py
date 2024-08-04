@@ -35,15 +35,15 @@ class MembersState(BaseState):
 
         for user in users:
             if user.id != self.authenticated_user.id:
-                user_interest_names: list[Interest] = []
+                user_interest: list[Interest] = []
                 for interest in user.interest_list:
-                    user_interest_names.append(interest.interest)
+                    user_interest.append(interest.interest)
                 self.users_displayed.append(
                     (user,
                      os.path.isfile(f"{rx.get_upload_dir()}/{user.id}" +
                                     "_profile_picture.png"),
                      user.city,
-                     user_interest_names)
+                     user_interest)
                 )
 
         # Display users in random order.
@@ -51,6 +51,7 @@ class MembersState(BaseState):
 
     def search_city(self, form_data):
         self.search_term = form_data["search_term"]
+        city: City = None
 
         # If no search term, display all users.
         if not self.search_term:
@@ -58,24 +59,40 @@ class MembersState(BaseState):
 
         # Fetch the first city matching the search term.
         with rx.session() as session:
-            city: City = session.exec(
-                City.select().where(
+            city = session.exec(
+                City.select()
+                .options(
+                    sa.orm.selectinload(City.useraccount_list).selectinload(
+                        UserAccount.interest_list).selectinload(
+                            UserInterest.interest
+                        ),
+                )
+                .where(
                     sa.func.lower(City.name).startswith(
                         sa.func.lower(self.search_term)
                     )
                 )
             ).first()
-        # Fetch the users living in the city.
-        users = []
-        if city is not None:
-            users = session.exec(
-                UserAccount.select().where(UserAccount.city_id == city.id)
-            ).all()
-            self.city_searched = city
 
         self.users_displayed.clear()
-        for user in users:
-            self.users_displayed.append((user, city))
+
+        if city is not None:
+            self.city_searched = city
+            for user in city.useraccount_list:
+                if user.id != self.authenticated_user.id:
+                    user_interest: list[Interest] = []
+                    for interest in user.interest_list:
+                        user_interest.append(interest.interest)
+                    self.users_displayed.append(
+                        (user,
+                            os.path.isfile(f"{rx.get_upload_dir()}/{user.id}" +
+                                           "_profile_picture.png"),
+                            city,
+                            user_interest)
+                    )
+
+        # Display users in random order.
+        shuffle(self.users_displayed)
 
 
 @rx.page(title="Membres", route=MEMBERS_ROUTE, on_load=MembersState.init)
@@ -177,7 +194,7 @@ def members_page() -> rx.Component:
                 rx.cond(
                     MembersState.city_searched,
                     rx.text(
-                        f"Aucune personne trouvée : \
+                        f"Aucun membre trouvé : \
                             {MembersState.city_searched.name} \
                             ({MembersState.city_searched.postal_code})",
                         width="100%",

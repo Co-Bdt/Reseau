@@ -20,5 +20,5 @@ GMAIL_APP_PASSWORD = "xpic zpwf rvxx jqpt"
 config = rx.Config(
     app_name="reseau",
     api_url=f"http://{APP_IP}:{BACK_PORT}",
-    db_url=AMAZON_RDS_POSTGRESQL_URL,
+    db_url=LOCAL_SQLITE_URL,
 )
