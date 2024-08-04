@@ -51,7 +51,7 @@ class WritePostDialog(rx.ComponentState):
                                 ),
                                 rx.image(
                                     src=rx.get_upload_url(
-                                        "blank_profile_picture.png"
+                                        "blank_profile_picture"
                                     ),
                                     width="4vh",
                                     height="4vh",

@@ -35,17 +35,17 @@ class PostDialog(rx.ComponentState):
                                         f"{post_author.id}_profile_picture.png"
                                     ),
                                     border="0.5px solid #ccc",
-                                    width="4vh",
-                                    height="4vh",
+                                    width="2.5em",
+                                    height="2.5em",
                                     border_radius="50%",
                                 ),
                                 rx.image(
                                     src=rx.get_upload_url(
-                                        "blank_profile_picture.png"
+                                        "blank_profile_picture"
                                     ),
                                     border="0.5px solid #ccc",
-                                    width="4vh",
-                                    height="4vh",
+                                    width="2.5em",
+                                    height="2.5em",
                                     border_radius="50%",
                                 ),
                             ),
@@ -70,6 +70,7 @@ class PostDialog(rx.ComponentState):
                                 ),
                                 spacing="0",
                             ),
+                            align="center",
                         ),
                         rx.tablet_and_desktop(
                             rx.text(
@@ -111,17 +112,17 @@ class PostDialog(rx.ComponentState):
                                     f"{post_author.id}_profile_picture.png"
                                 ),
                                 border="0.5px solid #ccc",
-                                width="4vh",
-                                height="4vh",
+                                width="2.5em",
+                                height="2.5em",
                                 border_radius="50%",
                             ),
                             rx.image(
                                 src=rx.get_upload_url(
-                                    "blank_profile_picture.png"
+                                    "blank_profile_picture"
                                 ),
                                 border="0.5px solid #ccc",
-                                width="4vh",
-                                height="4vh",
+                                width="2.5em",
+                                height="2.5em",
                                 border_radius="50%",
                             ),
                         ),

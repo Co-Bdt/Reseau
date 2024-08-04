@@ -6,8 +6,10 @@
 @tailwind utilities;
 
 
-.css-199e4dy-AppWrap {
+.light {
+  .css-199e4dy-AppWrap {
     background-color: #F9F8F8;
+  }
 }
 
 .autosize-textarea {

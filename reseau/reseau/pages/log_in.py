@@ -12,6 +12,9 @@ class LogInState(BaseState):
     """Handle login form submission and
     redirect to proper routes after authentication."""
 
+    username: str = ""
+    password: str = ""
+
     success: bool = False
     redirect_to: str = ""
 
@@ -25,13 +28,12 @@ class LogInState(BaseState):
         Args:
             form_data: A dict of form fields and values.
         """
-        self.error_message = ""
-        username = form_data["username"]
+        username = self.username
         if not username:
             yield rx.set_focus("username")
             yield rx.toast.error("Le nom d'utilisateur est requis.")
             return
-        password = form_data["password"]
+        password = self.password
         if not password:
             yield rx.set_focus("password")
             yield rx.toast.error("Le mot de passe est requis.")
@@ -96,6 +98,8 @@ def log_in_page() -> rx.Component:
                 rx.input(
                     id="username",
                     size="3",
+                    value=LogInState.username,
+                    on_change=LogInState.set_username,
                     width="100%",
                 ),
                 justify="start",
@@ -114,6 +118,8 @@ def log_in_page() -> rx.Component:
                     id="password",
                     type="password",
                     size="3",
+                    value=LogInState.password,
+                    on_change=LogInState.set_password,
                     width="100%",
                 ),
                 justify="start",

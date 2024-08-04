@@ -33,7 +33,7 @@ class ProfileState(BaseState):
                 "profile_picture.png"
             )
         except Exception:
-            self.profile_img = "blank_profile_picture.png"
+            self.profile_img = "blank_profile_picture"
 
         # Load the user's interests
         with rx.session() as session:
@@ -180,6 +180,8 @@ def profile_page() -> rx.Component:
                             src=rx.get_upload_url(
                                 ProfileState.profile_img
                             ),
+                            width=["64px", "80px"],
+                            height=["64px", "80px"],
                             border="1px solid #ccc",
                             border_radius="50%",
                         ),
@@ -193,8 +195,8 @@ def profile_page() -> rx.Component:
                             rx.upload_files(upload_id="profile_img")
                         ),
                         padding="0",
-                        width=["5em", "6em", "6em"],
-                        height=["5em", "6em", "6em"],
+                        width=["64px", "96px"],
+                        height=["64px", "80px"],
                         border="none",
                     ),
                     profile_text(

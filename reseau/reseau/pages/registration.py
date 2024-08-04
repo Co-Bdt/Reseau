@@ -16,6 +16,12 @@ from ..reseau import REGISTER_ROUTE, S3_BUCKET_NAME
 class RegistrationState(BaseState):
     """Handle registration form submission and
     redirect to login page after registration."""
+    username: str = ""
+    email: str = ""
+    password: str = ""
+    confirm_password: str = ""
+    city: str = ""
+
     success: bool = False
     profile_img: str = ""
     cities_as_str: list[str] = []
@@ -29,7 +35,7 @@ class RegistrationState(BaseState):
                               for city in cities]
         self.cities_as_str = sorted(self.cities_as_str)
         # Set the default profile image.
-        self.profile_img = "blank_profile_picture.png"
+        self.profile_img = "blank_profile_picture"
 
     async def handle_upload(self, files: list[rx.UploadFile]):
         """Handle the upload of file(s).
@@ -61,12 +67,12 @@ class RegistrationState(BaseState):
         new_user = UserAccount()  # type: ignore
 
         with rx.session() as session:
-            if self.profile_img == "blank_profile_picture.png":
+            if self.profile_img == "blank_profile_picture":
                 yield rx.toast.error(
                     "N'oublie pas d'ajouter une photo de profil."
                 )
                 return
-            username = form_data["username"]
+            username = self.username
             if not username:
                 yield rx.set_focus("username")
                 yield rx.toast.error("Le nom ne peut pas être vide.")
@@ -81,7 +87,7 @@ class RegistrationState(BaseState):
                         Essaie-en un autre."
                 )
                 return
-            email = form_data["email"]
+            email = self.email
             if not email:
                 yield rx.set_focus("email")
                 yield rx.toast.error("L'email ne peut pas être vide.")
@@ -93,7 +99,7 @@ class RegistrationState(BaseState):
                 yield rx.set_focus("email")
                 yield rx.toast.error("L'email n'est pas valide.")
                 return
-            password = form_data["password"]
+            password = self.password
             if not password:
                 yield rx.set_focus("password")
                 yield rx.toast.error("Le mot de passe ne peut pas être vide.")
@@ -119,34 +125,32 @@ class RegistrationState(BaseState):
                         dix caractères."
                 )
                 return
-            if password != form_data["confirm_password"]:
+            if password != self.confirm_password:
                 yield [
                     rx.set_value("confirm_password", ""),
                     rx.set_focus("confirm_password"),
                 ]
                 yield rx.toast.error("Les mots de passe ne correspondent pas.")
                 return
-            city = form_data["city"]
-            if not city:
+            city_object = self.city
+            if not city_object:
                 # yield rx.set_focus("city")
                 yield rx.toast.error("La ville ne peut pas être vide.")
                 return
-            city_str = city.split(" ")[0]
-            postal_code_str = city.split(" ")[1][1:-1]
+            city_str = city_object.split(" ")[0]
+            postal_code_str = city_object.split(" ")[1][1:-1]
 
             # Create the new user and add it to the database.
             new_user.username = username
             new_user.email = email
             new_user.password_hash = UserAccount.hash_password(password)
             # Fetch the city from the database.
-            city_str = form_data["city"].split(" ")[0]
-            postal_code_str = form_data["city"].split(" ")[1][1:-1]
-            city = session.exec(
+            city_object = session.exec(
                 City.select().where(
                     City.name == city_str, City.postal_code == postal_code_str
                 )
             ).one_or_none()
-            new_user.city_id = city.id
+            new_user.city_id = city_object.id
             session.add(new_user)
             session.commit()
 
@@ -221,6 +225,8 @@ def registration_page() -> rx.Component:
                 rx.input(
                     id="username",
                     size="3",
+                    value=RegistrationState.username,
+                    on_change=RegistrationState.set_username,
                     width="100%",
                 ),
                 justify="start",
@@ -246,6 +252,8 @@ def registration_page() -> rx.Component:
                 rx.input(
                     id="email",
                     size="3",
+                    value=RegistrationState.email,
+                    on_change=RegistrationState.set_email,
                     width="100%",
                 ),
                 justify="start",
@@ -263,6 +271,8 @@ def registration_page() -> rx.Component:
                     id="password",
                     type="password",
                     size="3",
+                    value=RegistrationState.password,
+                    on_change=RegistrationState.set_password,
                     width="100%",
                 ),
                 justify="start",
@@ -280,6 +290,8 @@ def registration_page() -> rx.Component:
                     id="confirm_password",
                     type="password",
                     size="3",
+                    value=RegistrationState.confirm_password,
+                    on_change=RegistrationState.set_confirm_password,
                     width="100%",
                 ),
                 justify="start",
@@ -302,6 +314,8 @@ def registration_page() -> rx.Component:
                     name="city",
                     placeholder="Choisis ta ville",
                     size="3",
+                    value=RegistrationState.city,
+                    on_change=RegistrationState.set_city,
                     width="100%",
                 ),
                 justify="start",

@@ -7,4 +7,4 @@ Caddy.Dockerfile
 Caddyfile
 compose.yaml
 compose.*.yaml
-uploaded_files
+# uploaded_files

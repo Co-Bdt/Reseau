@@ -38,7 +38,7 @@ class UserCard(rx.ComponentState):
                             ),
                             rx.image(
                                 src=rx.get_upload_url(
-                                    "blank_profile_picture.png"
+                                    "blank_profile_picture"
                                 ),
                                 width="4.5vh",
                                 height="4.5vh",

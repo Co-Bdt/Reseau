@@ -1,5 +1,5 @@
 import reflex as rx
-from ..models.interest import Interest
+from ..models import Interest
 
 
 # List of interests to insert
