@@ -1,201 +1,165 @@
+from datetime import datetime
+import os
 import reflex as rx
-from random import shuffle
-from sqlalchemy import func
+import sqlalchemy as sa
 from typing import Tuple
 
-from ..reseau import HOME_ROUTE
-from ..base_state import BaseState
-from ..components.user_card import user_card
+from ..common.base_state import BaseState
+from ..common.template import template
 from ..components.landing import landing
-from ..components.sidebar import sidebar
-from ..components.profile import profile
-from ..models.user_account import UserAccount
-from ..models.city import City
+from ..components.post_dialog import post_dialog
+from ..components.write_post_dialog import write_post_dialog
+from ..models import Comment, Post, UserAccount
+from ..reseau import HOME_ROUTE
 
 
 class HomeState(BaseState):
-    profile_text: str = ""  # the user's profile text
-    users_displayed: list[Tuple[UserAccount, City]] = []  # users to display
-    search_term: str = ""  # the term typed in the search bar
-    city_searched: City = None  # the first city detected with the search term
+    # if current user has a profile picture
+    own_profile_picture_exists: bool = False
+    # posts to display
+    posts_displayed: list[Tuple[Post, str, UserAccount, bool]] = []
+    post_author: UserAccount = None  # author of a post
+    # comments of a post
+    post_comments: list[Tuple[Comment, str, UserAccount, bool]] = []
+    profile_pictures_exist: list[bool] = []
 
     def run_script(self):
         """Uncomment any one-time script needed for app initialization here."""
         # delete_cities()
         # insert_cities()
         # delete_users()
+        # insert_interests()
 
-    def init_home(self):
-        self.profile_text = self.authenticated_user.profile_text
-        self.load_all_users()
-
-    def load_all_users(self):
-        self.users_displayed = []
-        with rx.session() as session:
-            users = session.exec(UserAccount.select()).all()
-
-        for user in users:
-            city = session.exec(
-                City.select().where(City.id == user.city)
-            ).first()
-            self.users_displayed.append((user, city))
-
-        shuffle(self.users_displayed)
-
-    def save_profile_text(self) -> rx.event.EventSpec:
-        profile_text_cleaned = self.authenticated_user.clean_profile_text(
-            self.profile_text
+    def init(self):
+        # self.run_script()
+        self.own_profile_picture_exists = os.path.isfile(
+            f"{rx.get_upload_dir()}/{self.authenticated_user.id}" +
+            "_profile_picture.png"
         )
+        self.load_all_posts()
 
-        # Retrieve the authenticated user with its id
+    def load_all_posts(self):
+        self.posts_displayed = []
         with rx.session() as session:
-            user: UserAccount = session.exec(
-                UserAccount.select().where(
-                    UserAccount.id == self.authenticated_user.id
+            posts = session.exec(
+                Post.select().options(
+                    sa.orm.selectinload(Post.useraccount),
+                    sa.orm.selectinload(Post.comment_list),
                 )
-            ).first()
-            user.profile_text = profile_text_cleaned
-            session.add(user)
+                .where(Post.published)
+                .order_by(Post.published_at.desc())
+            ).all()
+
+        for post in posts:
+            self.posts_displayed.append(
+                (post,
+                 f"{post.published_at: %d/%m/%y %H:%M}",
+                 post.useraccount,
+                 os.path.isfile(f"{rx.get_upload_dir()}/{post.author_id}" +
+                                "_profile_picture.png")),
+            )
+
+    def load_post_details(self, post_id: int):
+        self.post_author = None
+        self.post_comments = []
+
+        with rx.session() as session:
+            comments = session.exec(
+                Comment.select()
+                .options(sa.orm.selectinload(Comment.useraccount))
+                .where(Comment.post_id == post_id)
+                .order_by(Comment.published_at.asc())
+            ).all()
+        for comment in comments:
+            self.post_comments.append(
+                (comment,
+                 f"{comment.published_at: %d/%m/%y %H:%M}",
+                 comment.useraccount,
+                 os.path.isfile(f"{rx.get_upload_dir()}/{comment.author_id}" +
+                                "_profile_picture.png")),
+            )
+
+    def publish_post(self, form_data: dict):
+        title = form_data["title"]
+        content = form_data["content"]
+
+        if not content:
+            return rx.toast.warning("Ton post doit avoir un contenu.")
+
+        post = Post(
+            title=title,
+            content=content,
+            author_id=self.authenticated_user.id,
+            published_at=datetime.now(),
+        )
+        with rx.session() as session:
+            session.add(post)
             session.commit()
 
-        # Update the authenticated user's profile text
-        self.set_profile_text(profile_text_cleaned)
+        self.load_all_posts()
 
-        return rx.toast.success("Profil mis à jour.")
+        return rx.toast.success("Post publié.")
 
-    def search_city(self, form_data):
-        self.search_term = form_data["search_term"]
-
-        # If no search term, display all users.
-        if not self.search_term:
-            return self.load_all_users()
-
-        # Fetch the first city matching the search term.
+    def publish_comment(self, form_data: dict):
+        post_id = form_data["post_id"]
+        comment = Comment(
+            content=form_data["content"],
+            post_id=post_id,
+            author_id=self.authenticated_user.id,
+            published_at=datetime.now(),
+        )
         with rx.session() as session:
-            city: City = session.exec(
-                City.select().where(
-                    func.lower(City.name).startswith(
-                        func.lower(self.search_term)
-                    )
-                )
-            ).first()
-        # Fetch the users living in the city.
-        users = []
-        if city is not None:
-            users = session.exec(
-                UserAccount.select().where(UserAccount.city == city.id)
-            ).all()
-            self.city_searched = city
+            session.add(comment)
+            session.commit()
 
-        self.users_displayed.clear()
-        for user in users:
-            self.users_displayed.append((user, city))
+        self.load_post_details(post_id)
+        return rx.toast.success("Commentaire publié.")
 
 
-@rx.page(title="Reseau", route=HOME_ROUTE, on_load=HomeState.init_home)
+@rx.page(title="Reseau", route=HOME_ROUTE, on_load=HomeState.init)
+@template
 def home_page() -> rx.Component:
-    home = rx.vstack(
-        rx.vstack(
-            rx.desktop_only(
-                rx.center(
-                    rx.heading(
-                        "Rɘseau",
-                        size="8",
-                        style={
-                            "font-family": "Droid Sans Mono",
-                            "letter-spacing": "1px"
-                        },
-                    ),
-                    width="100%",
-                    margin="0 0 3em 0",
-                ),
-                width="100%",
-            ),
-            rx.mobile_and_tablet(
-                rx.box(
-                    rx.heading(
-                        "Rɘseau",
-                        size="8",
-                        style={
-                            "font-family": "Droid Sans Mono",
-                            "letter-spacing": "1px"
-                        },
-                    ),
-                    width="100%",
-                    justify="start",
-                    margin="0 0 3em 0.5em",
-                ),
-            ),
-            profile(
-                HomeState.profile_text,
-                HomeState.set_profile_text,
-                HomeState.save_profile_text),
-            width="100%",
-        ),
-        rx.center(
-            rx.divider(size="3"),
-            width="100%",
-        ),
-        rx.form(
-            rx.input(
-                id="search_term",
-                placeholder="Rechercher une ville",
-                width="100%",
-                size="3",
-                variant="surface",
-            ),
-            on_submit=HomeState.search_city,
-        ),
-        # display all users by default
-        # else display the users in the city searched
-        # or a message if no user is found
-        rx.cond(
-            HomeState.users_displayed,
-            rx.flex(
-                rx.foreach(
-                    HomeState.users_displayed,
-                    lambda user: user_card(
-                        user[0],
-                        user[1],
-                        ~user[0].profile_text,),
-                ),
-                width="100%",
-                direction="row",
-                spacing="3",
-                flex_wrap="wrap",
-                justify="center",
-            ),
-            rx.cond(
-                HomeState.city_searched,
-                rx.text(
-                    f"Aucune personne trouvée : \
-                        {HomeState.city_searched.name} \
-                        ({HomeState.city_searched.postal_code})",
-                    width="100%",
-                    align="center",
-                ),
-                rx.center(
-                    rx.spinner(),
-                    width="100%",
-                ),
-            ),
-        ),
-        width="100%",
-        justify="center",
-        spacing="5",
-    )
+    """Render the landing page for visitors, \
+        or the home page for authenticated users.
 
-    return rx.box(
+    Returns:
+        A reflex component.
+    """
+    return rx.cond(
+        HomeState.is_hydrated,
         # toggle dark/light mode using right top corner button
-        # rx.color_mode.button(position="top-right"),
+        # can't work while icons stay black
         rx.cond(
             BaseState.is_authenticated,
-            rx.box(
-                sidebar(),
-                rx.box(
-                    home,
-                    margin=["12px", "12px", "12px", "4em 8em"],
-                )
+            rx.vstack(
+                write_post_dialog(
+                    user=[BaseState.authenticated_user,
+                          HomeState.own_profile_picture_exists],
+                    publish_post=HomeState.publish_post
+                ),
+                rx.tablet_and_desktop(
+                    rx.spacer(spacing="2"),
+                ),
+                rx.grid(
+                    rx.foreach(
+                        HomeState.posts_displayed,
+                        lambda post:
+                            post_dialog(
+                                post=post[0],
+                                post_datetime=post[1],
+                                post_author=post[2],
+                                post_profile_picture_exist=post[3],
+                                post_comments=HomeState.post_comments,
+                                profile_pictures_exist=HomeState.profile_pictures_exist,  # noqa
+                                load_post_details=HomeState.load_post_details,
+                                publish_comment=HomeState.publish_comment,
+                            ),
+                    ),
+                    columns="1",
+                    width="100%",
+                    spacing="3",
+                ),
+                width="100%",
             ),
             rx.box(
                 landing(),
@@ -203,6 +167,8 @@ def home_page() -> rx.Component:
                 top="50%",
                 left="50%",
                 transform="translateX(-50%) translateY(-50%)",
+                width=["80%", "80%", "70%", "60%", "50%"],
+                # padding_x=["1em", "1em", "1em", "1em", "0"],
             ),
         ),
     )

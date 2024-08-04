@@ -1,5 +1,5 @@
 import reflex as rx
-from ..models.user_account import UserAccount
+from ..models import UserAccount
 
 
 def delete_users():
@@ -9,7 +9,6 @@ def delete_users():
     with rx.session() as session:
         users = session.exec(UserAccount.select()).all()
         rx.foreach(users, lambda user: session.delete(user))
-        # session.delete(users)
         session.commit()
 
     print("Deleting users - Done")

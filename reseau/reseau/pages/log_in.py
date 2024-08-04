@@ -2,10 +2,10 @@ import asyncio
 from collections.abc import AsyncGenerator
 import reflex as rx
 
+from ..common.base_state import BaseState
 from ..reseau import LOGIN_ROUTE, REGISTER_ROUTE
-from ..models.user_account import UserAccount
-from ..components.sidebar import sidebar
-from ..base_state import BaseState
+from ..models import UserAccount
+from ..common.template import template
 
 
 class LogInState(BaseState):
@@ -27,7 +27,15 @@ class LogInState(BaseState):
         """
         self.error_message = ""
         username = form_data["username"]
+        if not username:
+            yield rx.set_focus("username")
+            yield rx.toast.error("Le nom d'utilisateur est requis.")
+            return
         password = form_data["password"]
+        if not password:
+            yield rx.set_focus("password")
+            yield rx.toast.error("Le mot de passe est requis.")
+            return
         with rx.session() as session:
             user = session.exec(
                 UserAccount.select().where(UserAccount.username == username)
@@ -68,13 +76,14 @@ class LogInState(BaseState):
 
 
 @rx.page(route=LOGIN_ROUTE)
+@template
 def log_in_page() -> rx.Component:
     """Render the login page.
 
     Returns:
         A reflex component.
     """
-    login_form = rx.form(
+    login_form_desktop_tablet = rx.form(
         rx.vstack(
             rx.vstack(
                 rx.text(
@@ -134,14 +143,73 @@ def log_in_page() -> rx.Component:
         on_submit=LogInState.on_submit
     )
 
-    return rx.fragment(
-        rx.container(
-            rx.hstack(
-                sidebar(),
-                rx.cond(
-                    LogInState.is_hydrated,  # type: ignore
+    login_form_mobile = rx.form(
+        rx.vstack(
+            rx.vstack(
+                rx.text(
+                    "Nom d'utilisateur",
+                    size="2",
+                    weight="medium",
+                    text_align="left",
+                    width="100%",
+                ),
+                rx.input(
+                    id="username",
+                    size="3",
+                    width="100%",
+                ),
+                justify="start",
+                spacing="2",
+                width="100%",
+            ),
+            rx.vstack(
+                rx.text(
+                    "Mot de passe",
+                    size="2",
+                    weight="medium",
+                    text_align="left",
+                    width="100%",
+                ),
+                rx.input(
+                    id="password",
+                    type="password",
+                    size="3",
+                    width="100%",
+                ),
+                justify="start",
+                spacing="2",
+                width="100%",
+            ),
+            rx.button(
+                "Se connecter",
+                type="submit",
+                size="3",
+                width="100%",
+                margin_top="1em",
+            ),
+            rx.center(
+                rx.link(
+                    "Pas encore de compte ?",
+                    href=REGISTER_ROUTE,
+                    width="100%",
+                    text_align="center",
+                ),
+                direction="column",
+                spacing="5",
+                width="100%",
+            ),
+            justify="center",
+            min_height="85vh",
+        ),
+        on_submit=LogInState.on_submit
+    )
+
+    return rx.cond(
+            LogInState.is_hydrated,
+            rx.box(
+                rx.tablet_and_desktop(
                     rx.vstack(
-                        login_form,
+                        login_form_desktop_tablet,
                         rx.cond(  # conditionally show error messages
                             LogInState.success,
                             rx.center(
@@ -157,13 +225,39 @@ def log_in_page() -> rx.Component:
                                 width="100%",
                             ),
                         ),
+                        position="absolute",
+                        top="50%",
+                        left="50%",
+                        transform="translateX(-50%) translateY(-50%)",
                     ),
                 ),
-                spacing="0",
-                justify="center",
-            )
+                rx.mobile_only(
+                    rx.vstack(
+                        login_form_mobile,
+                        rx.cond(  # conditionally show error messages
+                            LogInState.success,
+                            rx.center(
+                                rx.vstack(
+                                    rx.spinner(),
+                                    rx.text(
+                                        "Connexion réussie",
+                                        size="3",
+                                        weight="medium",
+                                    ),
+                                    align="center",
+                                ),
+                                width="100%",
+                            ),
+                        ),
+                        position="absolute",
+                        top="50%",
+                        left="50%",
+                        transform="translateX(-50%) translateY(-50%)",
+                        width="80%",
+                    ),
+                )
+            ),
         )
-    )
 
 
 # Will be useful later for futur pages
