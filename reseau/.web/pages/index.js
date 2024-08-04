@@ -18,19 +18,140 @@ import NextHead from "next/head"
 
 
 
-export function Div_ac2a89ea84667d600a059f034bd91dfe () {
+                function Fallback({ error, resetErrorBoundary }) {
+                    return (
+                        <div>
+  <p>
+  {`Ooops...Unknown Reflex error has occured:`}
+</p>
+  <p css={{"color": "red"}}>
+  {error.message}
+</p>
+  <p>
+  {`Please contact the support.`}
+</p>
+</div>
+                    );
+                }
+            
+
+export function Toaster_6e90e5e87a1cac8c96c683214079bef3 () {
+  const { resolvedColorMode } = useContext(ColorModeContext)
+
+
+  refs['__toast'] = toast
   const [addEvents, connectErrors] = useContext(EventLoopContext);
-
-
+  
+const toast_props = {"description": `Check if server is reachable at ${getBackendURL(env.EVENT).href}`, "closeButton": true, "duration": 120000, "id": "websocket-error"};
+const [userDismissed, setUserDismissed] = useState(false);
+useEffect(() => {
+    if (connectErrors.length >= 2) {
+        if (!userDismissed) {
+            toast.error(
+                `Cannot connect to server: ${(connectErrors.length > 0) ? connectErrors[connectErrors.length - 1].message : ''}.`,
+                {...toast_props, onDismiss: () => setUserDismissed(true)},
+            )
+        }
+    } else {
+        toast.dismiss("websocket-error");
+        setUserDismissed(false);  // after reconnection reset dismissed state
+    }
+}, [connectErrors]);
 
   return (
-    <div css={{"position": "fixed", "width": "100vw", "height": "0"}} title={`Connection Error: ${(connectErrors.length > 0) ? connectErrors[connectErrors.length - 1].message : ''}`}>
-  <Fragment_cf53a535ae2e610a113dd361eb6ac95b/>
-</div>
+    <Toaster closeButton={false} expand={true} position={`bottom-right`} richColors={true} theme={resolvedColorMode}/>
   )
 }
 
-export function Fragment_668ef168ce6c56d8a480db6e6f0afee2 () {
+const pulse = keyframes`
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+`
+
+
+export function Fragment_6cb8c6d0d8b0e63639dac29a3aec04f1 () {
+  const reflex___state____state__reseau___common___base_state____base_state = useContext(StateContexts.reflex___state____state__reseau___common___base_state____base_state)
+  const reflex___state____state__reseau___common___base_state____base_state__reseau___components___feedback_dialog____feedback_dialog_state = useContext(StateContexts.reflex___state____state__reseau___common___base_state____base_state__reseau___components___feedback_dialog____feedback_dialog_state)
+  const [addEvents, connectErrors] = useContext(EventLoopContext);
+
+
+  
+    const handleSubmit_d9df1725b0c537008dabe692e58f8735 = useCallback((ev) => {
+        const $form = ev.target
+        ev.preventDefault()
+        const form_data = {...Object.fromEntries(new FormData($form).entries()), ...{}}
+
+        addEvents([Event("reflex___state____state.reseau___common___base_state____base_state.reseau___components___feedback_dialog____feedback_dialog_state.on_submit", {form_data:form_data})])
+
+        if (false) {
+            $form.reset()
+        }
+    })
+    
+
+  return (
+    <Fragment>
+  {isTrue(reflex___state____state__reseau___common___base_state____base_state.is_authenticated) ? (
+  <Fragment>
+  <RadixThemesDialog.Root>
+  <RadixThemesDialog.Trigger>
+  <RadixThemesButton color={`gray`} css={{"border-radius": "50%", "width": "48px", "height": "48px", "position": "fixed", "@media screen and (min-width: 0)": {"bottom": "2em", "right": "2em"}, "@media screen and (min-width: 30em)": {"bottom": "2em", "right": "2em"}, "@media screen and (min-width: 48em)": {"bottom": "2em", "right": "2em"}, "@media screen and (min-width: 62em)": {"bottom": "2em", "right": "2em"}, "@media screen and (min-width: 80em)": {"bottom": "100px", "right": "100px"}}}>
+  <LucideMessageSquareQuoteIcon css={{"color": "var(--current-color)"}}/>
+</RadixThemesButton>
+</RadixThemesDialog.Trigger>
+  <RadixThemesDialog.Content>
+  <RadixThemesDialog.Title>
+  {`Feedback`}
+</RadixThemesDialog.Title>
+  <RadixThemesFlex direction={`column`} gap={`4`}>
+  <RadixThemesText as={`p`}>
+  {`Qu'est-ce qu'il manque ou pourraît être mieux sur la plateforme selon toi ?`}
+</RadixThemesText>
+  <RadixFormRoot className={`Root `} css={{"width": "100%"}} onSubmit={handleSubmit_d9df1725b0c537008dabe692e58f8735}>
+  <DebounceInput css={{"multiline": true, "width": "100%"}} debounceTimeout={1000} element={RadixThemesTextArea} name={`feedback`} onChange={(_e0) => addEvents([Event("reflex___state____state.reseau___common___base_state____base_state.reseau___components___feedback_dialog____feedback_dialog_state.set_message", {value:_e0.target.value})], (_e0), {})} placeholder={`Ton message ici...`} rows={`5`} value={reflex___state____state__reseau___common___base_state____base_state__reseau___components___feedback_dialog____feedback_dialog_state.message}/>
+  <RadixThemesFlex css={{"marginTop": "16px"}} justify={`end`} gap={`3`}>
+  <RadixThemesDialog.Close>
+  <RadixThemesButton color={`gray`} variant={`soft`}>
+  {`Annuler`}
+</RadixThemesButton>
+</RadixThemesDialog.Close>
+  <Fragment>
+  {isTrue(reflex___state____state__reseau___common___base_state____base_state__reseau___components___feedback_dialog____feedback_dialog_state.message) ? (
+  <Fragment>
+  <RadixThemesDialog.Close>
+  <RadixThemesButton type={`submit`}>
+  {`Envoyer`}
+</RadixThemesButton>
+</RadixThemesDialog.Close>
+</Fragment>
+) : (
+  <Fragment>
+  <RadixThemesDialog.Close>
+  <RadixThemesButton disabled={true} type={`submit`}>
+  {`Envoyer`}
+</RadixThemesButton>
+</RadixThemesDialog.Close>
+</Fragment>
+)}
+</Fragment>
+</RadixThemesFlex>
+</RadixFormRoot>
+</RadixThemesFlex>
+</RadixThemesDialog.Content>
+</RadixThemesDialog.Root>
+</Fragment>
+) : (
+  <Fragment/>
+)}
+</Fragment>
+  )
+}
+
+export function Fragment_b34ea5a1a8f563c24bcdd749b604f8f8 () {
   const reflex___state____state__reseau___common___base_state____base_state = useContext(StateContexts.reflex___state____state__reseau___common___base_state____base_state)
   const { resolvedColorMode } = useContext(ColorModeContext)
   const reflex___state____state = useContext(StateContexts.reflex___state____state)
@@ -254,7 +375,7 @@ export function Fragment_668ef168ce6c56d8a480db6e6f0afee2 () {
 </RadixThemesHeading>
   <RadixThemesDialog.Root>
   <RadixThemesDialog.Trigger>
-  <RadixThemesButton color={`gray`} css={{"justifyContent": "start", "backgroundColor": "white", "@media screen and (min-width: 0)": {"fontSize": "0.9em"}, "@media screen and (min-width: 30em)": {"fontSize": "1em"}, "width": "100%"}} radius={`large`} size={`3`} variant={`outline`}>
+  <RadixThemesButton color={`gray`} css={{"justifyContent": "start", "backgroundColor": "white", "@media screen and (min-width: 0)": {"fontSize": "0.9em"}, "@media screen and (min-width: 30em)": {"fontSize": "1em"}, "cursor": "pointer", "width": "100%"}} radius={`large`} size={`3`} variant={`outline`}>
   {`Écris quelque chose`}
 </RadixThemesButton>
 </RadixThemesDialog.Trigger>
@@ -319,8 +440,8 @@ export function Fragment_668ef168ce6c56d8a480db6e6f0afee2 () {
   <RadixThemesFlex css={{"flex": 1, "justifySelf": "stretch", "alignSelf": "stretch"}} gap={`2`}/>
 </RadixThemesBox>
   <RadixThemesGrid columns={`1`} css={{"width": "100%"}} gap={`3`}>
-  {reflex___state____state__reseau___common___base_state____base_state__reseau___pages___home____home_state.posts_displayed.map((post, index_81ae4a6fbdcb1faa) => (
-  <RadixThemesDialog.Root key={index_81ae4a6fbdcb1faa}>
+  {reflex___state____state__reseau___common___base_state____base_state__reseau___pages___home____home_state.posts_displayed.map((post, index_1edb61bba2098d1f) => (
+  <RadixThemesDialog.Root key={index_1edb61bba2098d1f}>
   <RadixThemesDialog.Trigger onClick={(_e) => addEvents([Event("reflex___state____state.reseau___common___base_state____base_state.reseau___pages___home____home_state.load_post_details", {post_id:post.at(0).id})], (_e), {})}>
   <RadixThemesCard css={{"@media screen and (min-width: 0)": {"padding": "1em"}, "@media screen and (min-width: 30em)": {"padding": "1.2em"}, "cursor": "pointer"}}>
   <RadixThemesFlex align={`start`} className={`rx-Stack`} css={{"width": "100%"}} direction={`column`} gap={`3`}>
@@ -425,8 +546,8 @@ export function Fragment_668ef168ce6c56d8a480db6e6f0afee2 () {
   <RadixThemesSeparator css={{"marginBottom": "1em"}} size={`4`}/>
   <Fragment>
   <RadixThemesGrid columns={`1`} css={{"width": "100%"}} gap={`3`}>
-  {reflex___state____state__reseau___common___base_state____base_state__reseau___pages___home____home_state.post_comments.map((comment, index_774280c3b5ec0bfb) => (
-  <RadixThemesCard css={{"width": "100%", "backgroundColor": isTrue(((resolvedColorMode) === (`light`))) ? `#e9e9e9` : `#191918`, "@media screen and (min-width: 0)": {"padding": "1em 0.5em"}, "@media screen and (min-width: 30em)": {"padding": "1em"}}} key={index_774280c3b5ec0bfb}>
+  {reflex___state____state__reseau___common___base_state____base_state__reseau___pages___home____home_state.post_comments.map((comment, index_3a087c57fc97182e) => (
+  <RadixThemesCard css={{"width": "100%", "backgroundColor": isTrue(((resolvedColorMode) === (`light`))) ? `#e9e9e9` : `#191918`, "@media screen and (min-width: 0)": {"padding": "1em 0.5em"}, "@media screen and (min-width: 30em)": {"padding": "1em"}}} key={index_3a087c57fc97182e}>
   <RadixThemesFlex align={`start`} className={`rx-Stack`} direction={`row`} gap={`3`}>
   <Fragment>
   {isTrue(comment.at(3)) ? (
@@ -555,7 +676,7 @@ export function Fragment_668ef168ce6c56d8a480db6e6f0afee2 () {
 </RadixThemesHeading>
   <RadixThemesDialog.Root>
   <RadixThemesDialog.Trigger>
-  <RadixThemesButton color={`gray`} css={{"justifyContent": "start", "backgroundColor": "white", "@media screen and (min-width: 0)": {"fontSize": "0.9em"}, "@media screen and (min-width: 30em)": {"fontSize": "1em"}, "width": "100%"}} radius={`large`} size={`3`} variant={`outline`}>
+  <RadixThemesButton color={`gray`} css={{"justifyContent": "start", "backgroundColor": "white", "@media screen and (min-width: 0)": {"fontSize": "0.9em"}, "@media screen and (min-width: 30em)": {"fontSize": "1em"}, "cursor": "pointer", "width": "100%"}} radius={`large`} size={`3`} variant={`outline`}>
   {`Écris quelque chose`}
 </RadixThemesButton>
 </RadixThemesDialog.Trigger>
@@ -620,8 +741,8 @@ export function Fragment_668ef168ce6c56d8a480db6e6f0afee2 () {
   <RadixThemesFlex css={{"flex": 1, "justifySelf": "stretch", "alignSelf": "stretch"}} gap={`2`}/>
 </RadixThemesBox>
   <RadixThemesGrid columns={`1`} css={{"width": "100%"}} gap={`3`}>
-  {reflex___state____state__reseau___common___base_state____base_state__reseau___pages___home____home_state.posts_displayed.map((post, index_81ae4a6fbdcb1faa) => (
-  <RadixThemesDialog.Root key={index_81ae4a6fbdcb1faa}>
+  {reflex___state____state__reseau___common___base_state____base_state__reseau___pages___home____home_state.posts_displayed.map((post, index_1edb61bba2098d1f) => (
+  <RadixThemesDialog.Root key={index_1edb61bba2098d1f}>
   <RadixThemesDialog.Trigger onClick={(_e) => addEvents([Event("reflex___state____state.reseau___common___base_state____base_state.reseau___pages___home____home_state.load_post_details", {post_id:post.at(0).id})], (_e), {})}>
   <RadixThemesCard css={{"@media screen and (min-width: 0)": {"padding": "1em"}, "@media screen and (min-width: 30em)": {"padding": "1.2em"}, "cursor": "pointer"}}>
   <RadixThemesFlex align={`start`} className={`rx-Stack`} css={{"width": "100%"}} direction={`column`} gap={`3`}>
@@ -726,8 +847,8 @@ export function Fragment_668ef168ce6c56d8a480db6e6f0afee2 () {
   <RadixThemesSeparator css={{"marginBottom": "1em"}} size={`4`}/>
   <Fragment>
   <RadixThemesGrid columns={`1`} css={{"width": "100%"}} gap={`3`}>
-  {reflex___state____state__reseau___common___base_state____base_state__reseau___pages___home____home_state.post_comments.map((comment, index_774280c3b5ec0bfb) => (
-  <RadixThemesCard css={{"width": "100%", "backgroundColor": isTrue(((resolvedColorMode) === (`light`))) ? `#e9e9e9` : `#191918`, "@media screen and (min-width: 0)": {"padding": "1em 0.5em"}, "@media screen and (min-width: 30em)": {"padding": "1em"}}} key={index_774280c3b5ec0bfb}>
+  {reflex___state____state__reseau___common___base_state____base_state__reseau___pages___home____home_state.post_comments.map((comment, index_3a087c57fc97182e) => (
+  <RadixThemesCard css={{"width": "100%", "backgroundColor": isTrue(((resolvedColorMode) === (`light`))) ? `#e9e9e9` : `#191918`, "@media screen and (min-width: 0)": {"padding": "1em 0.5em"}, "@media screen and (min-width: 30em)": {"padding": "1em"}}} key={index_3a087c57fc97182e}>
   <RadixThemesFlex align={`start`} className={`rx-Stack`} direction={`row`} gap={`3`}>
   <Fragment>
   {isTrue(comment.at(3)) ? (
@@ -846,94 +967,6 @@ export function Fragment_668ef168ce6c56d8a480db6e6f0afee2 () {
   )
 }
 
-const pulse = keyframes`
-    0% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 1;
-    }
-`
-
-
-export function Fragment_6cb8c6d0d8b0e63639dac29a3aec04f1 () {
-  const reflex___state____state__reseau___common___base_state____base_state = useContext(StateContexts.reflex___state____state__reseau___common___base_state____base_state)
-  const reflex___state____state__reseau___common___base_state____base_state__reseau___components___feedback_dialog____feedback_dialog_state = useContext(StateContexts.reflex___state____state__reseau___common___base_state____base_state__reseau___components___feedback_dialog____feedback_dialog_state)
-  const [addEvents, connectErrors] = useContext(EventLoopContext);
-
-
-  
-    const handleSubmit_d9df1725b0c537008dabe692e58f8735 = useCallback((ev) => {
-        const $form = ev.target
-        ev.preventDefault()
-        const form_data = {...Object.fromEntries(new FormData($form).entries()), ...{}}
-
-        addEvents([Event("reflex___state____state.reseau___common___base_state____base_state.reseau___components___feedback_dialog____feedback_dialog_state.on_submit", {form_data:form_data})])
-
-        if (false) {
-            $form.reset()
-        }
-    })
-    
-
-  return (
-    <Fragment>
-  {isTrue(reflex___state____state__reseau___common___base_state____base_state.is_authenticated) ? (
-  <Fragment>
-  <RadixThemesDialog.Root>
-  <RadixThemesDialog.Trigger>
-  <RadixThemesButton color={`gray`} css={{"border-radius": "50%", "width": "48px", "height": "48px", "position": "fixed", "@media screen and (min-width: 0)": {"bottom": "2em", "right": "2em"}, "@media screen and (min-width: 30em)": {"bottom": "2em", "right": "2em"}, "@media screen and (min-width: 48em)": {"bottom": "2em", "right": "2em"}, "@media screen and (min-width: 62em)": {"bottom": "2em", "right": "2em"}, "@media screen and (min-width: 80em)": {"bottom": "100px", "right": "100px"}}}>
-  <LucideMessageSquareQuoteIcon css={{"color": "var(--current-color)"}}/>
-</RadixThemesButton>
-</RadixThemesDialog.Trigger>
-  <RadixThemesDialog.Content>
-  <RadixThemesDialog.Title>
-  {`Feedback`}
-</RadixThemesDialog.Title>
-  <RadixThemesFlex direction={`column`} gap={`4`}>
-  <RadixThemesText as={`p`}>
-  {`Qu'est-ce qu'il manque ou pourraît être mieux sur la plateforme selon toi ?`}
-</RadixThemesText>
-  <RadixFormRoot className={`Root `} css={{"width": "100%"}} onSubmit={handleSubmit_d9df1725b0c537008dabe692e58f8735}>
-  <DebounceInput css={{"multiline": true, "width": "100%"}} debounceTimeout={1000} element={RadixThemesTextArea} name={`feedback`} onChange={(_e0) => addEvents([Event("reflex___state____state.reseau___common___base_state____base_state.reseau___components___feedback_dialog____feedback_dialog_state.set_message", {value:_e0.target.value})], (_e0), {})} placeholder={`Ton message ici...`} rows={`5`} value={reflex___state____state__reseau___common___base_state____base_state__reseau___components___feedback_dialog____feedback_dialog_state.message}/>
-  <RadixThemesFlex css={{"marginTop": "16px"}} justify={`end`} gap={`3`}>
-  <RadixThemesDialog.Close>
-  <RadixThemesButton color={`gray`} variant={`soft`}>
-  {`Annuler`}
-</RadixThemesButton>
-</RadixThemesDialog.Close>
-  <Fragment>
-  {isTrue(reflex___state____state__reseau___common___base_state____base_state__reseau___components___feedback_dialog____feedback_dialog_state.message) ? (
-  <Fragment>
-  <RadixThemesDialog.Close>
-  <RadixThemesButton type={`submit`}>
-  {`Envoyer`}
-</RadixThemesButton>
-</RadixThemesDialog.Close>
-</Fragment>
-) : (
-  <Fragment>
-  <RadixThemesDialog.Close>
-  <RadixThemesButton disabled={true} type={`submit`}>
-  {`Envoyer`}
-</RadixThemesButton>
-</RadixThemesDialog.Close>
-</Fragment>
-)}
-</Fragment>
-</RadixThemesFlex>
-</RadixFormRoot>
-</RadixThemesFlex>
-</RadixThemesDialog.Content>
-</RadixThemesDialog.Root>
-</Fragment>
-) : (
-  <Fragment/>
-)}
-</Fragment>
-  )
-}
-
 export function Fragment_cf53a535ae2e610a113dd361eb6ac95b () {
   const [addEvents, connectErrors] = useContext(EventLoopContext);
 
@@ -952,48 +985,15 @@ export function Fragment_cf53a535ae2e610a113dd361eb6ac95b () {
   )
 }
 
-                function Fallback({ error, resetErrorBoundary }) {
-                    return (
-                        <div>
-  <p>
-  {`Ooops...Unknown Reflex error has occured:`}
-</p>
-  <p css={{"color": "red"}}>
-  {error.message}
-</p>
-  <p>
-  {`Please contact the support.`}
-</p>
-</div>
-                    );
-                }
-            
-
-export function Toaster_6e90e5e87a1cac8c96c683214079bef3 () {
-  const { resolvedColorMode } = useContext(ColorModeContext)
-
-
-  refs['__toast'] = toast
+export function Div_ac2a89ea84667d600a059f034bd91dfe () {
   const [addEvents, connectErrors] = useContext(EventLoopContext);
-  
-const toast_props = {"description": `Check if server is reachable at ${getBackendURL(env.EVENT).href}`, "closeButton": true, "duration": 120000, "id": "websocket-error"};
-const [userDismissed, setUserDismissed] = useState(false);
-useEffect(() => {
-    if (connectErrors.length >= 2) {
-        if (!userDismissed) {
-            toast.error(
-                `Cannot connect to server: ${(connectErrors.length > 0) ? connectErrors[connectErrors.length - 1].message : ''}.`,
-                {...toast_props, onDismiss: () => setUserDismissed(true)},
-            )
-        }
-    } else {
-        toast.dismiss("websocket-error");
-        setUserDismissed(false);  // after reconnection reset dismissed state
-    }
-}, [connectErrors]);
+
+
 
   return (
-    <Toaster closeButton={false} expand={true} position={`bottom-right`} richColors={true} theme={resolvedColorMode}/>
+    <div css={{"position": "fixed", "width": "100vw", "height": "0"}} title={`Connection Error: ${(connectErrors.length > 0) ? connectErrors[connectErrors.length - 1].message : ''}`}>
+  <Fragment_cf53a535ae2e610a113dd361eb6ac95b/>
+</div>
   )
 }
 
@@ -1016,7 +1016,7 @@ export default function Component() {
   <Toaster_6e90e5e87a1cac8c96c683214079bef3/>
 </Fragment>
   <RadixThemesFlex align={`start`} className={`rx-Stack`} css={{"width": "100%"}} direction={`column`} gap={`3`}>
-  <Fragment_668ef168ce6c56d8a480db6e6f0afee2/>
+  <Fragment_b34ea5a1a8f563c24bcdd749b604f8f8/>
   <Fragment_6cb8c6d0d8b0e63639dac29a3aec04f1/>
 </RadixThemesFlex>
   <NextHead>

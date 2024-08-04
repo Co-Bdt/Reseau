@@ -1,12 +1,12 @@
-.web/.next
-.web/components
-.web/node_modules
-.web/pages
-.web/public
-.web/utils
-.web/*.json
-.web/*.js
-.web/bun.lockb
+# .web/.next
+# .web/components
+# .web/node_modules
+# .web/pages
+# .web/public
+# .web/utils
+# .web/*.json
+# .web/*.js
+# .web/bun.lockb
 .git
 __pycache__/*
 Dockerfile

@@ -31,6 +31,7 @@ class WritePostDialog(rx.ComponentState):
                         justify_content="start",
                         background_color="white",
                         font_size=["0.9em", "1em"],
+                        cursor="pointer",
                     ),
                 )
             ),
