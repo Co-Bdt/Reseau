@@ -132,6 +132,13 @@ def home_page() -> rx.Component:
         rx.cond(
             BaseState.is_authenticated,
             rx.vstack(
+                rx.heading(
+                    "Communauté",
+                    size="5",
+                    style=rx.Style(
+                        margin_bottom="0.5em"
+                    ),
+                ),
                 write_post_dialog(
                     user=[BaseState.authenticated_user,
                           HomeState.own_profile_picture_exists],

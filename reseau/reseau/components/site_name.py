@@ -44,19 +44,7 @@ class SiteName(rx.ComponentState):
                 ),
                 width="100%",
                 margin="0",
-                # padding="6px",
-                # rx.box(
-                #     rx.heading(
-                #         "Reseau",
-                #         size="7",
-                #         style={
-                #             "letter-spacing": "1px"
-                #         },
-                #     ),
-                #     width="100%",
-                #     justify="start",
-                #     margin="0 0 3em 0.5em",
-                # ),
+                padding="6px",
             ),
             justify="start",
         )

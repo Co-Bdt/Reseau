@@ -72,7 +72,7 @@ def feedback_dialog() -> rx.Component:
             rx.dialog.title("Feedback"),
             rx.flex(
                 rx.text("Qu'est-ce qu'il manque ou pourraît"
-                        " être mieux sur la plateforme pour toi ?"),
+                        " être mieux sur la plateforme selon toi ?"),
                 rx.form.root(
                     rx.debounce_input(
                         rx.text_area(

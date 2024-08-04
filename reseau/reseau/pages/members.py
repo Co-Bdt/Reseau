@@ -91,10 +91,19 @@ def members_page() -> rx.Component:
     return rx.cond(
         MembersState.is_hydrated,
         rx.vstack(
+            rx.heading(
+                    "Membres",
+                    size="5",
+                    style=rx.Style(
+                        margin_bottom="0.5em"
+                    ),
+                ),
             rx.text(
-                "Connecte avec d'autres gars aux mêmes valeurs que toi "
+                "Connecte avec d'autres gars aux mêmes valeurs "
                 "et progresse avec eux.",
-                margin_x=["1em", "0"],
+                style=rx.Style(
+                    margin_bottom="0.5em"
+                ),
             ),
             rx.form(
                 rx.input(
@@ -104,7 +113,6 @@ def members_page() -> rx.Component:
                     size="3",
                     variant="surface",
                 ),
-                padding_x=["1em", "0"],
                 on_submit=MembersState.search_city,
             ),
             # display all users by default
@@ -165,7 +173,6 @@ def members_page() -> rx.Component:
                         ),
                     ),
                     width="100%",
-                    padding=["1em", "0"],
                 ),
                 rx.cond(
                     MembersState.city_searched,
@@ -182,6 +189,5 @@ def members_page() -> rx.Component:
                     ),
                 ),
             ),
-            spacing="5",
         ),
     )

@@ -20,5 +20,6 @@ assets/external/
 feedbacks/*
 uploaded_files/*.png
 uploaded_files/*.jpg
+uploaded_files/*.jpeg
 .venv/
 ../.vscode/
