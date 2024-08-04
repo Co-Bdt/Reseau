@@ -14,5 +14,8 @@ app = rx.App(
     theme=rx.theme(
         appearance="light",
         accent_color="amber",
-    )
+    ),
+    stylesheets=[
+        "/styles.css",  # This path is relative to assets/
+    ],
 )
