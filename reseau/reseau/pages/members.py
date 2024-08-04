@@ -90,6 +90,11 @@ class MembersState(BaseState):
                             city,
                             user_interest)
                     )
+        else:
+            self.city_searched = City(
+                name=self.search_term,
+                postal_code="00000"
+            )
 
         # Display users in random order.
         shuffle(self.users_displayed)

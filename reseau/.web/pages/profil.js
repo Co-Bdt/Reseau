@@ -18,6 +18,18 @@ import NextHead from "next/head"
 
 
 
+export function Div_ac2a89ea84667d600a059f034bd91dfe () {
+  const [addEvents, connectErrors] = useContext(EventLoopContext);
+
+
+
+  return (
+    <div css={{"position": "fixed", "width": "100vw", "height": "0"}} title={`Connection Error: ${(connectErrors.length > 0) ? connectErrors[connectErrors.length - 1].message : ''}`}>
+  <Fragment_cf53a535ae2e610a113dd361eb6ac95b/>
+</div>
+  )
+}
+
 const pulse = keyframes`
     0% {
         opacity: 0;
@@ -106,7 +118,7 @@ export function Fragment_6cb8c6d0d8b0e63639dac29a3aec04f1 () {
   )
 }
 
-export function Fragment_840509c07b74195c8e95dddd16385a86 () {
+export function Fragment_092ad82e88f587cfd6adae8236bc44e4 () {
   const reflex___state____state__reseau___common___base_state____base_state = useContext(StateContexts.reflex___state____state__reseau___common___base_state____base_state)
   const { resolvedColorMode } = useContext(ColorModeContext)
   const reflex___state____state = useContext(StateContexts.reflex___state____state)
@@ -355,8 +367,8 @@ Qu'est-ce qui te fait vibrer ?`} rows={`5`} value={reflex___state____state__rese
 </RadixThemesHeading>
 </RadixThemesFlex>
   <RadixThemesFlex css={{"justifyContent": "start"}} gap={`2`} wrap={`wrap`}>
-  {reflex___state____state__reseau___common___base_state____base_state__reseau___pages___profile____profile_state.selected_interests_names.map((item, index_6d54c5b91d28e21c) => (
-  <RadixThemesBadge color={`green`} css={{"&:hover": {"opacity": 0.75}, "cursor": "pointer"}} key={index_6d54c5b91d28e21c} onClick={(_e) => addEvents([Event("reflex___state____state.reseau___common___base_state____base_state.reseau___pages___profile____profile_state.remove_selected", {item:item})], (_e), {})} radius={`full`} size={`3`} variant={`surface`}>
+  {reflex___state____state__reseau___common___base_state____base_state__reseau___pages___profile____profile_state.selected_interests_names.map((item, index_30e791a6eb3ba69f) => (
+  <RadixThemesBadge color={`green`} css={{"&:hover": {"opacity": 0.75}, "cursor": "pointer"}} key={index_30e791a6eb3ba69f} onClick={(_e) => addEvents([Event("reflex___state____state.reseau___common___base_state____base_state.reseau___pages___profile____profile_state.remove_selected", {item:item})], (_e), {})} radius={`full`} size={`3`} variant={`surface`}>
   {item}
   <LucideCircleXIcon css={{"color": "var(--current-color)"}} size={18}/>
 </RadixThemesBadge>
@@ -364,8 +376,8 @@ Qu'est-ce qui te fait vibrer ?`} rows={`5`} value={reflex___state____state__rese
 </RadixThemesFlex>
   <RadixThemesSeparator size={`4`}/>
   <RadixThemesFlex css={{"justifyContent": "start"}} gap={`2`} wrap={`wrap`}>
-  {["Business", "Mental", "Physique", "Relations"].map((item, index_51b7d3d901c2803a) => (
-  <Fragment key={index_51b7d3d901c2803a}>
+  {["Business", "Mental", "Physique", "Relations"].map((item, index_866e5109bde0addf) => (
+  <Fragment key={index_866e5109bde0addf}>
   {isTrue(reflex___state____state__reseau___common___base_state____base_state__reseau___pages___profile____profile_state.selected_interests_names.includes(item)) ? (
   <Fragment/>
 ) : (
@@ -495,8 +507,8 @@ Qu'est-ce qui te fait vibrer ?`} rows={`5`} value={reflex___state____state__rese
 </RadixThemesHeading>
 </RadixThemesFlex>
   <RadixThemesFlex css={{"justifyContent": "start"}} gap={`2`} wrap={`wrap`}>
-  {reflex___state____state__reseau___common___base_state____base_state__reseau___pages___profile____profile_state.selected_interests_names.map((item, index_6d54c5b91d28e21c) => (
-  <RadixThemesBadge color={`green`} css={{"&:hover": {"opacity": 0.75}, "cursor": "pointer"}} key={index_6d54c5b91d28e21c} onClick={(_e) => addEvents([Event("reflex___state____state.reseau___common___base_state____base_state.reseau___pages___profile____profile_state.remove_selected", {item:item})], (_e), {})} radius={`full`} size={`3`} variant={`surface`}>
+  {reflex___state____state__reseau___common___base_state____base_state__reseau___pages___profile____profile_state.selected_interests_names.map((item, index_30e791a6eb3ba69f) => (
+  <RadixThemesBadge color={`green`} css={{"&:hover": {"opacity": 0.75}, "cursor": "pointer"}} key={index_30e791a6eb3ba69f} onClick={(_e) => addEvents([Event("reflex___state____state.reseau___common___base_state____base_state.reseau___pages___profile____profile_state.remove_selected", {item:item})], (_e), {})} radius={`full`} size={`3`} variant={`surface`}>
   {item}
   <LucideCircleXIcon css={{"color": "var(--current-color)"}} size={18}/>
 </RadixThemesBadge>
@@ -504,8 +516,8 @@ Qu'est-ce qui te fait vibrer ?`} rows={`5`} value={reflex___state____state__rese
 </RadixThemesFlex>
   <RadixThemesSeparator size={`4`}/>
   <RadixThemesFlex css={{"justifyContent": "start"}} gap={`2`} wrap={`wrap`}>
-  {["Business", "Mental", "Physique", "Relations"].map((item, index_51b7d3d901c2803a) => (
-  <Fragment key={index_51b7d3d901c2803a}>
+  {["Business", "Mental", "Physique", "Relations"].map((item, index_866e5109bde0addf) => (
+  <Fragment key={index_866e5109bde0addf}>
   {isTrue(reflex___state____state__reseau___common___base_state____base_state__reseau___pages___profile____profile_state.selected_interests_names.includes(item)) ? (
   <Fragment/>
 ) : (
@@ -544,35 +556,6 @@ Qu'est-ce qui te fait vibrer ?`} rows={`5`} value={reflex___state____state__rese
   )
 }
 
-                function Fallback({ error, resetErrorBoundary }) {
-                    return (
-                        <div>
-  <p>
-  {`Ooops...Unknown Reflex error has occured:`}
-</p>
-  <p css={{"color": "red"}}>
-  {error.message}
-</p>
-  <p>
-  {`Please contact the support.`}
-</p>
-</div>
-                    );
-                }
-            
-
-export function Div_ac2a89ea84667d600a059f034bd91dfe () {
-  const [addEvents, connectErrors] = useContext(EventLoopContext);
-
-
-
-  return (
-    <div css={{"position": "fixed", "width": "100vw", "height": "0"}} title={`Connection Error: ${(connectErrors.length > 0) ? connectErrors[connectErrors.length - 1].message : ''}`}>
-  <Fragment_cf53a535ae2e610a113dd361eb6ac95b/>
-</div>
-  )
-}
-
 export function Fragment_cf53a535ae2e610a113dd361eb6ac95b () {
   const [addEvents, connectErrors] = useContext(EventLoopContext);
 
@@ -590,6 +573,23 @@ export function Fragment_cf53a535ae2e610a113dd361eb6ac95b () {
 </Fragment>
   )
 }
+
+                function Fallback({ error, resetErrorBoundary }) {
+                    return (
+                        <div>
+  <p>
+  {`Ooops...Unknown Reflex error has occured:`}
+</p>
+  <p css={{"color": "red"}}>
+  {error.message}
+</p>
+  <p>
+  {`Please contact the support.`}
+</p>
+</div>
+                    );
+                }
+            
 
 export function Toaster_6e90e5e87a1cac8c96c683214079bef3 () {
   const { resolvedColorMode } = useContext(ColorModeContext)
@@ -638,7 +638,7 @@ export default function Component() {
   <Toaster_6e90e5e87a1cac8c96c683214079bef3/>
 </Fragment>
   <RadixThemesFlex align={`start`} className={`rx-Stack`} css={{"width": "100%"}} direction={`column`} gap={`3`}>
-  <Fragment_840509c07b74195c8e95dddd16385a86/>
+  <Fragment_092ad82e88f587cfd6adae8236bc44e4/>
   <Fragment_6cb8c6d0d8b0e63639dac29a3aec04f1/>
 </RadixThemesFlex>
   <NextHead>
