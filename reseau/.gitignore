@@ -1,17 +1,17 @@
 *.db
 *.py[cod]
 
-.web/.next
-.web/components
-.web/node_modules
-.web/pages
-.web/public
-.web/utils
-.web/*.json
-.web/*.js
-.web/.gitignore
-.web/*.lock*
-.web/reflex*
+# .web/.next
+# .web/components
+# .web/node_modules
+# .web/pages
+# .web/public
+# .web/utils
+# .web/*.json
+# .web/*.js
+# .web/.gitignore
+# .web/*.lock*
+# .web/reflex*
 
 __pycache__/
 alembic.ini
