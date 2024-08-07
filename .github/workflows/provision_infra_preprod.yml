@@ -50,7 +50,7 @@ jobs:
     - name: Terraform Init
       working-directory: terraform/preprod/
       run: |-
-        terraform init
+        terraform init -reconfigure
 
     # Plan changes to be applied by Terraform
     - name: Plan changes
