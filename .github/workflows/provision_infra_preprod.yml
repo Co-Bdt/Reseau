@@ -1,4 +1,4 @@
-# This workflow will provision the project infrastructure by running Terraform and configure the cluster
+# This workflow will provision the project infrastructure by running Terraform and configure the cluster in Pre-production
 
 name: Provision Infrastructure Pre-production
 
