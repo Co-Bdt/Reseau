@@ -99,7 +99,7 @@ jobs:
 
     - name: Deploy Chart
       run: |-
-        helm upgrade reseau helm/reseau-*.tgz --install --wait #--dry-run
+        helm upgrade reseau helm/reseau-*.tgz --install -f environments/values.<environment>.yaml --wait #--dry-run
         
     - name: Verify deployment
       run: |-
