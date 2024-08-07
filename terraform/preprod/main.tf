@@ -1,5 +1,5 @@
 terraform {
-  required_version = "~> 1.9.4" # the arrow means that we allow the last digit to upgrade but not the major nor the minor version
+  required_version = "~> 1.9.3" # the arrow means that we allow the last digit to upgrade but not the major nor the minor version
 
   backend "gcs" {
     bucket = "tf-state-ppd-reseau-devperso"
