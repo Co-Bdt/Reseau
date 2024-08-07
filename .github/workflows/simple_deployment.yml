@@ -3,8 +3,8 @@
 name: Manual Deployment to GKE
 
 on:
-  [repository_dispatch]
-  #[workflow_dispatch]
+  #[repository_dispatch]
+  [workflow_dispatch]
   
 env:
   WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
