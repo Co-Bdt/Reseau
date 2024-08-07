@@ -1,6 +1,6 @@
 # This workflow will provision the project infrastructure by running Terraform and configure the cluster
 
-name: Provision Infrastructure
+name: Provision Infrastructure Pre-production
 
 on:
   [workflow_dispatch]
