@@ -5,26 +5,38 @@ from ..reseau import REGISTER_ROUTE
 
 def landing() -> rx.Component:
     return rx.vstack(
-        rx.heading(
-            "Rɘseau",
-            size="9",
-            style={
-                "font-family": "Droid Sans Mono",
-                "letter-spacing": "1px"
-            }
+        rx.desktop_only(
+            rx.heading(
+                "Reseau",
+                size="9",
+                trim="start",
+                style={
+                    "letter-spacing": "1px"
+                }
+            ),
+        ),
+        rx.mobile_and_tablet(
+            rx.heading(
+                "Reseau",
+                size="8",
+                trim="start",
+                style={
+                    "letter-spacing": "1px"
+                }
+            ),
         ),
         rx.desktop_only(
             rx.text(
-                "La première plateforme pour connaître ",
+                "La première plateforme pour connecter avec ",
                 "des gars en développement personnel",
                 size="5",
             ),
         ),
         rx.mobile_and_tablet(
             rx.text(
-                "La première plateforme pour rencontrer ",
+                "La première plateforme pour connecter avec ",
                 "des gars en développement personnel",
-                size="4",
+                size="3",
             ),
         ),
         rx.link(
