@@ -1,0 +1,2 @@
+AMAZON_RDS_POSTGRESQL_URL: "postgresql://postgres:5zjbhMflkRoTRhbEtKO3@reseau-db-instance.chsg2oummucl.eu-west-3.rds.amazonaws.com/reseau"
+S3_BUCKET_NAME: "reseau-images-bucket"

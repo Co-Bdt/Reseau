@@ -26,6 +26,9 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.service.targetPort }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "reseau.fullname" . }}-configmap
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
           resources:
