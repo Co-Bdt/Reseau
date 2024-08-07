@@ -1,10 +1,9 @@
-# This workflow deploy the latest Helm Chart to GKE when manually triggered.
+# This workflow deploy the latest Helm Chart to GKE when manually triggered or triggered by the provision_infra_preprod pipeline.
 
-name: Manual Deployment to GKE
+name: Manual Deployment to GKE preprod
 
 on:
   [repository_dispatch]
-  #[workflow_dispatch]
   
 env:
   WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
@@ -31,7 +30,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       with:
-        ref: main
+        ref: preprod
 
     # Authenticate and connect to GCloud and GKE
     - name: GCloud and GKE setup
