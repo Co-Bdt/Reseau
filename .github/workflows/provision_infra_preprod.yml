@@ -1,0 +1,180 @@
+# This workflow will provision the project infrastructure by running Terraform and configure the cluster
+
+name: Provision Infrastructure
+
+on:
+  [workflow_dispatch]
+
+env:
+  GCP_ID_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GCP_LOCATION: europe-west1
+  GKE_ZONE: europe-west1-b
+  GKE_SECRET_TOKEN: ${{ secrets.K8S_SECRET_ACCESS_TOKEN }}
+  AWS_IAM_ROLE: ${{ secrets.AWS_IAM_ROLE }}
+  AWS_LOCATION: eu-west-3
+  AWS_RDS_PWD: ${{ secrets.AWS_RDS_INSTANCE_PASSWORD }}
+  REGISTRY: ghcr.io
+  TOKEN: ${{ secrets.ACTIONS_ACCESS_TOKEN }}
+
+jobs:
+  terraform-plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+    environment: pre-production
+    permissions:
+      contents: 'read'  # This is required for actions/checkout
+      id-token: 'write' # This is required for requesting the JWT
+    env:
+      GKE_CLUSTER_NAME: ${{ secrets.GKE_CLUSTER_NAME }}
+      AWS_RDS_PWD: ${{ secrets.AWS_RDS_INSTANCE_PASSWORD }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        ref: preprod
+
+    # Configure Workload Identity Federation and generate an access token.
+    - name: Configure GCP Credentials
+      uses: 'google-github-actions/auth@v2'
+      with:
+        workload_identity_provider: ${{ env.GCP_ID_PROVIDER }}
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ env.AWS_IAM_ROLE }}
+        role-session-name: GitHub_to_AWS_via_FederatedOIDC
+        aws-region: ${{ env.AWS_LOCATION }}
+
+    - name: Terraform Init
+      working-directory: terraform/prod/
+      run: |-
+        terraform init
+
+    # Plan changes to be applied by Terraform
+    - name: Plan changes
+      working-directory: terraform/prod/
+      run: |-
+        terraform plan -out tfplan -var project_id=$PROJECT_ID -var aws_rds_password=$AWS_RDS_PWD
+
+    # Save plan to GH Artifacts to retrieve it in the next job
+    - name: Save Artifact
+      id: save-artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ github.run_id }}-tfplan
+        path: terraform/prod/tfplan
+        retention-days: 1
+
+  terraform-apply:
+      name: Terraform Apply
+      runs-on: ubuntu-latest
+      environment: production
+      permissions:
+        contents: 'read'
+        id-token: 'write'
+      needs: [terraform-plan]
+  
+      steps:
+      - name: Manual Approval
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ env.TOKEN }}
+          approvers: Co-Bdt
+          
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Download Plan
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ github.run_id }}-tfplan
+          path: terraform/prod/
+          github_token: ${{ env.TOKEN }}
+
+      # Configure Workload Identity Federation and generate an access token.
+      - name: Configure GCP Credentials
+        uses: 'google-github-actions/auth@v2'
+        with:
+          workload_identity_provider: ${{ env.GCP_ID_PROVIDER }}
+  
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_IAM_ROLE }}
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          aws-region: ${{ env.AWS_LOCATION }}
+
+      - name: Terraform Init
+        working-directory: terraform/prod/
+        run: |-
+          terraform init
+  
+      - name: Apply changes
+        working-directory: terraform/prod/
+        run: |-
+          terraform apply tfplan
+
+  configuration:
+    name: Configuration
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    needs: [terraform-apply]
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        ref: main
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.repository_owner }}
+        password: ${{ env.GKE_SECRET_TOKEN }}
+
+    # Authenticate and connect to GCloud and GKE
+    - name: GCloud and GKE setup
+      uses: ./.github/gcloud-gke-setup
+      with:
+        WORKLOAD_IDENTITY_PROVIDER_ID: ${{ env.GCP_ID_PROVIDER }}
+        PROJECT_ID: ${{ env.PROJECT_ID }}
+        GCP_LOCATION: ${{ env.GCP_LOCATION }}
+        GKE_CLUSTER_NAME: ${{ env.GKE_CLUSTER_NAME }}
+
+    # Create the Secret for pulling images with Docker config file
+    - name: Create Docker config Secret
+      run: |-
+        kubectl create secret docker-registry reseau-dockerconfig-secret \
+          --from-file=.dockerconfigjson=/home/$USER/.docker/config.json
+
+  call_deploy_workflow:
+    name: Call Deploy Workflow
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    needs: [configuration]
+
+    steps:
+    - name: Deploy
+      run: |-
+        curl -L \
+        -X POST \
+        -H "Accept: application/vnd.github+json" \
+        -H "Authorization: Bearer $TOKEN" \
+        -H "X-GitHub-Api-Version: 2022-11-28" \
+        https://api.github.com/repos/Co-Bdt/Reseau/dispatches \
+        -d '{"event_type":"Deployment trigger by Infra workflow","client_payload":{"unit":false,"integration":true}}'
+
+    - name: Checkout
+      uses: actions/checkout@v4
