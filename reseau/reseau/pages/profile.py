@@ -7,7 +7,8 @@ from ..common.template import template
 from ..components.profile_text import profile_text
 from ..components.profile_chips import profile_chips
 from ..models import Interest, UserAccount, UserInterest
-from ..reseau import PROFILE_ROUTE, S3_BUCKET_NAME
+from ..reseau import PROFILE_ROUTE
+from rxconfig import S3_BUCKET_NAME
 
 
 class ProfileState(BaseState):

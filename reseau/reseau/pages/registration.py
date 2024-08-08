@@ -10,7 +10,8 @@ from ..common.base_state import BaseState
 from ..common.template import template
 from .log_in import LOGIN_ROUTE
 from ..models import City, UserAccount
-from ..reseau import REGISTER_ROUTE, S3_BUCKET_NAME
+from ..reseau import REGISTER_ROUTE
+from rxconfig import S3_BUCKET_NAME
 
 
 class RegistrationState(BaseState):
