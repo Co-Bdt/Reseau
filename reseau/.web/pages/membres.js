@@ -17,25 +17,62 @@ import NextHead from "next/head"
 
 
 
-export function Fragment_cf53a535ae2e610a113dd361eb6ac95b () {
+const pulse = keyframes`
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+`
+
+
+                function Fallback({ error, resetErrorBoundary }) {
+                    return (
+                        <div>
+  <p>
+  {`Ooops...Unknown Reflex error has occured:`}
+</p>
+  <p css={{"color": "red"}}>
+  {error.message}
+</p>
+  <p>
+  {`Please contact the support.`}
+</p>
+</div>
+                    );
+                }
+            
+
+export function Toaster_6e90e5e87a1cac8c96c683214079bef3 () {
+  const { resolvedColorMode } = useContext(ColorModeContext)
+
+
+  refs['__toast'] = toast
   const [addEvents, connectErrors] = useContext(EventLoopContext);
-
-
+  
+const toast_props = {"description": `Check if server is reachable at ${getBackendURL(env.EVENT).href}`, "closeButton": true, "duration": 120000, "id": "websocket-error"};
+const [userDismissed, setUserDismissed] = useState(false);
+useEffect(() => {
+    if (connectErrors.length >= 2) {
+        if (!userDismissed) {
+            toast.error(
+                `Cannot connect to server: ${(connectErrors.length > 0) ? connectErrors[connectErrors.length - 1].message : ''}.`,
+                {...toast_props, onDismiss: () => setUserDismissed(true)},
+            )
+        }
+    } else {
+        toast.dismiss("websocket-error");
+        setUserDismissed(false);  // after reconnection reset dismissed state
+    }
+}, [connectErrors]);
 
   return (
-    <Fragment>
-  {isTrue(connectErrors.length > 0) ? (
-  <Fragment>
-  <LucideWifiOffIcon css={{"color": "crimson", "zIndex": 9999, "position": "fixed", "bottom": "33px", "right": "33px", "animation": `${pulse} 1s infinite`}} size={32}/>
-</Fragment>
-) : (
-  <Fragment/>
-)}
-</Fragment>
+    <Toaster closeButton={false} expand={true} position={`bottom-right`} richColors={true} theme={resolvedColorMode}/>
   )
 }
 
-export function Fragment_283013142331969beccee1b729e45e9e () {
+export function Fragment_a546344b7d8e21b7d16f22b3f4b14222 () {
   const reflex___state____state__reseau___common___base_state____base_state = useContext(StateContexts.reflex___state____state__reseau___common___base_state____base_state)
   const { resolvedColorMode } = useContext(ColorModeContext)
   const reflex___state____state = useContext(StateContexts.reflex___state____state)
@@ -223,8 +260,8 @@ export function Fragment_283013142331969beccee1b729e45e9e () {
   <RadixThemesBox css={{"width": "100%"}}>
   <RadixThemesBox css={{"@media screen and (min-width: 0)": {"display": "none"}, "@media screen and (min-width: 30em)": {"display": "none"}, "@media screen and (min-width: 48em)": {"display": "none"}, "@media screen and (min-width: 62em)": {"display": "block"}}}>
   <RadixThemesGrid columns={`3`} css={{"width": "100%", "flexWrap": "wrap"}} gap={`3`}>
-  {reflex___state____state__reseau___common___base_state____base_state__reseau___pages___members____members_state.users_displayed.map((user, index_4018b0c1ae928ec5) => (
-  <RadixThemesCard asChild={true} key={index_4018b0c1ae928ec5} size={`3`}>
+  {reflex___state____state__reseau___common___base_state____base_state__reseau___pages___members____members_state.users_displayed.map((user, index_61b3a526ec7db1f9) => (
+  <RadixThemesCard asChild={true} key={index_61b3a526ec7db1f9} size={`3`}>
   <RadixThemesBox>
   <RadixThemesFlex align={`start`} className={`rx-Stack`} direction={`column`} gap={`3`}>
   <RadixThemesFlex align={`start`} className={`rx-Stack`} css={{"width": "100%"}} direction={`row`} gap={`3`}>
@@ -249,8 +286,8 @@ export function Fragment_283013142331969beccee1b729e45e9e () {
 </RadixThemesFlex>
 </RadixThemesFlex>
   <RadixThemesFlex align={`start`} className={`rx-Stack`} direction={`row`} gap={`1`}>
-  {user.at(3).map((interest, index_0c210502a804fa21) => (
-  <RadixThemesBadge color={`amber`} key={index_0c210502a804fa21} radius={`full`} variant={`surface`}>
+  {user.at(3).map((interest, index_aacb8dd1e526727c) => (
+  <RadixThemesBadge color={`amber`} key={index_aacb8dd1e526727c} radius={`full`} variant={`surface`}>
   {interest.name}
 </RadixThemesBadge>
 ))}
@@ -283,8 +320,8 @@ export function Fragment_283013142331969beccee1b729e45e9e () {
 </RadixThemesBox>
   <RadixThemesBox css={{"@media screen and (min-width: 0)": {"display": "none"}, "@media screen and (min-width: 30em)": {"display": "block"}, "@media screen and (min-width: 48em)": {"display": "block"}, "@media screen and (min-width: 62em)": {"display": "none"}}}>
   <RadixThemesGrid columns={`2`} css={{"width": "100%", "flexWrap": "wrap"}} gap={`3`}>
-  {reflex___state____state__reseau___common___base_state____base_state__reseau___pages___members____members_state.users_displayed.map((user, index_4018b0c1ae928ec5) => (
-  <RadixThemesCard asChild={true} key={index_4018b0c1ae928ec5} size={`3`}>
+  {reflex___state____state__reseau___common___base_state____base_state__reseau___pages___members____members_state.users_displayed.map((user, index_61b3a526ec7db1f9) => (
+  <RadixThemesCard asChild={true} key={index_61b3a526ec7db1f9} size={`3`}>
   <RadixThemesBox>
   <RadixThemesFlex align={`start`} className={`rx-Stack`} direction={`column`} gap={`3`}>
   <RadixThemesFlex align={`start`} className={`rx-Stack`} css={{"width": "100%"}} direction={`row`} gap={`3`}>
@@ -309,8 +346,8 @@ export function Fragment_283013142331969beccee1b729e45e9e () {
 </RadixThemesFlex>
 </RadixThemesFlex>
   <RadixThemesFlex align={`start`} className={`rx-Stack`} direction={`row`} gap={`1`}>
-  {user.at(3).map((interest, index_0c210502a804fa21) => (
-  <RadixThemesBadge color={`amber`} key={index_0c210502a804fa21} radius={`full`} variant={`surface`}>
+  {user.at(3).map((interest, index_aacb8dd1e526727c) => (
+  <RadixThemesBadge color={`amber`} key={index_aacb8dd1e526727c} radius={`full`} variant={`surface`}>
   {interest.name}
 </RadixThemesBadge>
 ))}
@@ -343,8 +380,8 @@ export function Fragment_283013142331969beccee1b729e45e9e () {
 </RadixThemesBox>
   <RadixThemesBox css={{"@media screen and (min-width: 0)": {"display": "block"}, "@media screen and (min-width: 30em)": {"display": "none"}, "@media screen and (min-width: 48em)": {"display": "none"}, "@media screen and (min-width: 62em)": {"display": "none"}}}>
   <RadixThemesGrid columns={`1`} css={{"width": "100%", "flexWrap": "wrap"}} gap={`3`}>
-  {reflex___state____state__reseau___common___base_state____base_state__reseau___pages___members____members_state.users_displayed.map((user, index_4018b0c1ae928ec5) => (
-  <RadixThemesCard asChild={true} key={index_4018b0c1ae928ec5} size={`3`}>
+  {reflex___state____state__reseau___common___base_state____base_state__reseau___pages___members____members_state.users_displayed.map((user, index_61b3a526ec7db1f9) => (
+  <RadixThemesCard asChild={true} key={index_61b3a526ec7db1f9} size={`3`}>
   <RadixThemesBox>
   <RadixThemesFlex align={`start`} className={`rx-Stack`} direction={`column`} gap={`3`}>
   <RadixThemesFlex align={`start`} className={`rx-Stack`} css={{"width": "100%"}} direction={`row`} gap={`3`}>
@@ -369,8 +406,8 @@ export function Fragment_283013142331969beccee1b729e45e9e () {
 </RadixThemesFlex>
 </RadixThemesFlex>
   <RadixThemesFlex align={`start`} className={`rx-Stack`} direction={`row`} gap={`1`}>
-  {user.at(3).map((interest, index_0c210502a804fa21) => (
-  <RadixThemesBadge color={`amber`} key={index_0c210502a804fa21} radius={`full`} variant={`surface`}>
+  {user.at(3).map((interest, index_aacb8dd1e526727c) => (
+  <RadixThemesBadge color={`amber`} key={index_aacb8dd1e526727c} radius={`full`} variant={`surface`}>
   {interest.name}
 </RadixThemesBadge>
 ))}
@@ -452,8 +489,8 @@ export function Fragment_283013142331969beccee1b729e45e9e () {
   <RadixThemesBox css={{"width": "100%"}}>
   <RadixThemesBox css={{"@media screen and (min-width: 0)": {"display": "none"}, "@media screen and (min-width: 30em)": {"display": "none"}, "@media screen and (min-width: 48em)": {"display": "none"}, "@media screen and (min-width: 62em)": {"display": "block"}}}>
   <RadixThemesGrid columns={`3`} css={{"width": "100%", "flexWrap": "wrap"}} gap={`3`}>
-  {reflex___state____state__reseau___common___base_state____base_state__reseau___pages___members____members_state.users_displayed.map((user, index_4018b0c1ae928ec5) => (
-  <RadixThemesCard asChild={true} key={index_4018b0c1ae928ec5} size={`3`}>
+  {reflex___state____state__reseau___common___base_state____base_state__reseau___pages___members____members_state.users_displayed.map((user, index_61b3a526ec7db1f9) => (
+  <RadixThemesCard asChild={true} key={index_61b3a526ec7db1f9} size={`3`}>
   <RadixThemesBox>
   <RadixThemesFlex align={`start`} className={`rx-Stack`} direction={`column`} gap={`3`}>
   <RadixThemesFlex align={`start`} className={`rx-Stack`} css={{"width": "100%"}} direction={`row`} gap={`3`}>
@@ -478,8 +515,8 @@ export function Fragment_283013142331969beccee1b729e45e9e () {
 </RadixThemesFlex>
 </RadixThemesFlex>
   <RadixThemesFlex align={`start`} className={`rx-Stack`} direction={`row`} gap={`1`}>
-  {user.at(3).map((interest, index_0c210502a804fa21) => (
-  <RadixThemesBadge color={`amber`} key={index_0c210502a804fa21} radius={`full`} variant={`surface`}>
+  {user.at(3).map((interest, index_aacb8dd1e526727c) => (
+  <RadixThemesBadge color={`amber`} key={index_aacb8dd1e526727c} radius={`full`} variant={`surface`}>
   {interest.name}
 </RadixThemesBadge>
 ))}
@@ -512,8 +549,8 @@ export function Fragment_283013142331969beccee1b729e45e9e () {
 </RadixThemesBox>
   <RadixThemesBox css={{"@media screen and (min-width: 0)": {"display": "none"}, "@media screen and (min-width: 30em)": {"display": "block"}, "@media screen and (min-width: 48em)": {"display": "block"}, "@media screen and (min-width: 62em)": {"display": "none"}}}>
   <RadixThemesGrid columns={`2`} css={{"width": "100%", "flexWrap": "wrap"}} gap={`3`}>
-  {reflex___state____state__reseau___common___base_state____base_state__reseau___pages___members____members_state.users_displayed.map((user, index_4018b0c1ae928ec5) => (
-  <RadixThemesCard asChild={true} key={index_4018b0c1ae928ec5} size={`3`}>
+  {reflex___state____state__reseau___common___base_state____base_state__reseau___pages___members____members_state.users_displayed.map((user, index_61b3a526ec7db1f9) => (
+  <RadixThemesCard asChild={true} key={index_61b3a526ec7db1f9} size={`3`}>
   <RadixThemesBox>
   <RadixThemesFlex align={`start`} className={`rx-Stack`} direction={`column`} gap={`3`}>
   <RadixThemesFlex align={`start`} className={`rx-Stack`} css={{"width": "100%"}} direction={`row`} gap={`3`}>
@@ -538,8 +575,8 @@ export function Fragment_283013142331969beccee1b729e45e9e () {
 </RadixThemesFlex>
 </RadixThemesFlex>
   <RadixThemesFlex align={`start`} className={`rx-Stack`} direction={`row`} gap={`1`}>
-  {user.at(3).map((interest, index_0c210502a804fa21) => (
-  <RadixThemesBadge color={`amber`} key={index_0c210502a804fa21} radius={`full`} variant={`surface`}>
+  {user.at(3).map((interest, index_aacb8dd1e526727c) => (
+  <RadixThemesBadge color={`amber`} key={index_aacb8dd1e526727c} radius={`full`} variant={`surface`}>
   {interest.name}
 </RadixThemesBadge>
 ))}
@@ -572,8 +609,8 @@ export function Fragment_283013142331969beccee1b729e45e9e () {
 </RadixThemesBox>
   <RadixThemesBox css={{"@media screen and (min-width: 0)": {"display": "block"}, "@media screen and (min-width: 30em)": {"display": "none"}, "@media screen and (min-width: 48em)": {"display": "none"}, "@media screen and (min-width: 62em)": {"display": "none"}}}>
   <RadixThemesGrid columns={`1`} css={{"width": "100%", "flexWrap": "wrap"}} gap={`3`}>
-  {reflex___state____state__reseau___common___base_state____base_state__reseau___pages___members____members_state.users_displayed.map((user, index_4018b0c1ae928ec5) => (
-  <RadixThemesCard asChild={true} key={index_4018b0c1ae928ec5} size={`3`}>
+  {reflex___state____state__reseau___common___base_state____base_state__reseau___pages___members____members_state.users_displayed.map((user, index_61b3a526ec7db1f9) => (
+  <RadixThemesCard asChild={true} key={index_61b3a526ec7db1f9} size={`3`}>
   <RadixThemesBox>
   <RadixThemesFlex align={`start`} className={`rx-Stack`} direction={`column`} gap={`3`}>
   <RadixThemesFlex align={`start`} className={`rx-Stack`} css={{"width": "100%"}} direction={`row`} gap={`3`}>
@@ -598,8 +635,8 @@ export function Fragment_283013142331969beccee1b729e45e9e () {
 </RadixThemesFlex>
 </RadixThemesFlex>
   <RadixThemesFlex align={`start`} className={`rx-Stack`} direction={`row`} gap={`1`}>
-  {user.at(3).map((interest, index_0c210502a804fa21) => (
-  <RadixThemesBadge color={`amber`} key={index_0c210502a804fa21} radius={`full`} variant={`surface`}>
+  {user.at(3).map((interest, index_aacb8dd1e526727c) => (
+  <RadixThemesBadge color={`amber`} key={index_aacb8dd1e526727c} radius={`full`} variant={`surface`}>
   {interest.name}
 </RadixThemesBadge>
 ))}
@@ -663,58 +700,21 @@ export function Fragment_283013142331969beccee1b729e45e9e () {
   )
 }
 
-                function Fallback({ error, resetErrorBoundary }) {
-                    return (
-                        <div>
-  <p>
-  {`Ooops...Unknown Reflex error has occured:`}
-</p>
-  <p css={{"color": "red"}}>
-  {error.message}
-</p>
-  <p>
-  {`Please contact the support.`}
-</p>
-</div>
-                    );
-                }
-            
-
-const pulse = keyframes`
-    0% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 1;
-    }
-`
-
-
-export function Toaster_6e90e5e87a1cac8c96c683214079bef3 () {
-  const { resolvedColorMode } = useContext(ColorModeContext)
-
-
-  refs['__toast'] = toast
+export function Fragment_cf53a535ae2e610a113dd361eb6ac95b () {
   const [addEvents, connectErrors] = useContext(EventLoopContext);
-  
-const toast_props = {"description": `Check if server is reachable at ${getBackendURL(env.EVENT).href}`, "closeButton": true, "duration": 120000, "id": "websocket-error"};
-const [userDismissed, setUserDismissed] = useState(false);
-useEffect(() => {
-    if (connectErrors.length >= 2) {
-        if (!userDismissed) {
-            toast.error(
-                `Cannot connect to server: ${(connectErrors.length > 0) ? connectErrors[connectErrors.length - 1].message : ''}.`,
-                {...toast_props, onDismiss: () => setUserDismissed(true)},
-            )
-        }
-    } else {
-        toast.dismiss("websocket-error");
-        setUserDismissed(false);  // after reconnection reset dismissed state
-    }
-}, [connectErrors]);
+
+
 
   return (
-    <Toaster closeButton={false} expand={true} position={`bottom-right`} richColors={true} theme={resolvedColorMode}/>
+    <Fragment>
+  {isTrue(connectErrors.length > 0) ? (
+  <Fragment>
+  <LucideWifiOffIcon css={{"color": "crimson", "zIndex": 9999, "position": "fixed", "bottom": "33px", "right": "33px", "animation": `${pulse} 1s infinite`}} size={32}/>
+</Fragment>
+) : (
+  <Fragment/>
+)}
+</Fragment>
   )
 }
 
@@ -827,7 +827,7 @@ export default function Component() {
   <Toaster_6e90e5e87a1cac8c96c683214079bef3/>
 </Fragment>
   <RadixThemesFlex align={`start`} className={`rx-Stack`} css={{"width": "100%"}} direction={`column`} gap={`3`}>
-  <Fragment_283013142331969beccee1b729e45e9e/>
+  <Fragment_a546344b7d8e21b7d16f22b3f4b14222/>
   <Fragment_6cb8c6d0d8b0e63639dac29a3aec04f1/>
 </RadixThemesFlex>
   <NextHead>

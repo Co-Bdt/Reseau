@@ -1,7 +1,7 @@
 import reflex as rx
 
-from ..models import Interest
 
+all_interests_names = ['Business', 'Mental', 'Physique', 'Relations']
 
 chip_props = {
     "radius": "full",
@@ -15,15 +15,8 @@ chip_props = {
 class ProfileChips(rx.ComponentState):
     @classmethod
     def get_component(cls, **props):
-        # Query all interests from the database
-        interests_names: list[str] = []
-        with rx.session() as session:
-            interests = session.exec(
-                Interest.select()
-                .order_by(Interest.name.asc())
-            ).all()
-            interests_names = [interest.name for interest in interests]
 
+        all_interests: list[str] = all_interests_names
         selected_interests: list[str] = props.pop("selected_interests", [])
         add_selected = props.pop("add_selected")
         remove_selected = props.pop("remove_selected")
@@ -38,6 +31,7 @@ class ProfileChips(rx.ComponentState):
             )
 
         def unselected_item_chip(item: str) -> rx.Component:
+            print("unselected_item_chip", item)
             return rx.cond(
                 selected_interests.contains(item),
                 rx.fragment(),
@@ -77,7 +71,7 @@ class ProfileChips(rx.ComponentState):
             # Unselected Items
             rx.flex(
                 rx.foreach(
-                    interests_names,
+                    all_interests,
                     unselected_item_chip,
                 ),
                 wrap="wrap",
