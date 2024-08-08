@@ -4,6 +4,7 @@ name: Deployment to GKE Pre-production
 
 on:
   [repository_dispatch]
+  #[workflow_dispatch]
   
 env:
   WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
@@ -74,6 +75,7 @@ jobs:
       id-token: 'write'
     env:
       GKE_CLUSTER_NAME: ${{ secrets.GKE_CLUSTER_NAME }}
+    needs: [build-publish]
 
     steps:
     - name: Checkout
@@ -97,8 +99,35 @@ jobs:
 
     - name: Deploy Chart
       run: |-
-        helm install reseau helm/reseau-*.tgz --wait #--dry-run
+        helm upgrade reseau helm/reseau-*.tgz --install -f environments/values.<environment>.yaml --wait #--dry-run
         
     - name: Verify deployment
       run: |-
         helm list
+
+  auto-increment-version:
+    name: Auto Increment Version
+    runs-on: ubuntu-latest
+    environment: pre-production
+    permissions:
+      contents: 'read'
+      packages: 'write'
+      id-token: 'write'
+    needs: [deploy]
+
+    steps:
+    # Increment the Image Minor Version variable
+    - name: Increment Minor Version
+      uses: action-pack/increment@v2
+      with:
+        name: 'MINOR_VERSION'
+        repository: ${{ github.repository }}
+        token: ${{ env.TOKEN }}
+
+    # Increment the Helm Chart Minor Version variable
+    - name: Increment Minor Version
+      uses: action-pack/increment@v2
+      with:
+        name: 'HELM_CHART_MINOR_VERSION'
+        repository: ${{ github.repository }}
+        token: ${{ env.TOKEN }}
