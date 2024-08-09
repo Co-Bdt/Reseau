@@ -31,7 +31,6 @@ class ProfileChips(rx.ComponentState):
             )
 
         def unselected_item_chip(item: str) -> rx.Component:
-            print("unselected_item_chip", item)
             return rx.cond(
                 selected_interests.contains(item),
                 rx.fragment(),

@@ -1,35 +1,25 @@
 import reflex as rx
 from typing import Tuple
 
+from ..components.profile_picture import profile_picture
 from ..models import Comment, UserAccount
 
 
 def comments(
-    post_comments: list[Tuple[Comment, str, UserAccount, bool]],
+    post_comments: list[Tuple[Comment, str, UserAccount]],
 ) -> rx.Component:
     return rx.grid(
         rx.foreach(
             post_comments,
             lambda comment: rx.card(
                 rx.hstack(
-                    rx.cond(
-                        comment[3],
-                        rx.image(
-                            src=rx.get_upload_url(
-                                f"{comment[0].author_id}_profile_picture.png"
-                            ),
+                    profile_picture(
+                        style=rx.Style(
                             border="0.5px solid #ccc",
-                            width="4vh",
-                            height="4vh",
-                            border_radius="50%",
+                            width="2.5em",
+                            height="2.5em",
                         ),
-                        rx.image(
-                            src=rx.get_upload_url("blank_profile_picture"),
-                            border="0.5px solid #ccc",
-                            width="4vh",
-                            height="4vh",
-                            border_radius="50%",
-                        ),
+                        profile_picture=comment[2].profile_picture,
                     ),
                     rx.vstack(
                         rx.hstack(

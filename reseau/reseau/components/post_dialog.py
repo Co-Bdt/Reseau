@@ -2,6 +2,7 @@ from typing import Callable, Tuple
 import reflex as rx
 
 from ..components.comments import comments
+from ..components.profile_picture import profile_picture
 from ..components.write_comment_form import write_comment_form
 from ..models import Comment, Post, UserAccount
 
@@ -13,11 +14,8 @@ class PostDialog(rx.ComponentState):
         post: Post = props.pop("post", None)
         post_datetime: str = props.pop("post_datetime", "")
         post_author: UserAccount = props.pop("post_author", None)
-        post_profile_picture_exist: bool = (
-            props.pop("post_profile_picture_exist", False)
-        )
 
-        post_comments: list[Tuple[Comment, str, UserAccount, bool]] = (
+        post_comments: list[Tuple[Comment, str, UserAccount]] = (
             props.pop("post_comments", [])
         )
         load_post_details: Callable = props.pop("load_post_details")
@@ -28,26 +26,13 @@ class PostDialog(rx.ComponentState):
                 rx.card(
                     rx.vstack(
                         rx.hstack(
-                            rx.cond(
-                                post_profile_picture_exist,
-                                rx.image(
-                                    src=rx.get_upload_url(
-                                        f"{post_author.id}_profile_picture.png"
-                                    ),
+                            profile_picture(
+                                style=rx.Style(
                                     border="0.5px solid #ccc",
-                                    width="2.5em",
-                                    height="2.5em",
-                                    border_radius="50%",
+                                    width="2.7em",
+                                    height="2.7em",
                                 ),
-                                rx.image(
-                                    src=rx.get_upload_url(
-                                        "blank_profile_picture"
-                                    ),
-                                    border="0.5px solid #ccc",
-                                    width="2.5em",
-                                    height="2.5em",
-                                    border_radius="50%",
-                                ),
+                                profile_picture=post_author.profile_picture,
                             ),
                             rx.vstack(
                                 rx.tablet_and_desktop(
@@ -105,26 +90,13 @@ class PostDialog(rx.ComponentState):
             rx.dialog.content(
                 rx.flex(
                     rx.hstack(
-                        rx.cond(
-                            post_profile_picture_exist,
-                            rx.image(
-                                src=rx.get_upload_url(
-                                    f"{post_author.id}_profile_picture.png"
-                                ),
+                        profile_picture(
+                            style=rx.Style(
                                 border="0.5px solid #ccc",
-                                width="2.5em",
-                                height="2.5em",
-                                border_radius="50%",
+                                width="2.7em",
+                                height="2.7em",
                             ),
-                            rx.image(
-                                src=rx.get_upload_url(
-                                    "blank_profile_picture"
-                                ),
-                                border="0.5px solid #ccc",
-                                width="2.5em",
-                                height="2.5em",
-                                border_radius="50%",
-                            ),
+                            profile_picture=post_author.profile_picture,
                         ),
                         rx.vstack(
                             rx.tablet_and_desktop(

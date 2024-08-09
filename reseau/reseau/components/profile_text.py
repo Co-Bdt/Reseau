@@ -33,7 +33,6 @@ def profile_text(
                 on_change=set_profile_text,
             ),
             width="100%",
-            # padding_x=["1em", "0"],
         ),
         width="100%",
     )

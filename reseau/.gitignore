@@ -1,25 +1,13 @@
 *.db
 *.py[cod]
-
-# .web/.next
-# .web/components
-# .web/node_modules
-# .web/pages
-# .web/public
-# .web/utils
-# .web/*.json
-# .web/*.js
-# .web/.gitignore
-# .web/*.lock*
-# .web/reflex*
-
+.web
 __pycache__/
 alembic.ini
 alembic/
 assets/external/
 feedbacks/*.txt
-uploaded_files/*.png
-uploaded_files/*.jpg
-uploaded_files/*.jpeg
+uploaded_files/**/*.png
+uploaded_files/**/*.jpg
+uploaded_files/**/*.jpeg
 .venv/
 ../.vscode/

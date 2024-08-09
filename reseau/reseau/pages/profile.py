@@ -13,28 +13,19 @@ from rxconfig import S3_BUCKET_NAME
 
 class ProfileState(BaseState):
     profile_text: str = ""  # the user's profile text
-    profile_img: str = ""  # the user's profile image name
+    profile_pic: str = ""  # the user's profile image name
     # the user's selected interests names
     selected_interests_names: list[str] = []
 
     def init(self):
         self.profile_text = self.authenticated_user.profile_text
+        yield
 
-        # Load the user's profile picture from S3
-        s3 = boto3.resource('s3')
-        bucket = s3.Bucket(S3_BUCKET_NAME)
-        try:
-            bucket.download_file(
-                f"{self.authenticated_user.id}/profile_picture",
-                rx.get_upload_dir() /
-                f"{self.authenticated_user.id}_profile_picture.png",
-            )
-            self.profile_img = (
-                f"{self.authenticated_user.id}_"
-                "profile_picture.png"
-            )
-        except Exception:
-            self.profile_img = "blank_profile_picture"
+        if self.authenticated_user.profile_picture:
+            self.profile_pic = self.authenticated_user.profile_picture
+        else:
+            self.profile_pic = "blank_profile_picture"
+        yield
 
         # Load the user's interests
         with rx.session() as session:
@@ -57,16 +48,31 @@ class ProfileState(BaseState):
         Args:
             files: The uploaded file(s).
         """
+        from pathlib import Path
+
         for file in files:
             upload_data = await file.read()
-            outfile = rx.get_upload_dir() / file.filename
+            outfile = (
+                rx.get_upload_dir() /
+                f"{self.authenticated_user.id}" /
+                file.filename
+            )
+
+            # Create the user's directory if it doesn't exist
+            Path(
+                rx.get_upload_dir() /
+                f"{self.authenticated_user.id}"
+            ).mkdir(parents=True, exist_ok=True)
 
             # Save the file.
             with outfile.open("wb") as file_object:
                 file_object.write(upload_data)
 
             # Update the profile_img var.
-            self.profile_img = file.filename
+            self.profile_pic = (
+                f"{self.authenticated_user.id}/" +
+                f"{file.filename}"
+            )
 
     def add_selected(self, item: str):
         # limit selected items to 2
@@ -84,9 +90,29 @@ class ProfileState(BaseState):
 
         # Upload the profile picture to S3
         bucket.upload_file(
-            f"{rx.get_upload_dir()}/{self.profile_img}",
-            f"{self.authenticated_user.id}/profile_picture"
+            f"{rx.get_upload_dir()}/{self.profile_pic}",
+            self.profile_pic,
         )
+
+        filepath = rx.get_upload_dir()
+        # Remove the old profile picture starting with the user's id
+        # from the file system (old system of storing profile pictures)
+        import fnmatch
+        import os
+        for file in os.listdir(filepath):
+            if fnmatch.fnmatch(file, f"{self.authenticated_user.id}_*"):
+                os.remove(filepath / file)
+
+        try:
+            bucket.download_file(
+                self.profile_pic,
+                rx.get_upload_dir() / f"{self.profile_pic}",
+            )
+            self.profile_pic = (
+                f"{self.profile_pic}"
+            )
+        except Exception:
+            self.profile_pic = "blank_profile_picture"
 
     def update_interests(self):
         # Get the corresponding interest objects from the database
@@ -135,6 +161,8 @@ class ProfileState(BaseState):
                 )
             ).first()
             user.profile_text = profile_text_cleaned
+            user.profile_picture = self.profile_pic
+
             session.add(user)
             session.commit()
         # Update the user's profile text visually
@@ -179,7 +207,7 @@ def profile_page() -> rx.Component:
                     rx.upload(
                         rx.image(
                             src=rx.get_upload_url(
-                                ProfileState.profile_img
+                                ProfileState.profile_pic
                             ),
                             width=["64px", "80px"],
                             height=["64px", "80px"],
@@ -215,7 +243,7 @@ def profile_page() -> rx.Component:
                         rx.upload(
                             rx.image(
                                 src=rx.get_upload_url(
-                                    ProfileState.profile_img
+                                    ProfileState.profile_pic
                                 ),
                                 width=["4em"],
                                 height=["4em"],

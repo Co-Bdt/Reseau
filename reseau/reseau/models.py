@@ -20,6 +20,7 @@ class UserAccount(
     email: str = Field(nullable=False)
     password_hash: str = Field(nullable=False)
     profile_text: str = Field(nullable=True)
+    profile_picture: str = Field(nullable=True)
     enabled: bool = Field(default=True)
 
     # Foreign Keys

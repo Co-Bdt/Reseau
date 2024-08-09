@@ -18,10 +18,13 @@ AMAZON_RDS_POSTGRESQL_URL = os.environ.get(
 GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD")
 
 # S3_BUCKET_NAME = "reseau-images-bucket"
-S3_BUCKET_NAME = os.environ.get("S3_BUCKET_NAME")
+S3_BUCKET_NAME = os.environ.get(
+    "S3_BUCKET_NAME",
+    "dev-reseau-images-bucket"
+)
 
 config = rx.Config(
     app_name="reseau",
     api_url=f"http://{APP_IP}:{BACK_PORT}",
-    db_url=AMAZON_RDS_POSTGRESQL_URL,
+    db_url=LOCAL_SQLITE_URL,
 )

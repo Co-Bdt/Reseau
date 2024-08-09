@@ -24,7 +24,7 @@ class RegistrationState(BaseState):
     city: str = ""
 
     success: bool = False
-    profile_img: str = ""
+    profile_pic: str = ""
     cities_as_str: list[str] = []
 
     def init(self):
@@ -36,7 +36,7 @@ class RegistrationState(BaseState):
                               for city in cities]
         self.cities_as_str = sorted(self.cities_as_str)
         # Set the default profile image.
-        self.profile_img = "blank_profile_picture"
+        self.profile_pic = "blank_profile_picture"
 
     async def handle_upload(self, files: list[rx.UploadFile]):
         """Handle the upload of file(s).
@@ -53,7 +53,7 @@ class RegistrationState(BaseState):
                 file_object.write(upload_data)
 
             # Update the profile_img var.
-            self.profile_img = file.filename
+            self.profile_pic = file.filename
 
     async def handle_registration(
         self, form_data
@@ -68,7 +68,7 @@ class RegistrationState(BaseState):
         new_user = UserAccount()  # type: ignore
 
         with rx.session() as session:
-            if self.profile_img == "blank_profile_picture":
+            if self.profile_pic == "blank_profile_picture":
                 yield rx.toast.error(
                     "N'oublie pas d'ajouter une photo de profil."
                 )
@@ -145,6 +145,8 @@ class RegistrationState(BaseState):
             new_user.username = username
             new_user.email = email
             new_user.password_hash = UserAccount.hash_password(password)
+            new_user.profile_picture = self.profile_pic
+
             # Fetch the city from the database.
             city_object = session.exec(
                 City.select().where(
@@ -158,10 +160,11 @@ class RegistrationState(BaseState):
             # To make sure we get the id of the new user,
             # we need to refresh the session.
             session.refresh(new_user)
+
             # Upload the profile picture to S3
             bucket.upload_file(
-                f"{rx.get_upload_dir()}/{self.profile_img}",
-                f"{new_user.id}/profile_picture"
+                f"{rx.get_upload_dir()}/{self.profile_pic}",
+                self.profile_pic
             )
 
         # Set success and redirect to login page after a brief delay.
@@ -171,9 +174,8 @@ class RegistrationState(BaseState):
 
         # Download the profile picture to make it readable by the app.
         bucket.download_file(
-            f"{new_user.id}/profile_picture",
-            rx.get_upload_dir() /
-            f"{new_user.id}_profile_picture.png",
+            self.profile_pic,
+            rx.get_upload_dir() / f"{self.profile_pic}",
         )
 
         yield [rx.redirect(LOGIN_ROUTE), RegistrationState.set_success(False)]
@@ -192,7 +194,7 @@ def registration_page() -> rx.Component:
             rx.hstack(
                 rx.upload(
                     rx.image(
-                        src=rx.get_upload_url(RegistrationState.profile_img),
+                        src=rx.get_upload_url(RegistrationState.profile_pic),
                         width="10vh",
                         height="10vh",
                         border="1px solid #ccc",
@@ -353,7 +355,7 @@ def registration_page() -> rx.Component:
             rx.hstack(
                 rx.upload(
                     rx.image(
-                        src=rx.get_upload_url(RegistrationState.profile_img),
+                        src=rx.get_upload_url(RegistrationState.profile_pic),
                         width="10vh",
                         height="10vh",
                         border="1px solid #ccc",
