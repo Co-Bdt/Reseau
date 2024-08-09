@@ -1,5 +1,6 @@
 from __future__ import annotations
 from collections.abc import AsyncGenerator
+from pathlib import Path
 from re import match
 
 import asyncio
@@ -172,10 +173,16 @@ class RegistrationState(BaseState):
         yield
         await asyncio.sleep(1)
 
-        # Download the profile picture to make it readable by the app.
+        # Create the user's directory
+        Path(
+            rx.get_upload_dir() /
+            f"{new_user.id}"
+        ).mkdir(parents=True, exist_ok=True)
+
+        # Download the profile pic to make it readable by the rest of the app.
         bucket.download_file(
             self.profile_pic,
-            rx.get_upload_dir() / f"{self.profile_pic}",
+            rx.get_upload_dir() / f"{new_user.id}" / f"{self.profile_pic}",
         )
 
         yield [rx.redirect(LOGIN_ROUTE), RegistrationState.set_success(False)]

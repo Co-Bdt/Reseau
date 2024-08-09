@@ -1,4 +1,5 @@
 import boto3
+from pathlib import Path
 import reflex as rx
 import sqlalchemy as sa
 
@@ -48,7 +49,6 @@ class ProfileState(BaseState):
         Args:
             files: The uploaded file(s).
         """
-        from pathlib import Path
 
         for file in files:
             upload_data = await file.read()

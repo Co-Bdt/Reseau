@@ -11,6 +11,7 @@ from ..components.post_dialog import post_dialog
 from ..components.write_post_dialog import write_post_dialog
 from ..models import Comment, Post, UserAccount
 from ..reseau import HOME_ROUTE
+from ..scripts.load_profile_pictures import load_profile_pictures
 
 
 class HomeState(BaseState):
@@ -27,9 +28,10 @@ class HomeState(BaseState):
         # insert_cities()
         # delete_users()
         # insert_interests()
+        load_profile_pictures()
 
     def init(self):
-        # self.run_script()
+        self.run_script()
         self.load_all_posts()
 
     def load_all_posts(self):
