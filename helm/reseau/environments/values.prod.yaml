@@ -1,3 +1,4 @@
 environment: prod
+envPrefix: ""
 managedCertificate: 
   domain: reseau-devperso.fr
