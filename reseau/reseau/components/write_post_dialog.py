@@ -77,7 +77,13 @@ def write_post_dialog(**props):
                             profile_picture=user.profile_picture,
                         ),
                         rx.text(
-                            user.username,
+                            user.first_name,
+                            style={
+                                "font_weight": "500",
+                            },
+                        ),
+                        rx.text(
+                            user.last_name,
                             style={
                                 "font_weight": "500",
                             },

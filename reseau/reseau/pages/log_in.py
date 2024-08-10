@@ -12,15 +12,15 @@ class LogInState(BaseState):
     """Handle login form submission and
     redirect to proper routes after authentication."""
 
-    username: str = ""
+    email: str = ""
     password: str = ""
 
     success: bool = False
     redirect_to: str = ""
 
     async def on_submit(
-            self,
-            form_data
+        self,
+        form_data
     ) -> AsyncGenerator[rx.event.EventSpec |
                         list[rx.event.EventSpec] | None, None]:
         """Handle login form on_submit.
@@ -28,9 +28,9 @@ class LogInState(BaseState):
         Args:
             form_data: A dict of form fields and values.
         """
-        username = self.username
-        if not username:
-            yield rx.set_focus("username")
+        email = self.email
+        if not email:
+            yield rx.set_focus("email")
             yield rx.toast.error("Le nom d'utilisateur est requis.")
             return
         password = self.password
@@ -40,7 +40,7 @@ class LogInState(BaseState):
             return
         with rx.session() as session:
             user = session.exec(
-                UserAccount.select().where(UserAccount.username == username)
+                UserAccount.select().where(UserAccount.email == email)
             ).one_or_none()
         if user is not None and not user.enabled:
             yield rx.set_value("password", "")
@@ -53,7 +53,7 @@ class LogInState(BaseState):
         if (
             user is not None
             and user.id is not None
-            # and user.enabled
+            and user.enabled
             and user.verify_password(password)
         ):
             # Set success and mark the user as logged in
@@ -90,21 +90,21 @@ def log_in_page() -> rx.Component:
             rx.vstack(
                 rx.tablet_and_desktop(
                     rx.text(
-                        "Nom d'utilisateur",
+                        "Email",
                         class_name='desktop-text',
                     ),
                 ),
                 rx.mobile_only(
                     rx.text(
-                        "Nom d'utilisateur",
+                        "Email",
                         class_name='mobile-text',
                     ),
                 ),
                 rx.input(
-                    id='username',
+                    id='email',
                     size='3',
-                    value=LogInState.username,
-                    on_change=LogInState.set_username,
+                    value=LogInState.email,
+                    on_change=LogInState.set_email,
                     width='100%',
                 ),
                 justify='start',

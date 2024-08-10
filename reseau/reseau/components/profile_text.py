@@ -8,7 +8,19 @@ def profile_text(
 ) -> rx.Component:
     '''Render the profile section.'''
     return rx.box(
-        rx.tablet_and_desktop(
+        rx.desktop_only(
+            rx.text_area(
+                value=profile_text,
+                placeholder="Quelles sont tes passions ?\
+                    \nQu'est-ce qui te fait vibrer ?",
+                width='100%',
+                size='3',
+                height='9vh',
+                max_length=300,
+                on_change=set_profile_text,
+            ),
+        ),
+        rx.tablet_only(
             rx.text_area(
                 value=profile_text,
                 placeholder="Quelles sont tes passions ?\
@@ -16,7 +28,6 @@ def profile_text(
                 width='100%',
                 height='9vh',
                 max_length=300,
-                rows='2',
                 on_change=set_profile_text,
             ),
         ),
@@ -28,7 +39,6 @@ def profile_text(
                 width='100%',
                 height='12vh',
                 max_length=300,
-                rows='5',
                 on_change=set_profile_text,
             ),
             width='100%',

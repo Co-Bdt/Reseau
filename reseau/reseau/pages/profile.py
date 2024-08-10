@@ -13,8 +13,8 @@ from rxconfig import S3_BUCKET_NAME
 
 
 class ProfileState(BaseState):
-    profile_text: str = ""  # the user's profile text
-    profile_pic: str = ""  # the user's profile image name
+    profile_text: str = ''  # the user's profile text
+    profile_pic: str = ''  # the user's profile image name
     # the user's selected interests names
     selected_interests_names: list[str] = []
 
@@ -44,11 +44,11 @@ class ProfileState(BaseState):
             ]
 
     async def handle_upload(self, files: list[rx.UploadFile]):
-        """Handle the upload of file(s).
+        '''Handle the upload of file(s).
 
         Args:
             files: The uploaded file(s).
-        """
+        '''
 
         for file in files:
             upload_data = await file.read()
@@ -65,7 +65,7 @@ class ProfileState(BaseState):
             ).mkdir(parents=True, exist_ok=True)
 
             # Save the file.
-            with outfile.open("wb") as file_object:
+            with outfile.open('wb') as file_object:
                 file_object.write(upload_data)
 
             # Update the profile_img var.
@@ -180,12 +180,12 @@ class ProfileState(BaseState):
 @rx.page(title="Profil", route=PROFILE_ROUTE, on_load=ProfileState.init)
 @template
 def profile_page() -> rx.Component:
-    """
+    '''
     Render the user's profile page.
 
     Returns:
         A reflex component.
-    """
+    '''
     return rx.cond(
         ProfileState.is_hydrated,
         rx.vstack(
@@ -195,11 +195,11 @@ def profile_page() -> rx.Component:
                 ),
                 rx.tablet_and_desktop(
                     rx.color_mode.button(
-                        padding_top="0",
+                        padding_top='0',
                     ),
                 ),
-                width="100%",
-                justify="between",
+                width='100%',
+                justify='between',
             ),
             rx.tablet_and_desktop(
                 rx.hstack(
@@ -208,69 +208,100 @@ def profile_page() -> rx.Component:
                             src=rx.get_upload_url(
                                 ProfileState.profile_pic
                             ),
-                            width=["5.5em"],
-                            height=["5.5em"],
-                            border="1px solid #ccc",
-                            border_radius="50%",
+                            width=['6.5em'],
+                            height=['6.5em'],
+                            border='1px solid #ccc',
+                            border_radius='50%',
                         ),
-                        id="profile_img",
+                        id='profile_img',
                         multiple=False,
                         accept={
-                            "image/png": [".png"],
-                            "image/jpeg": [".jpg", ".jpeg"],
+                            'image/png': ['.png'],
+                            'image/jpeg': ['.jpg', '.jpeg'],
                         },
                         on_drop=ProfileState.handle_upload(
-                            rx.upload_files(upload_id="profile_img")
+                            rx.upload_files(upload_id='profile_img')
                         ),
-                        padding="0",
-                        width=["7em"],
-                        height=["5.5em"],
-                        border="none",
+                        padding='0',
+                        width=['8em'],
+                        height=['6.5em'],
+                        border='none',
                     ),
-                    profile_text(
-                        ProfileState.profile_text,
-                        ProfileState.set_profile_text
+                    rx.vstack(
+                        rx.hstack(
+                            rx.text(
+                                ProfileState.authenticated_user.first_name,
+                                class_name='desktop-medium-text',
+                                style={'font_size': '1.1em'},
+                            ),
+                            rx.text(
+                                ProfileState.authenticated_user.last_name,
+                                class_name='desktop-medium-text',
+                                style={'font_size': '1.1em'},
+                            ),
+                            spacing='1',
+                        ),
+                        profile_text(
+                            ProfileState.profile_text,
+                            ProfileState.set_profile_text
+                        ),
+                        width='100%',
                     ),
-                    width="100%",
+                    width='100%',
+                    align='start',
                 ),
-                width="100%",
+                width='100%',
+                margin_bottom='1em',
             ),
             rx.mobile_only(
                 rx.vstack(
                     rx.hstack(
-                        rx.upload(
-                            rx.image(
-                                src=rx.get_upload_url(
-                                    ProfileState.profile_pic
+                        rx.hstack(
+                            rx.upload(
+                                rx.image(
+                                    src=rx.get_upload_url(
+                                        ProfileState.profile_pic
+                                    ),
+                                    width=['4em'],
+                                    height=['4em'],
+                                    border='1px solid #ccc',
+                                    border_radius='50%',
                                 ),
-                                width=["4em"],
-                                height=["4em"],
-                                border="1px solid #ccc",
-                                border_radius="50%",
+                                id='profile_img',
+                                multiple=False,
+                                accept={
+                                    'image/png': ['.png'],
+                                    'image/jpeg': ['.jpg', '.jpeg'],
+                                },
+                                on_drop=ProfileState.handle_upload(
+                                    rx.upload_files(upload_id='profile_img')
+                                ),
+                                margin_right='0.5em',
+                                padding='0',
+                                height=['4em'],
+                                border='none',
                             ),
-                            id="profile_img",
-                            multiple=False,
-                            accept={
-                                "image/png": [".png"],
-                                "image/jpeg": [".jpg", ".jpeg"],
-                            },
-                            on_drop=ProfileState.handle_upload(
-                                rx.upload_files(upload_id="profile_img")
+                            rx.text(
+                                ProfileState.authenticated_user.first_name,
+                                class_name='desktop-medium-text'
                             ),
-                            padding="0",
-                            height=["4em"],
-                            border="none",
+                            rx.text(
+                                ProfileState.authenticated_user.last_name,
+                                class_name='desktop-medium-text'
+                            ),
+                            spacing='1',
                         ),
                         rx.color_mode.button(),
-                        width="100%",
-                        justify="between",
+                        width='100%',
+                        justify='between',
                     ),
                     profile_text(
                         ProfileState.profile_text,
                         ProfileState.set_profile_text
                     ),
                 ),
-                width="100%",
+                width='100%',
+                margin_bottom='1em',
             ),
             profile_chips(
                 selected_interests=ProfileState.selected_interests_names,
@@ -280,19 +311,19 @@ def profile_page() -> rx.Component:
             rx.hstack(
                 rx.button(
                     "Valider",
-                    size="3",
+                    size='3',
                     on_click=ProfileState.save_profile
                 ),
                 rx.link(
                     "Se déconnecter",
-                    underline="none",
-                    href="/",
+                    underline='none',
+                    href='/',
                     on_click=BaseState.do_logout,
                 ),
-                width="100%",
-                justify="between",
-                align="center",
-                margin_top="1em",
+                width='100%',
+                justify='between',
+                align='center',
+                margin_top='1em',
             ),
         ),
     ),

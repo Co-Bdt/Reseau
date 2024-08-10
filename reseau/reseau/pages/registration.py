@@ -18,7 +18,8 @@ from rxconfig import S3_BUCKET_NAME
 class RegistrationState(BaseState):
     '''Handle registration form submission and
     redirect to login page after registration.'''
-    username: str = ''
+    first_name: str = ''
+    last_name: str = ''
     email: str = ''
     password: str = ''
     confirm_password: str = ''
@@ -70,31 +71,32 @@ class RegistrationState(BaseState):
         bucket = s3.Bucket(S3_BUCKET_NAME)
         existing_user = None
 
-        if self.profile_pic == "blank_profile_picture":
-            yield rx.toast.error(
-                "N'oublie pas d'ajouter une photo de profil."
-            )
+        first_name = self.first_name
+        if not first_name:
+            yield rx.set_focus('first_name')
+            yield rx.toast.error("Le prénom ne peut pas être vide.")
             return
-        username = self.username
-        if not username:
-            yield rx.set_focus('username')
+        last_name = self.last_name
+        if not last_name:
+            yield rx.set_focus('last_name')
             yield rx.toast.error("Le nom ne peut pas être vide.")
             return
-        with rx.session() as session:
-            existing_user = session.exec(
-                UserAccount.select().where(UserAccount.username == username)
-            ).one_or_none()
-        if existing_user is not None:
-            yield rx.set_focus('username')
-            yield rx.toast.error(
-                f"Le nom d'utilisateur {username} est déjà utilisé. \
-                    Essaie-en un autre."
-            )
-            return
+
         email = self.email
         if not email:
             yield rx.set_focus('email')
             yield rx.toast.error("L'email ne peut pas être vide.")
+            return
+        with rx.session() as session:
+            existing_user = session.exec(
+                UserAccount.select().where(UserAccount.email == email)
+            ).one_or_none()
+        if existing_user is not None:
+            yield rx.set_focus('email')
+            yield rx.toast.error(
+                "Ce mail est déjà utilisé. \
+                    Essaie-en un autre."
+            )
             return
         # Define a regex pattern for validating the email
         pattern = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
@@ -103,6 +105,7 @@ class RegistrationState(BaseState):
             yield rx.set_focus('email')
             yield rx.toast.error("L'email n'est pas valide.")
             return
+
         password = self.password
         if not password:
             yield rx.set_focus('password')
@@ -123,10 +126,10 @@ class RegistrationState(BaseState):
                 rx.set_focus('password'),
             ]
             yield rx.toast.error(
-                "Le mot de passe doit contenir un chiffre, \
-                    une lettre majuscule, une lettre minuscule, \
-                    un caractère spécial et comporter au moins \
-                    dix caractères."
+                "Le mot de passe doit contenir 1 chiffre, \
+                    1 lettre majuscule, 1 lettre minuscule, \
+                    1 caractère spécial et comporter au moins \
+                    10 caractères."
             )
             return
         if password != self.confirm_password:
@@ -136,14 +139,22 @@ class RegistrationState(BaseState):
             ]
             yield rx.toast.error("Les mots de passe ne correspondent pas.")
             return
+
         city_object = self.city
         if not city_object:
             yield rx.toast.error("La ville ne peut pas être vide.")
             return
 
+        if self.profile_pic == "blank_profile_picture":
+            yield rx.toast.error(
+                "N'oublie pas d'ajouter une photo de profil."
+            )
+            return
+
         new_user = self.complete_registration(
             new_user=UserAccount(
-                username=username,
+                first_name=first_name,
+                last_name=last_name,
                 email=email,
                 password_hash=UserAccount.hash_password(password),
                 profile_picture=self.profile_pic,
@@ -230,7 +241,6 @@ def registration_page() -> rx.Component:
                         border_radius='50%',
                     ),
                     id='profile_img',
-                    margin='0 0 1em 0',
                     padding='0px',
                     width='5em',
                     height='5em',
@@ -250,25 +260,49 @@ def registration_page() -> rx.Component:
             rx.vstack(
                 rx.tablet_and_desktop(
                     rx.text(
-                        "Nom d'utilisateur",
+                        "Prénom",
                         class_name='desktop-text',
                     ),
                 ),
                 rx.mobile_only(
                     rx.text(
-                        "Nom d'utilisateur",
+                        "Prénom",
                         class_name='mobile-text',
                     ),
                 ),
                 rx.input(
-                    id='username',
+                    id='first_name',
                     size='3',
-                    value=RegistrationState.username,
-                    on_change=RegistrationState.set_username,
+                    value=RegistrationState.first_name,
+                    on_change=RegistrationState.set_first_name,
                     width='100%',
                 ),
                 justify='start',
-                spacing='2',
+                spacing='1',
+                width='100%',
+            ),
+            rx.vstack(
+                rx.tablet_and_desktop(
+                    rx.text(
+                        "Nom",
+                        class_name='desktop-text',
+                    ),
+                ),
+                rx.mobile_only(
+                    rx.text(
+                        "Nom",
+                        class_name='mobile-text',
+                    ),
+                ),
+                rx.input(
+                    id='last_name',
+                    size='3',
+                    value=RegistrationState.last_name,
+                    on_change=RegistrationState.set_last_name,
+                    width='100%',
+                ),
+                justify='start',
+                spacing='1',
                 width='100%',
             ),
             rx.vstack(
@@ -306,7 +340,7 @@ def registration_page() -> rx.Component:
                     width='100%',
                 ),
                 justify='start',
-                spacing='2',
+                spacing='1',
                 width='100%',
             ),
             rx.vstack(
@@ -331,7 +365,7 @@ def registration_page() -> rx.Component:
                     width='100%',
                 ),
                 justify='start',
-                spacing='2',
+                spacing='1',
                 width='100%',
             ),
             rx.vstack(
@@ -356,7 +390,7 @@ def registration_page() -> rx.Component:
                     width='100%',
                 ),
                 justify='start',
-                spacing='2',
+                spacing='1',
                 width='100%',
             ),
             rx.center(
@@ -386,7 +420,7 @@ def registration_page() -> rx.Component:
                     width='100%',
                 ),
                 justify='start',
-                spacing='2',
+                spacing='1',
                 width='100%',
             ),
             rx.button(

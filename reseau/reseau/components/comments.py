@@ -24,7 +24,15 @@ def comments(
                     rx.vstack(
                         rx.hstack(
                             rx.text(
-                                comment[2].username,
+                                comment[2].first_name,
+                                style={
+                                    "font_weight": "500",
+                                    "font_size": ["0.9em", "1em"],
+                                },
+                                trim="both",
+                            ),
+                            rx.text(
+                                comment[2].last_name,
                                 style={
                                     "font_weight": "500",
                                     "font_size": ["0.9em", "1em"],

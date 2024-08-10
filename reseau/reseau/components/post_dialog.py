@@ -36,15 +36,29 @@ class PostDialog(rx.ComponentState):
                             ),
                             rx.vstack(
                                 rx.tablet_and_desktop(
-                                    rx.text(
-                                        post_author.username,
-                                        class_name='desktop-medium-text',
+                                    rx.hstack(
+                                        rx.text(
+                                            post_author.first_name,
+                                            class_name='desktop-medium-text',
+                                        ),
+                                        rx.text(
+                                            post_author.last_name,
+                                            class_name='desktop-medium-text',
+                                        ),
+                                        spacing='1',
                                     ),
                                 ),
                                 rx.mobile_only(
-                                    rx.text(
-                                        post_author.username,
-                                        class_name='mobile-medium-text',
+                                    rx.hstack(
+                                        rx.text(
+                                            post_author.first_name,
+                                            class_name='mobile-medium-text',
+                                        ),
+                                        rx.text(
+                                            post_author.last_name,
+                                            class_name='mobile-medium-text',
+                                        ),
+                                        spacing='1',
                                     ),
                                 ),
                                 rx.text(
@@ -96,20 +110,39 @@ class PostDialog(rx.ComponentState):
                         ),
                         rx.vstack(
                             rx.tablet_and_desktop(
-                                rx.text(
-                                    post_author.username,
-                                    style={
-                                        'font_weight': '500',
-                                    },
+                                rx.hstack(
+                                    rx.text(
+                                        post_author.first_name,
+                                        style={
+                                            'font_weight': '500',
+                                        },
+                                    ),
+                                    rx.text(
+                                        post_author.last_name,
+                                        style={
+                                            'font_weight': '500',
+                                        },
+                                    ),
+                                    spacing='1',
                                 ),
                             ),
                             rx.mobile_only(
-                                rx.text(
-                                    post_author.username,
-                                    style={
-                                        'font_weight': '500',
-                                        'font_size': '0.9em',
-                                    },
+                                rx.hstack(
+                                    rx.text(
+                                        post_author.first_name,
+                                        style={
+                                            'font_weight': '500',
+                                            'font_size': '0.9em',
+                                        },
+                                    ),
+                                    rx.text(
+                                        post_author.last_name,
+                                        style={
+                                            'font_weight': '500',
+                                            'font_size': '0.9em',
+                                        },
+                                    ),
+                                    spacing='1',
                                 ),
                             ),
                             rx.text(

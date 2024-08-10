@@ -5,12 +5,19 @@ from ..models import Post
 
 
 class WriteCommentForm(rx.ComponentState):
-    comment_value: str = ""
+    is_comment_empty: bool = True
+
+    def handle_comment_change(self, comment_value):
+        if comment_value:
+            self.is_comment_empty = False
+        else:
+            self.is_comment_empty = True
 
     @classmethod
     def get_component(cls, **props):
         post: Post = props.pop("post")
         publish_comment: Callable = props.pop("publish_comment")
+
         return rx.form.root(
             rx.input(
                 name="post_id",
@@ -20,8 +27,7 @@ class WriteCommentForm(rx.ComponentState):
             rx.input(
                 name="content",
                 placeholder="Commente...",
-                value=cls.comment_value,
-                on_change=cls.set_comment_value,
+                on_change=cls.handle_comment_change,
                 width="100%",
                 size="3",
                 radius="large",
@@ -36,24 +42,24 @@ class WriteCommentForm(rx.ComponentState):
                     ),
                 ),
                 rx.cond(
-                    cls.comment_value,
+                    cls.is_comment_empty,
+                    rx.button(
+                        "Commenter",
+                        disabled=True,
+                    ),
                     rx.form.submit(
                         rx.button(
                             "Commenter",
                             type="submit",
-                            on_click=cls.set_comment_value(""),
                         ),
-                    ),
-                    rx.button(
-                        "Commenter",
-                        disabled=True,
                     ),
                 ),
                 spacing="3",
                 margin_top="16px",
                 justify="end",
             ),
-            on_submit=publish_comment
+            on_submit=publish_comment,
+            reset_on_submit=True,
         )
 
 

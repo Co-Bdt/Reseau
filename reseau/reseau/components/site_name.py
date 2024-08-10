@@ -23,6 +23,7 @@ class SiteName(rx.ComponentState):
                 ),
                 width="100%",
                 margin="0",
+                padding="6px",
             ),
             rx.mobile_and_tablet(
                 rx.link(

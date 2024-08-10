@@ -55,7 +55,7 @@ class FeedbackDialogState(BaseState):
         s.quit()
 
         self.set_message("")
-        return rx.toast.success(f"Merci {self.authenticated_user.username}\
+        return rx.toast.success(f"Merci {self.authenticated_user.first_name}\
                                  pour ton feedback.")
 
 

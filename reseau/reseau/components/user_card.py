@@ -38,9 +38,16 @@ class UserCard(rx.ComponentState):
                                     profile_picture=user[0].profile_picture,
                                 ),
                                 rx.vstack(
-                                    rx.text(
-                                        f"{user[0].username}",
-                                        class_name='desktop-medium-text',
+                                    rx.hstack(
+                                        rx.text(
+                                            f"{user[0].first_name}",
+                                            class_name='desktop-medium-text',
+                                        ),
+                                        rx.text(
+                                            f"{user[0].last_name}",
+                                            class_name='desktop-medium-text',
+                                        ),
+                                        spacing='1',
                                     ),
                                     rx.text(
                                         (f"{user[1].name} "

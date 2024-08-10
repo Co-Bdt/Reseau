@@ -16,8 +16,9 @@ class UserAccount(
 ):
     """A local UserAccount model with bcrypt password hashing."""
 
-    username: str = Field(unique=True, nullable=False, index=True)
-    email: str = Field(nullable=False)
+    first_name: str = Field(nullable=True)
+    last_name: str = Field(nullable=True)
+    email: str = Field(nullable=False, unique=True, index=True)
     password_hash: str = Field(nullable=False)
     profile_text: str = Field(nullable=True)
     profile_picture: str = Field(nullable=True)

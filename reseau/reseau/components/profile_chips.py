@@ -45,11 +45,11 @@ class ProfileChips(rx.ComponentState):
 
         return rx.vstack(
             rx.hstack(
-                rx.icon('hand-heart', size=20),
                 rx.heading(
                     "Intérêts",
                     margin='0',
                 ),
+                # rx.icon('hand-heart', size=20),
                 spacing='1',
                 width='100%',
                 margin_bottom='0.5em',
