@@ -3,7 +3,9 @@
 name: Provision Infrastructure Pre-production
 
 on:
-  [workflow_dispatch]
+  #[workflow_dispatch]
+  push:
+    branches: [ "preprod" ]
 
 env:
   GCP_ID_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
