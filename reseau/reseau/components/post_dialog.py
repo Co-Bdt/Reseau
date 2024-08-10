@@ -11,15 +11,15 @@ class PostDialog(rx.ComponentState):
 
     @classmethod
     def get_component(cls, **props):
-        post: Post = props.pop("post", None)
-        post_datetime: str = props.pop("post_datetime", "")
-        post_author: UserAccount = props.pop("post_author", None)
+        post: Post = props.pop('post', None)
+        post_datetime: str = props.pop('post_datetime', '')
+        post_author: UserAccount = props.pop('post_author', None)
 
         post_comments: list[Tuple[Comment, str, UserAccount]] = (
-            props.pop("post_comments", [])
+            props.pop('post_comments', [])
         )
-        load_post_details: Callable = props.pop("load_post_details")
-        publish_comment: Callable = props.pop("publish_comment")
+        load_post_details: Callable = props.pop('load_post_details')
+        publish_comment: Callable = props.pop('publish_comment')
 
         return rx.dialog.root(
             rx.dialog.trigger(
@@ -28,9 +28,9 @@ class PostDialog(rx.ComponentState):
                         rx.hstack(
                             profile_picture(
                                 style=rx.Style(
-                                    border="0.5px solid #ccc",
-                                    width="2.7em",
-                                    height="2.7em",
+                                    border='0.5px solid #ccc',
+                                    width='2.7em',
+                                    height='2.7em',
                                 ),
                                 profile_picture=post_author.profile_picture,
                             ),
@@ -38,52 +38,48 @@ class PostDialog(rx.ComponentState):
                                 rx.tablet_and_desktop(
                                     rx.text(
                                         post_author.username,
-                                        weight="medium",
+                                        class_name='desktop-medium-text',
                                     ),
                                 ),
                                 rx.mobile_only(
                                     rx.text(
                                         post_author.username,
-                                        weight="medium",
-                                        size="2",
+                                        class_name='mobile-medium-text',
                                     ),
                                 ),
                                 rx.text(
                                     post_datetime,
-                                    size="1",
-                                    color_scheme="gray",
+                                    class_name='discreet-text',
                                 ),
-                                spacing="0",
+                                spacing='0',
                             ),
-                            align="center",
                         ),
                         rx.tablet_and_desktop(
                             rx.text(
                                 post.title,
-                                size="4",
-                                weight="bold",
-                                margin_bottom="0.5em",
+                                class_name='desktop-title',
+                                margin_bottom='0.5em',
                             ),
                             rx.text(
                                 post.content,
+                                class_name='desktop-text',
                             ),
                         ),
                         rx.mobile_only(
                             rx.text(
                                 post.title,
-                                size="2",
-                                weight="bold",
-                                margin_bottom="0.3em",
+                                class_name='mobile-title',
+                                margin_bottom='0.3em',
                             ),
                             rx.text(
                                 post.content,
-                                font_size=["0.8em", "1em"],
+                                class_name='mobile-text',
                             ),
                         ),
-                        width="100%",
+                        width='100%',
                     ),
-                    padding=["1em", "1.2em"],
-                    cursor="pointer",
+                    padding=['1em', '1.2em'],
+                    cursor='pointer',
                 ),
                 on_click=load_post_details(post.id)
             ),
@@ -92,62 +88,80 @@ class PostDialog(rx.ComponentState):
                     rx.hstack(
                         profile_picture(
                             style=rx.Style(
-                                border="0.5px solid #ccc",
-                                width="2.7em",
-                                height="2.7em",
+                                border='0.5px solid #ccc',
+                                width='2.7em',
+                                height='2.7em',
                             ),
                             profile_picture=post_author.profile_picture,
                         ),
                         rx.vstack(
                             rx.tablet_and_desktop(
-                                    rx.text(
-                                        post_author.username,
-                                        weight="medium",
-                                    ),
+                                rx.text(
+                                    post_author.username,
+                                    style={
+                                        'font_weight': '500',
+                                    },
+                                ),
                             ),
                             rx.mobile_only(
                                 rx.text(
                                     post_author.username,
-                                    weight="medium",
-                                    size="2",
+                                    style={
+                                        'font_weight': '500',
+                                        'font_size': '0.9em',
+                                    },
                                 ),
                             ),
                             rx.text(
                                 post_datetime,
-                                size="1",
-                                color_scheme="gray",
+                                style={
+                                    'font_size': '0.8em',
+                                    'color': 'gray',
+                                },
                             ),
-                            spacing="0",
+                            spacing='0',
                         ),
-                        align="center",
                     ),
                     rx.tablet_and_desktop(
                         rx.vstack(
-                            rx.text(post.title, size="5", weight="bold"),
+                            rx.text(
+                                post.title,
+                                style={
+                                    'font_weight': '700',
+                                    'font_size': '1.1em',
+                                },
+                            ),
                             rx.text(
                                 post.content,
-                                font_size="1em",
                             ),
-                            spacing="3",
+                            spacing='3',
                         ),
                     ),
                     rx.mobile_only(
                         rx.vstack(
-                            rx.text(post.title, size="3", weight="bold"),
+                            rx.text(
+                                post.title,
+                                style={
+                                    'font_weight': '700',
+                                    'font_size': '1em',
+                                },
+                            ),
                             rx.text(
                                 post.content,
-                                font_size="0.9em",
+                                style={
+                                    'font_size': '0.9em',
+                                },
                             ),
-                            spacing="1",
+                            spacing='1',
                         ),
                     ),
-                    direction="column",
-                    spacing="4",
-                    padding=["1em 0.5em", "1.5em"],
+                    direction='column',
+                    spacing='4',
+                    padding=['1em 0.5em', '1.5em'],
                 ),
 
                 rx.separator(
-                    margin_bottom="1em",
+                    margin_bottom='1em',
                 ),
                 # comments of the post
                 comments(
@@ -160,11 +174,11 @@ class PostDialog(rx.ComponentState):
                         post=post,
                         publish_comment=publish_comment,
                     ),
-                    direction="column",
-                    spacing="4",
-                    padding=["1em 0.5em", "1.5em"],
+                    direction='column',
+                    spacing='4',
+                    padding=['1em 0.5em', '1.5em'],
                 ),
-                padding=["0em 0em", "0em"],
+                padding=['0em 0em', '0em'],
             ),
         )
 

@@ -1,5 +1,7 @@
 import reflex as rx
 
+from .common.style import style
+
 
 HOME_ROUTE = "/"
 REGISTER_ROUTE = "/rejoindre"
@@ -13,7 +15,8 @@ app = rx.App(
         appearance="light",
         accent_color="amber",
     ),
-    stylesheets=[
+    style=style,  # Global style configuration
+    stylesheets=[  # Specific stylesheets
         "/styles.css",  # This path is relative to assets/
     ],
 )

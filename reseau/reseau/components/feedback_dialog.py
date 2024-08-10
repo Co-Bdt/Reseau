@@ -6,6 +6,19 @@ from ..common.base_state import BaseState
 from rxconfig import GMAIL_APP_PASSWORD
 
 
+icon_button_style = {
+    'variant': 'surface',
+    'width': '48px',
+    'height': '48px',
+    # absolute position in the bottom right corner
+    'position': 'fixed',
+    'bottom': ['2em', '2em', '2em', '2em', '100px'],
+    'right': ['2em', '2em', '2em', '2em', '100px'],
+    # fully rounded
+    'border_radius': '50%',
+}
+
+
 class FeedbackDialogState(BaseState):
     message: str = ""
 
@@ -56,16 +69,8 @@ def feedback_dialog() -> rx.Component:
     return rx.dialog.root(
         rx.dialog.trigger(
             rx.button(
-                rx.icon("message-square-quote"),
-                color_scheme="gray",
-                width="48px",
-                height="48px",
-                # absolute position in the bottom right corner
-                position="fixed",
-                bottom=["2em", "2em", "2em", "2em", "100px"],
-                right=["2em", "2em", "2em", "2em", "100px"],
-                # fully rounded
-                style={"border-radius": "50%"},
+                rx.icon("mic-vocal"),
+                **icon_button_style,
             ),
         ),
         rx.dialog.content(

@@ -14,15 +14,27 @@ def template(
         rx.cond(
             BaseState.is_authenticated,
             rx.box(
+                rx.box(
+                    rx.container(
+                        navbar(),
+                        size="4",
+                    ),
+                    rx.separator(),
+                    width="100%",
+                    margin_bottom=["0", "0", "0", "2em"],
+                    padding_top=["0", "0", "0", "2em"],
+                    background_color=rx.color_mode_cond(
+                        light="white",
+                        dark="#212121",
+                    ),
+                ),
                 rx.container(
-                    navbar(),
                     page(),
                     size="4",
                     padding_y=["1em", "1em", "1em", "0", "0"],
                     padding_x=["1em", "1em", "1em", "1em", "0"],
                 ),
                 width="100%",
-                margin=["0", "0", "0", "2em 0"],
             ),
             rx.box(
                 page(),

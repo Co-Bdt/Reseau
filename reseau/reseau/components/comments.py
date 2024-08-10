@@ -25,20 +25,26 @@ def comments(
                         rx.hstack(
                             rx.text(
                                 comment[2].username,
-                                weight="medium",
+                                style={
+                                    "font_weight": "500",
+                                    "font_size": ["0.9em", "1em"],
+                                },
                                 trim="both",
-                                font_size=["0.9em", "1em"],
                             ),
                             rx.text(
                                 "•",
-                                size="1",
-                                color_scheme="gray",
+                                style={
+                                    "font_size": "0.8em",
+                                    "color": "gray",
+                                },
                                 trim="both",
                             ),
                             rx.text(
                                 comment[1],
-                                size="1",
-                                color_scheme="gray",
+                                style={
+                                    "font_size": "0.8em",
+                                    "color": "gray",
+                                },
                                 trim="both",
                             ),
                             spacing="1",
@@ -46,8 +52,10 @@ def comments(
                         ),
                         rx.text(
                             comment[0].content,
+                            style={
+                                "font_size": ["0.9em", "1em"],
+                            },
                             margin_top="0.5em",
-                            font_size=["0.9em", "1em"],
                         ),
                         spacing="0",
                     ),

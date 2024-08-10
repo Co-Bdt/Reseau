@@ -7,6 +7,43 @@ from ..components.profile_picture import profile_picture
 from ..models import UserAccount
 
 
+dialog_button_style = {
+    "width": "100%",
+    "size": "3",
+    "variant": "outline",
+    "color_scheme": "gray",
+    "radius": "large",
+    "style": rx.Style(
+        justify_content="start",
+        background_color=rx.color_mode_cond(
+            light="white",
+            dark="#191918",
+        ),
+        font_size=["0.9em", "1em"],
+        cursor="pointer",
+    )
+}
+
+title_input_style = {
+    "width": "100%",
+    "size": "3",
+    "variant": "soft",
+    "color_scheme": "gray",
+    "background_color": rx.color_mode_cond(
+        light="white",
+        dark="#121212",
+    ),
+    "color": rx.color_mode_cond(
+        light="black",
+        dark="white",
+    ),
+    "style": rx.Style(
+        border="0.5px solid #ccc",
+        font_size=["0.9em", "1em"],
+    ),
+}
+
+
 class WritePostDialogState(BaseState):
     title: str = ""
     content: str = ""
@@ -24,17 +61,7 @@ def write_post_dialog(**props):
         rx.dialog.trigger(
             rx.button(
                 "Écris quelque chose",
-                width="100%",
-                size="3",
-                variant="outline",
-                color_scheme="gray",
-                radius="large",
-                style=rx.Style(
-                    justify_content="start",
-                    background_color="white",
-                    font_size=["0.9em", "1em"],
-                    cursor="pointer",
-                ),
+                **dialog_button_style,
             )
         ),
         rx.dialog.content(
@@ -43,50 +70,38 @@ def write_post_dialog(**props):
                     rx.hstack(
                         profile_picture(
                             style=rx.Style(
-                                width="4vh",
-                                height="4vh",
+                                width="2.7em",
+                                height="2.7em",
                                 border="0.5px solid #ccc",
                             ),
                             profile_picture=user.profile_picture,
                         ),
                         rx.text(
                             user.username,
-                            weight="medium",
+                            style={
+                                "font_weight": "500",
+                            },
                         ),
-                        align="center",
                         margin_bottom="0.5em",
                     ),
                     rx.text(
                         "Titre",
-                        size="2",
-                        weight="medium",
+                        style={
+                            "font_size": "0.9em",
+                        },
+                        margin_top="1em",
                     ),
                     rx.input(
-                        id="title",
                         name="title",
                         value=WritePostDialogState.title,
                         on_change=WritePostDialogState.set_title,
-                        width="100%",
-                        size="3",
-                        variant="soft",
-                        color_scheme="gray",
-                        background_color=rx.color_mode_cond(
-                            light="white",
-                            dark="#121212",
-                        ),
-                        color=rx.color_mode_cond(
-                            light="black",
-                            dark="white",
-                        ),
-                        style=rx.Style(
-                            border="0.5px solid #ccc",
-                            font_size=["0.9em", "1em"],
-                        ),
+                        **title_input_style,
                     ),
                     rx.text(
                         "Contenu",
-                        size="2",
-                        weight="medium",
+                        style={
+                            "font_size": "0.9em",
+                        },
                         margin_top="1em",
                     ),
                     autosize_textarea(

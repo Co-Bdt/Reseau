@@ -85,185 +85,122 @@ def log_in_page() -> rx.Component:
     Returns:
         A reflex component.
     """
-    login_form_desktop_tablet = rx.form(
+    login_form = rx.form(
         rx.vstack(
             rx.vstack(
-                rx.text(
-                    "Nom d'utilisateur",
-                    size="3",
-                    weight="medium",
-                    text_align="left",
-                    width="100%",
+                rx.tablet_and_desktop(
+                    rx.text(
+                        "Nom d'utilisateur",
+                        class_name='desktop-text',
+                    ),
+                ),
+                rx.mobile_only(
+                    rx.text(
+                        "Nom d'utilisateur",
+                        class_name='mobile-text',
+                    ),
                 ),
                 rx.input(
-                    id="username",
-                    size="3",
+                    id='username',
+                    size='3',
                     value=LogInState.username,
                     on_change=LogInState.set_username,
-                    width="100%",
+                    width='100%',
                 ),
-                justify="start",
-                spacing="2",
-                width="100%",
+                justify='start',
+                spacing='2',
+                width='100%',
             ),
             rx.vstack(
-                rx.text(
-                    "Mot de passe",
-                    size="3",
-                    weight="medium",
-                    text_align="left",
-                    width="100%",
+                rx.tablet_and_desktop(
+                    rx.text(
+                        "Mot de passe",
+                        class_name='desktop-text',
+                    ),
+                ),
+                rx.mobile_only(
+                    rx.text(
+                        "Mot de passe",
+                        class_name='mobile-text',
+                    ),
                 ),
                 rx.input(
-                    id="password",
-                    type="password",
-                    size="3",
+                    id='password',
+                    type='password',
+                    size='3',
                     value=LogInState.password,
                     on_change=LogInState.set_password,
-                    width="100%",
+                    width='100%',
                 ),
-                justify="start",
-                spacing="2",
-                width="100%",
+                justify='start',
+                spacing='2',
+                width='100%',
             ),
             rx.button(
                 "Se connecter",
-                type="submit",
-                size="3",
-                width="100%",
+                type='submit',
+                size='3',
+                width='100%',
+                margin_top='1em',
             ),
             rx.center(
                 rx.link(
                     "Pas encore de compte ?",
                     href=REGISTER_ROUTE,
-                    width="100%",
-                    text_align="center",
+                    width='100%',
+                    text_align='center',
                 ),
-                direction="column",
-                spacing="5",
-                width="100%",
+                direction='column',
+                spacing='5',
+                width='100%',
             ),
-            justify="center",
-            min_height="85vh",
-        ),
-        on_submit=LogInState.on_submit
-    )
-
-    login_form_mobile = rx.form(
-        rx.vstack(
-            rx.vstack(
-                rx.text(
-                    "Nom d'utilisateur",
-                    size="2",
-                    weight="medium",
-                    text_align="left",
-                    width="100%",
-                ),
-                rx.input(
-                    id="username",
-                    size="3",
-                    width="100%",
-                ),
-                justify="start",
-                spacing="2",
-                width="100%",
-            ),
-            rx.vstack(
-                rx.text(
-                    "Mot de passe",
-                    size="2",
-                    weight="medium",
-                    text_align="left",
-                    width="100%",
-                ),
-                rx.input(
-                    id="password",
-                    type="password",
-                    size="3",
-                    width="100%",
-                ),
-                justify="start",
-                spacing="2",
-                width="100%",
-            ),
-            rx.button(
-                "Se connecter",
-                type="submit",
-                size="3",
-                width="100%",
-                margin_top="1em",
-            ),
-            rx.center(
-                rx.link(
-                    "Pas encore de compte ?",
-                    href=REGISTER_ROUTE,
-                    width="100%",
-                    text_align="center",
-                ),
-                direction="column",
-                spacing="5",
-                width="100%",
-            ),
-            justify="center",
-            min_height="85vh",
+            justify='center',
+            min_height='80vh',
         ),
         on_submit=LogInState.on_submit
     )
 
     return rx.cond(
-            LogInState.is_hydrated,
-            rx.box(
-                rx.tablet_and_desktop(
-                    rx.vstack(
-                        login_form_desktop_tablet,
-                        rx.cond(  # conditionally show error messages
-                            LogInState.success,
-                            rx.center(
-                                rx.vstack(
-                                    rx.spinner(),
-                                    rx.text(
-                                        "Connexion réussie",
-                                        size="3",
-                                        weight="medium",
-                                    ),
-                                    align="center",
-                                ),
-                                width="100%",
+        LogInState.is_hydrated,
+        rx.box(
+            rx.vstack(
+                login_form,
+                rx.cond(  # conditionally show error messages
+                    LogInState.success,
+                    rx.center(
+                        rx.vstack(
+                            rx.spinner(),
+                            rx.text(
+                                "Connexion réussie",
+                                size='3',
+                                weight='medium',
                             ),
+                            align='center',
                         ),
-                        position="absolute",
-                        top="50%",
-                        left="50%",
-                        transform="translateX(-50%) translateY(-50%)",
+                        width='100%',
+                    ),
+                    # This is a placeholder for the success message
+                    # to always takes the space.
+                    rx.vstack(
+                        rx.spinner(
+                            visibility='hidden',
+                        ),
+                        rx.text(
+                            "Connexion réussie",
+                            size='3',
+                            weight='medium',
+                            visibility='hidden',
+                        ),
                     ),
                 ),
-                rx.mobile_only(
-                    rx.vstack(
-                        login_form_mobile,
-                        rx.cond(  # conditionally show error messages
-                            LogInState.success,
-                            rx.center(
-                                rx.vstack(
-                                    rx.spinner(),
-                                    rx.text(
-                                        "Connexion réussie",
-                                        size="3",
-                                        weight="medium",
-                                    ),
-                                    align="center",
-                                ),
-                                width="100%",
-                            ),
-                        ),
-                        position="absolute",
-                        top="50%",
-                        left="50%",
-                        transform="translateX(-50%) translateY(-50%)",
-                        width="80%",
-                    ),
-                )
+                position='absolute',
+                top='50%',
+                left='50%',
+                transform='translateX(-50%) translateY(-50%)',
+                min_width='260px',
             ),
-        )
+        ),
+    )
 
 
 # Will be useful later for futur pages

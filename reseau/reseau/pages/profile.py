@@ -94,14 +94,17 @@ class ProfileState(BaseState):
             self.profile_pic,
         )
 
-        filepath = rx.get_upload_dir()
         # Remove the old profile picture starting with the user's id
         # from the file system (old system of storing profile pictures)
         import fnmatch
         import os
-        for file in os.listdir(filepath):
-            if fnmatch.fnmatch(file, f"{self.authenticated_user.id}_*"):
-                os.remove(filepath / file)
+        filepath = rx.get_upload_dir()
+        try:
+            for file in os.listdir(filepath):
+                if fnmatch.fnmatch(file, f"{self.authenticated_user.id}_*"):
+                    os.remove(filepath / file)
+        except Exception:
+            pass
 
         try:
             bucket.download_file(
@@ -189,10 +192,6 @@ def profile_page() -> rx.Component:
             rx.hstack(
                 rx.heading(
                     "Ton profil",
-                    size="5",
-                    style=rx.Style(
-                        margin_bottom="0.5em"
-                    ),
                 ),
                 rx.tablet_and_desktop(
                     rx.color_mode.button(
@@ -209,8 +208,8 @@ def profile_page() -> rx.Component:
                             src=rx.get_upload_url(
                                 ProfileState.profile_pic
                             ),
-                            width=["64px", "80px"],
-                            height=["64px", "80px"],
+                            width=["5.5em"],
+                            height=["5.5em"],
                             border="1px solid #ccc",
                             border_radius="50%",
                         ),
@@ -224,8 +223,8 @@ def profile_page() -> rx.Component:
                             rx.upload_files(upload_id="profile_img")
                         ),
                         padding="0",
-                        width=["64px", "96px"],
-                        height=["64px", "80px"],
+                        width=["7em"],
+                        height=["5.5em"],
                         border="none",
                     ),
                     profile_text(
@@ -233,7 +232,6 @@ def profile_page() -> rx.Component:
                         ProfileState.set_profile_text
                     ),
                     width="100%",
-                    align="center",
                 ),
                 width="100%",
             ),
@@ -266,7 +264,6 @@ def profile_page() -> rx.Component:
                         rx.color_mode.button(),
                         width="100%",
                         justify="between",
-                        align="center",
                     ),
                     profile_text(
                         ProfileState.profile_text,

@@ -128,10 +128,6 @@ def home_page() -> rx.Component:
             rx.vstack(
                 rx.heading(
                     "Communauté",
-                    size="5",
-                    style=rx.Style(
-                        margin_bottom="0.5em"
-                    ),
                 ),
                 write_post_dialog(
                     user=BaseState.authenticated_user,

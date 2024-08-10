@@ -112,10 +112,6 @@ def members_page() -> rx.Component:
         rx.vstack(
             rx.heading(
                     "Membres",
-                    size="5",
-                    style=rx.Style(
-                        margin_bottom="0.5em"
-                    ),
                 ),
             rx.text(
                 "Connecte avec d'autres gars aux mêmes valeurs "
@@ -141,54 +137,21 @@ def members_page() -> rx.Component:
                 MembersState.users_displayed,
                 rx.box(
                     rx.desktop_only(
-                        rx.grid(
-                            rx.foreach(
-                                MembersState.users_displayed,
-                                lambda user: user_card(
-                                    user=(user[0]),
-                                    city=user[1],
-                                    interest_list=user[2],
-                                    is_profile_empty=~user[0].profile_text,
-                                ),
-                            ),
+                        user_card(
+                            users=MembersState.users_displayed,
                             columns="3",
-                            width="100%",
-                            spacing="3",
-                            flex_wrap="wrap",
                         ),
                     ),
                     rx.tablet_only(
-                        rx.grid(
-                            rx.foreach(
-                                MembersState.users_displayed,
-                                lambda user: user_card(
-                                    user=(user[0]),
-                                    city=user[1],
-                                    interest_list=user[2],
-                                    is_profile_empty=~user[0].profile_text,
-                                ),
-                            ),
+                        user_card(
+                            users=MembersState.users_displayed,
                             columns="2",
-                            width="100%",
-                            spacing="3",
-                            flex_wrap="wrap",
                         ),
                     ),
                     rx.mobile_only(
-                        rx.grid(
-                            rx.foreach(
-                                MembersState.users_displayed,
-                                lambda user: user_card(
-                                    user=(user[0]),
-                                    city=user[1],
-                                    interest_list=user[2],
-                                    is_profile_empty=~user[0].profile_text,
-                                ),
-                            ),
+                        user_card(
+                            users=MembersState.users_displayed,
                             columns="1",
-                            width="100%",
-                            spacing="3",
-                            flex_wrap="wrap",
                         ),
                     ),
                     width="100%",
@@ -199,6 +162,7 @@ def members_page() -> rx.Component:
                         f"Aucun membre trouvé : \
                             {MembersState.city_searched.name} \
                             ({MembersState.city_searched.postal_code})",
+                        class_name="mobile-text",
                         width="100%",
                         align="center",
                     ),

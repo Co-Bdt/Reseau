@@ -1,9 +1,21 @@
 .light {
-    .css-199e4dy-AppWrap {
+    .radix-themes {
       background-color: #F9F8F8;
     }
+
+    .autosize-textarea:focus {
+        outline: none;
+        border: 2px solid #ccc;
+    }
 }
-  
+
+.dark {
+    .autosize-textarea:focus {
+        outline: none;
+        border: 2px solid #62605b;
+    }
+}
+
 .autosize-textarea {
     resize: none;
     overflow: hidden;
@@ -14,9 +26,4 @@
     border-radius: 5px;
     font-size: 16px;
     line-height: 1.5;
-}
-
-.autosize-textarea:focus {
-    outline: none;
-    border: 2px solid #ccc;
 }
