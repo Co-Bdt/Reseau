@@ -23,5 +23,5 @@ S3_BUCKET_NAME = os.environ.get(
 config = rx.Config(
     app_name="reseau",
     api_url=f"http://{APP_IP}:{BACK_PORT}",
-    db_url=LOCAL_SQLITE_URL,
+    db_url=AMAZON_RDS_POSTGRESQL_URL,
 )

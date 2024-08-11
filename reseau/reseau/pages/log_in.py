@@ -29,14 +29,15 @@ class LogInState(BaseState):
             form_data: A dict of form fields and values.
         """
         email = self.email
+        print("email:", email)
         if not email:
             yield rx.set_focus("email")
-            yield rx.toast.error("Le nom d'utilisateur est requis.")
+            yield rx.toast.error("Ton email est requis.")
             return
         password = self.password
         if not password:
             yield rx.set_focus("password")
-            yield rx.toast.error("Le mot de passe est requis.")
+            yield rx.toast.error("Ton mot de passe est requis.")
             return
         with rx.session() as session:
             user = session.exec(

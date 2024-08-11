@@ -74,18 +74,18 @@ class RegistrationState(BaseState):
         first_name = self.first_name
         if not first_name:
             yield rx.set_focus('first_name')
-            yield rx.toast.error("Le prénom ne peut pas être vide.")
+            yield rx.toast.error("Ton prénom est requis.")
             return
         last_name = self.last_name
         if not last_name:
             yield rx.set_focus('last_name')
-            yield rx.toast.error("Le nom ne peut pas être vide.")
+            yield rx.toast.error("Ton nom est requis.")
             return
 
         email = self.email
         if not email:
             yield rx.set_focus('email')
-            yield rx.toast.error("L'email ne peut pas être vide.")
+            yield rx.toast.error("Ton e-mail est requis.")
             return
         with rx.session() as session:
             existing_user = session.exec(
@@ -94,7 +94,7 @@ class RegistrationState(BaseState):
         if existing_user is not None:
             yield rx.set_focus('email')
             yield rx.toast.error(
-                "Ce mail est déjà utilisé. \
+                "Cet e-mail est déjà utilisé. \
                     Essaie-en un autre."
             )
             return
@@ -103,13 +103,13 @@ class RegistrationState(BaseState):
         # Use the re package to check if the email matches the pattern
         if not match(pattern, email):
             yield rx.set_focus('email')
-            yield rx.toast.error("L'email n'est pas valide.")
+            yield rx.toast.error("L'e-mail n'est pas valide.")
             return
 
         password = self.password
         if not password:
             yield rx.set_focus('password')
-            yield rx.toast.error("Le mot de passe ne peut pas être vide.")
+            yield rx.toast.error("Un mot de passe est requis.")
             return
         # Define a regex pattern for validating that the password contains
         # at least one digit, one uppercase letter, one lowercase letter,
