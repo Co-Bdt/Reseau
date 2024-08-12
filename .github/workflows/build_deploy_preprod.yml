@@ -3,8 +3,8 @@
 name: Deployment to GKE Pre-production
 
 on:
-  [repository_dispatch]
-  #[workflow_dispatch]
+  #[repository_dispatch]
+  [workflow_dispatch]
   
 env:
   WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
