@@ -32,9 +32,6 @@ service:
   port: 80
   targetPort: 3000
 
-# managedCertificate: 
-#   domain: reseau-devperso.fr
-
 ingress:
   enabled: true
 
