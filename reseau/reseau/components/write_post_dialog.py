@@ -80,6 +80,7 @@ def write_post_dialog(**props):
                             user.first_name,
                             style={
                                 "font_weight": "500",
+                                "margin_left": "0.5em",
                             },
                         ),
                         rx.text(
@@ -88,6 +89,7 @@ def write_post_dialog(**props):
                                 "font_weight": "500",
                             },
                         ),
+                        spacing="1",
                         margin_bottom="0.5em",
                     ),
                     rx.text(

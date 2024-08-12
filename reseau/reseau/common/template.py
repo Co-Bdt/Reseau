@@ -10,9 +10,9 @@ from ..components.navbar import navbar
 def template(
     page: Callable[[], rx.Component],
 ) -> rx.Component:
-    return rx.vstack(
+    return rx.fragment(
         rx.cond(
-            BaseState.is_authenticated,
+            BaseState.is_hydrated & BaseState.is_authenticated,
             rx.box(
                 rx.box(
                     rx.container(
@@ -34,15 +34,12 @@ def template(
                     padding_y=["1em", "1em", "1em", "0", "0"],
                     padding_x=["1em", "1em", "1em", "1em", "0"],
                 ),
+                feedback_dialog(),
                 width="100%",
             ),
             rx.box(
                 page(),
             ),
-        ),
-        rx.cond(
-            BaseState.is_authenticated,
-            feedback_dialog(),
         ),
         width="100%",
     )

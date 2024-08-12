@@ -175,7 +175,7 @@ class RegistrationState(BaseState):
 
         # Download the profile pic to make it readable by the rest of the app.
         bucket.download_file(
-            self.profile_pic,
+            new_user.profile_picture,
             rx.get_upload_dir() / f'{new_user.id}' / f'{self.profile_pic}',
         )
 
@@ -217,11 +217,14 @@ class RegistrationState(BaseState):
             session.commit()
             session.refresh(new_user)
 
-            # Upload the profile picture to S3
-            bucket.upload_file(
-                f'{rx.get_upload_dir()}/{self.profile_pic}',
-                f'{new_user.profile_picture}'
-            )
+            try:
+                # Upload the profile picture to S3
+                bucket.upload_file(
+                    f'{rx.get_upload_dir()}/{self.profile_pic}',
+                    f'{new_user.profile_picture}'
+                )
+            except Exception:
+                pass
 
         return new_user
 

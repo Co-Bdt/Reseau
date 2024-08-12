@@ -29,7 +29,6 @@ class LogInState(BaseState):
             form_data: A dict of form fields and values.
         """
         email = self.email
-        print("email:", email)
         if not email:
             yield rx.set_focus("email")
             yield rx.toast.error("Ton email est requis.")
