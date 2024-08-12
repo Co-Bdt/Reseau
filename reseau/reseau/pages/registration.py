@@ -173,11 +173,15 @@ class RegistrationState(BaseState):
             f'{new_user.id}'
         ).mkdir(parents=True, exist_ok=True)
 
-        # Download the profile pic to make it readable by the rest of the app.
-        bucket.download_file(
-            new_user.profile_picture,
-            rx.get_upload_dir() / f'{new_user.id}' / f'{self.profile_pic}',
-        )
+        try:
+            # Download the profile picto make it readable
+            # by the rest of the app.
+            bucket.download_file(
+                new_user.profile_picture,
+                rx.get_upload_dir() / f'{new_user.id}' / f'{self.profile_pic}',
+            )
+        except Exception:
+            pass
 
         yield [rx.redirect(LOGIN_ROUTE), RegistrationState.set_success(False)]
 
