@@ -163,6 +163,14 @@ jobs:
         kubectl create secret docker-registry reseau-dockerconfig-secret \
           --from-file=.dockerconfigjson=/home/$USER/.docker/config.json
 
+    - name: Inject AWS access credentials
+      run: |-
+        mkdir ~/.aws
+        touch ~/.aws/credentials
+        echo "[default]" >> ~/.aws/credentials
+        echo "aws_access_key_id = $AWS_ACCESS_KEY_ID" >> ~/.aws/credentials
+        echo "aws_secret_access_key = $AWS_SECRET_ACCESS_KEY" >> ~/.aws/credentials
+
   call_deploy_workflow:
     name: Call Deploy Workflow
     runs-on: ubuntu-latest
