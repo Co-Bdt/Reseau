@@ -1,4 +1,5 @@
 import boto3
+from pathlib import Path
 import reflex as rx
 import sqlalchemy as sa
 
@@ -7,33 +8,25 @@ from ..common.template import template
 from ..components.profile_text import profile_text
 from ..components.profile_chips import profile_chips
 from ..models import Interest, UserAccount, UserInterest
-from ..reseau import PROFILE_ROUTE, S3_BUCKET_NAME
+from ..reseau import PROFILE_ROUTE
+from rxconfig import S3_BUCKET_NAME
 
 
 class ProfileState(BaseState):
-    profile_text: str = ""  # the user's profile text
-    profile_img: str = ""  # the user's profile image name
+    profile_text: str = ''  # the user's profile text
+    profile_pic: str = ''  # the user's profile image name
     # the user's selected interests names
     selected_interests_names: list[str] = []
 
     def init(self):
         self.profile_text = self.authenticated_user.profile_text
+        yield
 
-        # Load the user's profile picture from S3
-        s3 = boto3.resource('s3')
-        bucket = s3.Bucket(S3_BUCKET_NAME)
-        try:
-            bucket.download_file(
-                f"{self.authenticated_user.id}/profile_picture",
-                rx.get_upload_dir() /
-                f"{self.authenticated_user.id}_profile_picture.png",
-            )
-            self.profile_img = (
-                f"{self.authenticated_user.id}_"
-                "profile_picture.png"
-            )
-        except Exception:
-            self.profile_img = "blank_profile_picture"
+        if self.authenticated_user.profile_picture:
+            self.profile_pic = self.authenticated_user.profile_picture
+        else:
+            self.profile_pic = "blank_profile_picture"
+        yield
 
         # Load the user's interests
         with rx.session() as session:
@@ -51,21 +44,35 @@ class ProfileState(BaseState):
             ]
 
     async def handle_upload(self, files: list[rx.UploadFile]):
-        """Handle the upload of file(s).
+        '''Handle the upload of file(s).
 
         Args:
             files: The uploaded file(s).
-        """
+        '''
+
         for file in files:
             upload_data = await file.read()
-            outfile = rx.get_upload_dir() / file.filename
+            outfile = (
+                rx.get_upload_dir() /
+                f"{self.authenticated_user.id}" /
+                file.filename
+            )
+
+            # Create the user's directory if it doesn't exist
+            Path(
+                rx.get_upload_dir() /
+                f"{self.authenticated_user.id}"
+            ).mkdir(parents=True, exist_ok=True)
 
             # Save the file.
-            with outfile.open("wb") as file_object:
+            with outfile.open('wb') as file_object:
                 file_object.write(upload_data)
 
             # Update the profile_img var.
-            self.profile_img = file.filename
+            self.profile_pic = (
+                f"{self.authenticated_user.id}/" +
+                f"{file.filename}"
+            )
 
     def add_selected(self, item: str):
         # limit selected items to 2
@@ -81,11 +88,37 @@ class ProfileState(BaseState):
         s3 = boto3.resource('s3')
         bucket = s3.Bucket(S3_BUCKET_NAME)
 
-        # Upload the profile picture to S3
-        bucket.upload_file(
-            f"{rx.get_upload_dir()}/{self.profile_img}",
-            f"{self.authenticated_user.id}/profile_picture"
-        )
+        try:
+            # Upload the profile picture to S3
+            bucket.upload_file(
+                f"{rx.get_upload_dir()}/{self.profile_pic}",
+                self.profile_pic,
+            )
+        except Exception:
+            pass
+
+        # Remove the old profile picture starting with the user's id
+        # from the file system (old system of storing profile pictures)
+        import fnmatch
+        import os
+        filepath = rx.get_upload_dir()
+        try:
+            for file in os.listdir(filepath):
+                if fnmatch.fnmatch(file, f"{self.authenticated_user.id}_*"):
+                    os.remove(filepath / file)
+        except Exception:
+            pass
+
+        try:
+            bucket.download_file(
+                self.profile_pic,
+                rx.get_upload_dir() / f"{self.profile_pic}",
+            )
+            self.profile_pic = (
+                f"{self.profile_pic}"
+            )
+        except Exception:
+            self.profile_pic = "blank_profile_picture"
 
     def update_interests(self):
         # Get the corresponding interest objects from the database
@@ -134,6 +167,8 @@ class ProfileState(BaseState):
                 )
             ).first()
             user.profile_text = profile_text_cleaned
+            user.profile_picture = self.profile_pic
+
             session.add(user)
             session.commit()
         # Update the user's profile text visually
@@ -148,103 +183,128 @@ class ProfileState(BaseState):
 @rx.page(title="Profil", route=PROFILE_ROUTE, on_load=ProfileState.init)
 @template
 def profile_page() -> rx.Component:
-    """
+    '''
     Render the user's profile page.
 
     Returns:
         A reflex component.
-    """
+    '''
     return rx.cond(
         ProfileState.is_hydrated,
         rx.vstack(
             rx.hstack(
                 rx.heading(
                     "Ton profil",
-                    size="5",
-                    style=rx.Style(
-                        margin_bottom="0.5em"
-                    ),
                 ),
                 rx.tablet_and_desktop(
                     rx.color_mode.button(
-                        padding_top="0",
+                        padding_top='0',
                     ),
                 ),
-                width="100%",
-                justify="between",
+                width='100%',
+                justify='between',
             ),
             rx.tablet_and_desktop(
                 rx.hstack(
                     rx.upload(
                         rx.image(
                             src=rx.get_upload_url(
-                                ProfileState.profile_img
+                                ProfileState.profile_pic
                             ),
-                            width=["64px", "80px"],
-                            height=["64px", "80px"],
-                            border="1px solid #ccc",
-                            border_radius="50%",
+                            width=['6.5em'],
+                            height=['6.5em'],
+                            border='1px solid #ccc',
+                            border_radius='50%',
                         ),
-                        id="profile_img",
+                        id='profile_img',
                         multiple=False,
                         accept={
-                            "image/png": [".png"],
-                            "image/jpeg": [".jpg", ".jpeg"],
+                            'image/png': ['.png'],
+                            'image/jpeg': ['.jpg', '.jpeg'],
                         },
                         on_drop=ProfileState.handle_upload(
-                            rx.upload_files(upload_id="profile_img")
+                            rx.upload_files(upload_id='profile_img')
                         ),
-                        padding="0",
-                        width=["64px", "96px"],
-                        height=["64px", "80px"],
-                        border="none",
+                        padding='0',
+                        width=['8em'],
+                        height=['6.5em'],
+                        border='none',
                     ),
-                    profile_text(
-                        ProfileState.profile_text,
-                        ProfileState.set_profile_text
+                    rx.vstack(
+                        rx.hstack(
+                            rx.text(
+                                ProfileState.authenticated_user.first_name,
+                                class_name='desktop-medium-text',
+                                style={'font_size': '1.1em'},
+                            ),
+                            rx.text(
+                                ProfileState.authenticated_user.last_name,
+                                class_name='desktop-medium-text',
+                                style={'font_size': '1.1em'},
+                            ),
+                            spacing='1',
+                        ),
+                        profile_text(
+                            ProfileState.profile_text,
+                            ProfileState.set_profile_text
+                        ),
+                        width='100%',
                     ),
-                    width="100%",
-                    align="center",
+                    width='100%',
+                    align='start',
                 ),
-                width="100%",
+                width='100%',
+                margin_bottom='1em',
             ),
             rx.mobile_only(
                 rx.vstack(
                     rx.hstack(
-                        rx.upload(
-                            rx.image(
-                                src=rx.get_upload_url(
-                                    ProfileState.profile_img
+                        rx.hstack(
+                            rx.upload(
+                                rx.image(
+                                    src=rx.get_upload_url(
+                                        ProfileState.profile_pic
+                                    ),
+                                    width=['4em'],
+                                    height=['4em'],
+                                    border='1px solid #ccc',
+                                    border_radius='50%',
                                 ),
-                                width=["4em"],
-                                height=["4em"],
-                                border="1px solid #ccc",
-                                border_radius="50%",
+                                id='profile_img',
+                                multiple=False,
+                                accept={
+                                    'image/png': ['.png'],
+                                    'image/jpeg': ['.jpg', '.jpeg'],
+                                },
+                                on_drop=ProfileState.handle_upload(
+                                    rx.upload_files(upload_id='profile_img')
+                                ),
+                                margin_right='0.5em',
+                                padding='0',
+                                height=['4em'],
+                                border='none',
                             ),
-                            id="profile_img",
-                            multiple=False,
-                            accept={
-                                "image/png": [".png"],
-                                "image/jpeg": [".jpg", ".jpeg"],
-                            },
-                            on_drop=ProfileState.handle_upload(
-                                rx.upload_files(upload_id="profile_img")
+                            rx.text(
+                                ProfileState.authenticated_user.first_name,
+                                class_name='desktop-medium-text'
                             ),
-                            padding="0",
-                            height=["4em"],
-                            border="none",
+                            rx.text(
+                                ProfileState.authenticated_user.last_name,
+                                class_name='desktop-medium-text'
+                            ),
+                            spacing='1',
                         ),
                         rx.color_mode.button(),
-                        width="100%",
-                        justify="between",
-                        align="center",
+                        width='100%',
+                        justify='between',
                     ),
                     profile_text(
                         ProfileState.profile_text,
                         ProfileState.set_profile_text
                     ),
                 ),
-                width="100%",
+                width='100%',
+                margin_bottom='1em',
             ),
             profile_chips(
                 selected_interests=ProfileState.selected_interests_names,
@@ -254,19 +314,19 @@ def profile_page() -> rx.Component:
             rx.hstack(
                 rx.button(
                     "Valider",
-                    size="3",
+                    size='3',
                     on_click=ProfileState.save_profile
                 ),
                 rx.link(
                     "Se déconnecter",
-                    underline="none",
-                    href="/",
+                    underline='none',
+                    href='/',
                     on_click=BaseState.do_logout,
                 ),
-                width="100%",
-                justify="between",
-                align="center",
-                margin_top="1em",
+                width='100%',
+                justify='between',
+                align='center',
+                margin_top='1em',
             ),
         ),
     ),

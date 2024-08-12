@@ -64,12 +64,18 @@ data "aws_db_snapshot" "latest_snapshot" {
 
 # AWS RDS instance
 resource "aws_db_instance" "db_instance" {
-  identifier = "${var.project_name}-db-instance"
+  identifier                = "${var.project_name}-db-instance"
   instance_class            = "db.t4g.micro"
   snapshot_identifier       = data.aws_db_snapshot.latest_snapshot.id
   publicly_accessible       = true
-  final_snapshot_identifier = "${var.project_name}-db-instance-final-snapshot"
-  storage_encrypted = true # to avoid replacement every time a state is applied
+  final_snapshot_identifier = "${var.project_name}-db-instance-final-snapshot-${replace(timestamp(), ":", "-")}"
+  storage_encrypted         = true # to avoid replacement every time a state is applied
+
+  lifecycle {
+      ignore_changes = [
+        final_snapshot_identifier,
+      ]
+  }
 }
 
 # Amazon Machine Image (AMI)

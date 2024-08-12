@@ -1,29 +1,22 @@
 import reflex as rx
 
-from ..models import Interest
 
+all_interests_names = ['Business', 'Mental', 'Physique', 'Relations']
 
 chip_props = {
-    "radius": "full",
-    "variant": "surface",
-    "size": "3",
-    "cursor": "pointer",
-    "style": {"_hover": {"opacity": 0.75}},
+    'radius': 'full',
+    'variant': 'surface',
+    'size': '3',
+    'cursor': 'pointer',
+    'style': {'_hover': {'opacity': 0.75}},
 }
 
 
 class ProfileChips(rx.ComponentState):
     @classmethod
     def get_component(cls, **props):
-        # Query all interests from the database
-        interests_names: list[str] = []
-        with rx.session() as session:
-            interests = session.exec(
-                Interest.select()
-                .order_by(Interest.name.asc())
-            ).all()
-            interests_names = [interest.name for interest in interests]
 
+        all_interests: list[str] = all_interests_names
         selected_interests: list[str] = props.pop("selected_interests", [])
         add_selected = props.pop("add_selected")
         remove_selected = props.pop("remove_selected")
@@ -31,8 +24,8 @@ class ProfileChips(rx.ComponentState):
         def selected_item_chip(item: str) -> rx.Component:
             return rx.badge(
                 item,
-                rx.icon("circle-x", size=18),
-                color_scheme="green",
+                rx.icon('circle-x', size=18),
+                color_scheme='green',
                 **chip_props,
                 on_click=remove_selected(item),
             )
@@ -43,52 +36,51 @@ class ProfileChips(rx.ComponentState):
                 rx.fragment(),
                 rx.badge(
                     item,
-                    rx.icon("circle-plus", size=18),
-                    color_scheme="gray",
+                    rx.icon('circle-plus', size=18),
+                    color_scheme='gray',
                     **chip_props,
                     on_click=add_selected(item),
                 ),
             )
 
         return rx.vstack(
-            # rx.flex(
             rx.hstack(
-                rx.icon("hand-heart", size=20),
                 rx.heading(
                     "Intérêts",
-                    size="3",
+                    margin='0',
                 ),
-                spacing="1",
-                align="center",
-                width="100%",
-                margin_bottom="0.5em",
+                # rx.icon('hand-heart', size=20),
+                spacing='1',
+                width='100%',
+                margin_bottom='0.5em',
             ),
+
             # Selected Items
             rx.flex(
                 rx.foreach(
                     selected_interests,
                     selected_item_chip,
                 ),
-                wrap="wrap",
-                spacing="2",
-                justify_content="start",
+                wrap='wrap',
+                spacing='2',
+                justify_content='start',
             ),
             rx.divider(),
+
             # Unselected Items
             rx.flex(
                 rx.foreach(
-                    interests_names,
+                    all_interests,
                     unselected_item_chip,
                 ),
-                wrap="wrap",
-                spacing="2",
-                justify_content="start",
+                wrap='wrap',
+                spacing='2',
+                justify_content='start',
             ),
-            justify_content="start",
-            align_items="start",
-            width="100%",
-            margin_top="1em",
-            # padding_x="1em",
+            justify_content='start',
+            align_items='start',
+            width='100%',
+            margin_top='1em',
         )
 
 

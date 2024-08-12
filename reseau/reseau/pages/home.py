@@ -11,16 +11,15 @@ from ..components.post_dialog import post_dialog
 from ..components.write_post_dialog import write_post_dialog
 from ..models import Comment, Post, UserAccount
 from ..reseau import HOME_ROUTE
+from ..scripts.load_profile_pictures import load_profile_pictures
 
 
 class HomeState(BaseState):
-    # if current user has a profile picture
-    own_profile_picture_exists: bool = False
     # posts to display
     posts_displayed: list[Tuple[Post, str, UserAccount, bool]] = []
     post_author: UserAccount = None  # author of a post
     # comments of a post
-    post_comments: list[Tuple[Comment, str, UserAccount, bool]] = []
+    post_comments: list[Tuple[Comment, str, UserAccount]] = []
     profile_pictures_exist: list[bool] = []
 
     def run_script(self):
@@ -29,13 +28,10 @@ class HomeState(BaseState):
         # insert_cities()
         # delete_users()
         # insert_interests()
+        load_profile_pictures()
 
     def init(self):
-        # self.run_script()
-        self.own_profile_picture_exists = os.path.isfile(
-            f"{rx.get_upload_dir()}/{self.authenticated_user.id}" +
-            "_profile_picture.png"
-        )
+        self.run_script()
         self.load_all_posts()
 
     def load_all_posts(self):
@@ -74,9 +70,7 @@ class HomeState(BaseState):
             self.post_comments.append(
                 (comment,
                  f"{comment.published_at: %d/%m/%y %H:%M}",
-                 comment.useraccount,
-                 os.path.isfile(f"{rx.get_upload_dir()}/{comment.author_id}" +
-                                "_profile_picture.png")),
+                 comment.useraccount),
             )
 
     def publish_post(self, form_data: dict):
@@ -134,14 +128,9 @@ def home_page() -> rx.Component:
             rx.vstack(
                 rx.heading(
                     "Communauté",
-                    size="5",
-                    style=rx.Style(
-                        margin_bottom="0.5em"
-                    ),
                 ),
                 write_post_dialog(
-                    user=[BaseState.authenticated_user,
-                          HomeState.own_profile_picture_exists],
+                    user=BaseState.authenticated_user,
                     publish_post=HomeState.publish_post
                 ),
                 rx.tablet_and_desktop(
@@ -157,7 +146,6 @@ def home_page() -> rx.Component:
                                 post_author=post[2],
                                 post_profile_picture_exist=post[3],
                                 post_comments=HomeState.post_comments,
-                                profile_pictures_exist=HomeState.profile_pictures_exist,  # noqa
                                 load_post_details=HomeState.load_post_details,
                                 publish_comment=HomeState.publish_comment,
                             ),
@@ -175,7 +163,6 @@ def home_page() -> rx.Component:
                 left="50%",
                 transform="translateX(-50%) translateY(-50%)",
                 width=["80%", "80%", "70%", "60%", "50%"],
-                # padding_x=["1em", "1em", "1em", "1em", "0"],
             ),
         ),
     )

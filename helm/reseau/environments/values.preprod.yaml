@@ -1,3 +1,4 @@
 environment: preprod
+envPrefix: ppd-
 managedCertificate: 
   domain: ppd.reseau-devperso.fr

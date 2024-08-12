@@ -2,6 +2,7 @@ from typing import Callable, Tuple
 import reflex as rx
 
 from ..components.comments import comments
+from ..components.profile_picture import profile_picture
 from ..components.write_comment_form import write_comment_form
 from ..models import Comment, Post, UserAccount
 
@@ -10,172 +11,190 @@ class PostDialog(rx.ComponentState):
 
     @classmethod
     def get_component(cls, **props):
-        post: Post = props.pop("post", None)
-        post_datetime: str = props.pop("post_datetime", "")
-        post_author: UserAccount = props.pop("post_author", None)
-        post_profile_picture_exist: bool = (
-            props.pop("post_profile_picture_exist", False)
-        )
+        post: Post = props.pop('post', None)
+        post_datetime: str = props.pop('post_datetime', '')
+        post_author: UserAccount = props.pop('post_author', None)
 
-        post_comments: list[Tuple[Comment, str, UserAccount, bool]] = (
-            props.pop("post_comments", [])
+        post_comments: list[Tuple[Comment, str, UserAccount]] = (
+            props.pop('post_comments', [])
         )
-        load_post_details: Callable = props.pop("load_post_details")
-        publish_comment: Callable = props.pop("publish_comment")
+        load_post_details: Callable = props.pop('load_post_details')
+        publish_comment: Callable = props.pop('publish_comment')
 
         return rx.dialog.root(
             rx.dialog.trigger(
                 rx.card(
                     rx.vstack(
                         rx.hstack(
-                            rx.cond(
-                                post_profile_picture_exist,
-                                rx.image(
-                                    src=rx.get_upload_url(
-                                        f"{post_author.id}_profile_picture.png"
-                                    ),
-                                    border="0.5px solid #ccc",
-                                    width="2.5em",
-                                    height="2.5em",
-                                    border_radius="50%",
+                            profile_picture(
+                                style=rx.Style(
+                                    border='0.5px solid #ccc',
+                                    width='2.7em',
+                                    height='2.7em',
                                 ),
-                                rx.image(
-                                    src=rx.get_upload_url(
-                                        "blank_profile_picture"
-                                    ),
-                                    border="0.5px solid #ccc",
-                                    width="2.5em",
-                                    height="2.5em",
-                                    border_radius="50%",
-                                ),
+                                profile_picture=post_author.profile_picture,
                             ),
                             rx.vstack(
                                 rx.tablet_and_desktop(
-                                    rx.text(
-                                        post_author.username,
-                                        weight="medium",
+                                    rx.hstack(
+                                        rx.text(
+                                            post_author.first_name,
+                                            class_name='desktop-medium-text',
+                                        ),
+                                        rx.text(
+                                            post_author.last_name,
+                                            class_name='desktop-medium-text',
+                                        ),
+                                        spacing='1',
                                     ),
                                 ),
                                 rx.mobile_only(
-                                    rx.text(
-                                        post_author.username,
-                                        weight="medium",
-                                        size="2",
+                                    rx.hstack(
+                                        rx.text(
+                                            post_author.first_name,
+                                            class_name='mobile-medium-text',
+                                        ),
+                                        rx.text(
+                                            post_author.last_name,
+                                            class_name='mobile-medium-text',
+                                        ),
+                                        spacing='1',
                                     ),
                                 ),
                                 rx.text(
                                     post_datetime,
-                                    size="1",
-                                    color_scheme="gray",
+                                    class_name='discreet-text',
                                 ),
-                                spacing="0",
+                                spacing='0',
                             ),
-                            align="center",
                         ),
                         rx.tablet_and_desktop(
                             rx.text(
                                 post.title,
-                                size="4",
-                                weight="bold",
-                                margin_bottom="0.5em",
+                                class_name='desktop-title',
+                                margin_bottom='0.5em',
                             ),
                             rx.text(
                                 post.content,
+                                class_name='desktop-text',
                             ),
                         ),
                         rx.mobile_only(
                             rx.text(
                                 post.title,
-                                size="2",
-                                weight="bold",
-                                margin_bottom="0.3em",
+                                class_name='mobile-title',
+                                margin_bottom='0.3em',
                             ),
                             rx.text(
                                 post.content,
-                                font_size=["0.8em", "1em"],
+                                class_name='mobile-text',
                             ),
                         ),
-                        width="100%",
+                        width='100%',
                     ),
-                    padding=["1em", "1.2em"],
-                    cursor="pointer",
+                    padding=['1em', '1.2em'],
+                    cursor='pointer',
                 ),
                 on_click=load_post_details(post.id)
             ),
             rx.dialog.content(
                 rx.flex(
                     rx.hstack(
-                        rx.cond(
-                            post_profile_picture_exist,
-                            rx.image(
-                                src=rx.get_upload_url(
-                                    f"{post_author.id}_profile_picture.png"
-                                ),
-                                border="0.5px solid #ccc",
-                                width="2.5em",
-                                height="2.5em",
-                                border_radius="50%",
+                        profile_picture(
+                            style=rx.Style(
+                                border='0.5px solid #ccc',
+                                width='2.7em',
+                                height='2.7em',
                             ),
-                            rx.image(
-                                src=rx.get_upload_url(
-                                    "blank_profile_picture"
-                                ),
-                                border="0.5px solid #ccc",
-                                width="2.5em",
-                                height="2.5em",
-                                border_radius="50%",
-                            ),
+                            profile_picture=post_author.profile_picture,
                         ),
                         rx.vstack(
                             rx.tablet_and_desktop(
+                                rx.hstack(
                                     rx.text(
-                                        post_author.username,
-                                        weight="medium",
+                                        post_author.first_name,
+                                        style={
+                                            'font_weight': '500',
+                                        },
                                     ),
+                                    rx.text(
+                                        post_author.last_name,
+                                        style={
+                                            'font_weight': '500',
+                                        },
+                                    ),
+                                    spacing='1',
+                                ),
                             ),
                             rx.mobile_only(
-                                rx.text(
-                                    post_author.username,
-                                    weight="medium",
-                                    size="2",
+                                rx.hstack(
+                                    rx.text(
+                                        post_author.first_name,
+                                        style={
+                                            'font_weight': '500',
+                                            'font_size': '0.9em',
+                                        },
+                                    ),
+                                    rx.text(
+                                        post_author.last_name,
+                                        style={
+                                            'font_weight': '500',
+                                            'font_size': '0.9em',
+                                        },
+                                    ),
+                                    spacing='1',
                                 ),
                             ),
                             rx.text(
                                 post_datetime,
-                                size="1",
-                                color_scheme="gray",
+                                style={
+                                    'font_size': '0.8em',
+                                    'color': 'gray',
+                                },
                             ),
-                            spacing="0",
+                            spacing='0',
                         ),
-                        align="center",
                     ),
                     rx.tablet_and_desktop(
                         rx.vstack(
-                            rx.text(post.title, size="5", weight="bold"),
+                            rx.text(
+                                post.title,
+                                style={
+                                    'font_weight': '700',
+                                    'font_size': '1.1em',
+                                },
+                            ),
                             rx.text(
                                 post.content,
-                                font_size="1em",
                             ),
-                            spacing="3",
+                            spacing='3',
                         ),
                     ),
                     rx.mobile_only(
                         rx.vstack(
-                            rx.text(post.title, size="3", weight="bold"),
+                            rx.text(
+                                post.title,
+                                style={
+                                    'font_weight': '700',
+                                    'font_size': '1em',
+                                },
+                            ),
                             rx.text(
                                 post.content,
-                                font_size="0.9em",
+                                style={
+                                    'font_size': '0.9em',
+                                },
                             ),
-                            spacing="1",
+                            spacing='1',
                         ),
                     ),
-                    direction="column",
-                    spacing="4",
-                    padding=["1em 0.5em", "1.5em"],
+                    direction='column',
+                    spacing='4',
+                    padding=['1em 0.5em', '1.5em'],
                 ),
 
                 rx.separator(
-                    margin_bottom="1em",
+                    margin_bottom='1em',
                 ),
                 # comments of the post
                 comments(
@@ -188,11 +207,11 @@ class PostDialog(rx.ComponentState):
                         post=post,
                         publish_comment=publish_comment,
                     ),
-                    direction="column",
-                    spacing="4",
-                    padding=["1em 0.5em", "1.5em"],
+                    direction='column',
+                    spacing='4',
+                    padding=['1em 0.5em', '1.5em'],
                 ),
-                padding=["0em 0em", "0em"],
+                padding=['0em 0em', '0em'],
             ),
         )
 

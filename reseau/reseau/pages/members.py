@@ -1,4 +1,3 @@
-import os
 from random import shuffle
 from typing import Tuple
 import reflex as rx
@@ -13,7 +12,7 @@ from ..reseau import MEMBERS_ROUTE
 
 class MembersState(BaseState):
     # users with their city to display
-    users_displayed: list[Tuple[UserAccount, bool, City, list[Interest]]] = []
+    users_displayed: list[Tuple[UserAccount, City, list[Interest]]] = []
     search_term: str = ""  # the term typed in the search bar
     city_searched: City = None  # the first city detected with the search term
 
@@ -40,8 +39,8 @@ class MembersState(BaseState):
                     user_interest.append(interest.interest)
                 self.users_displayed.append(
                     (user,
-                     os.path.isfile(f"{rx.get_upload_dir()}/{user.id}" +
-                                    "_profile_picture.png"),
+                     #  os.path.isfile(f"{rx.get_upload_dir()}/{user.id}" +
+                     #                 "_profile_picture.png"),
                      user.city,
                      user_interest)
                 )
@@ -85,10 +84,8 @@ class MembersState(BaseState):
                         user_interest.append(interest.interest)
                     self.users_displayed.append(
                         (user,
-                            os.path.isfile(f"{rx.get_upload_dir()}/{user.id}" +
-                                           "_profile_picture.png"),
-                            city,
-                            user_interest)
+                         city,
+                         user_interest)
                     )
         else:
             self.city_searched = City(
@@ -115,10 +112,6 @@ def members_page() -> rx.Component:
         rx.vstack(
             rx.heading(
                     "Membres",
-                    size="5",
-                    style=rx.Style(
-                        margin_bottom="0.5em"
-                    ),
                 ),
             rx.text(
                 "Connecte avec d'autres gars aux mêmes valeurs "
@@ -144,54 +137,21 @@ def members_page() -> rx.Component:
                 MembersState.users_displayed,
                 rx.box(
                     rx.desktop_only(
-                        rx.grid(
-                            rx.foreach(
-                                MembersState.users_displayed,
-                                lambda user: user_card(
-                                    user=(user[0], user[1]),
-                                    city=user[2],
-                                    interest_list=user[3],
-                                    is_profile_empty=~user[0].profile_text,
-                                ),
-                            ),
+                        user_card(
+                            users=MembersState.users_displayed,
                             columns="3",
-                            width="100%",
-                            spacing="3",
-                            flex_wrap="wrap",
                         ),
                     ),
                     rx.tablet_only(
-                        rx.grid(
-                            rx.foreach(
-                                MembersState.users_displayed,
-                                lambda user: user_card(
-                                    user=(user[0], user[1]),
-                                    city=user[2],
-                                    interest_list=user[3],
-                                    is_profile_empty=~user[0].profile_text,
-                                ),
-                            ),
+                        user_card(
+                            users=MembersState.users_displayed,
                             columns="2",
-                            width="100%",
-                            spacing="3",
-                            flex_wrap="wrap",
                         ),
                     ),
                     rx.mobile_only(
-                        rx.grid(
-                            rx.foreach(
-                                MembersState.users_displayed,
-                                lambda user: user_card(
-                                    user=(user[0], user[1]),
-                                    city=user[2],
-                                    interest_list=user[3],
-                                    is_profile_empty=~user[0].profile_text,
-                                ),
-                            ),
+                        user_card(
+                            users=MembersState.users_displayed,
                             columns="1",
-                            width="100%",
-                            spacing="3",
-                            flex_wrap="wrap",
                         ),
                     ),
                     width="100%",
@@ -202,6 +162,7 @@ def members_page() -> rx.Component:
                         f"Aucun membre trouvé : \
                             {MembersState.city_searched.name} \
                             ({MembersState.city_searched.postal_code})",
+                        class_name="mobile-text",
                         width="100%",
                         align="center",
                     ),

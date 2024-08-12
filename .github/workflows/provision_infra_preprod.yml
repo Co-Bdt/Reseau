@@ -98,7 +98,7 @@ jobs:
         with:
           name: ${{ github.run_id }}-tfplan
           path: terraform/preprod/
-          github_token: ${{ env.TOKEN }}
+          github-token: ${{ env.TOKEN }}
 
       # Configure Workload Identity Federation and generate an access token.
       - name: Configure GCP Credentials

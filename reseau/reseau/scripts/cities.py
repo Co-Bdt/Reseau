@@ -1,5 +1,5 @@
 import reflex as rx
-from ..models.city import City
+from models import City
 
 
 # List of cities to insert
@@ -590,6 +590,10 @@ def insert_cities():
     postal_codes_list = postal_codes_string.split("\n")
 
     with rx.session() as session:
+        cities = session.exec(City.select()).all()
+        if cities:
+            print("Cities already inserted")
+            return
         for city in cities_list:
             city = City(
                 name=city,
@@ -618,3 +622,11 @@ def delete_cities():
         session.commit()
 
     print("Deleting cities - Done")
+
+
+def main():
+    insert_cities()
+
+
+if __name__ == "__main__":
+    main()

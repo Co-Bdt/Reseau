@@ -15,7 +15,7 @@ class BaseState(rx.State):
     # to persist across tab and browser sessions.
     auth_token: str = rx.LocalStorage(name=AUTH_TOKEN_LOCAL_STORAGE_KEY)
 
-    @rx.cached_var
+    @rx.var(cache=True)
     def authenticated_user(self) -> UserAccount:
         """The currently authenticated user,
         or a dummy user if not authenticated.
@@ -41,7 +41,7 @@ class BaseState(rx.State):
                 return user
         return UserAccount(id=-1)  # type: ignore
 
-    @rx.cached_var
+    @rx.var(cache=True)
     def is_authenticated(self) -> bool:
         """Whether the current user is authenticated.
 

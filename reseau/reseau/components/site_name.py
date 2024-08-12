@@ -3,9 +3,6 @@ import reflex as rx
 
 class SiteName(rx.ComponentState):
 
-    def press(self):
-        print("Rɘseau")
-
     @classmethod
     def get_component(cls, **props):
         return rx.box(
@@ -26,6 +23,7 @@ class SiteName(rx.ComponentState):
                 ),
                 width="100%",
                 margin="0",
+                padding="6px",
             ),
             rx.mobile_and_tablet(
                 rx.link(

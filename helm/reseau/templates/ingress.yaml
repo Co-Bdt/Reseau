@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   name: {{ include "reseau.fullname" . }}-ingress
   annotations:
-    kubernetes.io/ingress.global-static-ip-name: {{ include "reseau.fullname" . }}-global-static-ip
+    kubernetes.io/ingress.global-static-ip-name: {{ .Values.envPrefix }}{{ include "reseau.fullname" . }}-global-static-ip
     networking.gke.io/managed-certificates: {{ include "reseau.fullname" . }}-managed-cert
     kubernetes.io/ingress.class: "gce"
 spec:
