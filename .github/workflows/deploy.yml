@@ -75,7 +75,7 @@ jobs:
       id-token: 'write'
     env:
       GKE_CLUSTER_NAME: ${{ secrets.GKE_CLUSTER_NAME }}
-    #needs: [build-publish]
+    needs: [build-publish]
 
     steps:
     - name: Checkout
