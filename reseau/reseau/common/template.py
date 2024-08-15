@@ -20,6 +20,27 @@ def template(
                         size="4",
                     ),
                     rx.separator(),
+                    rx.cond(
+                        page.__name__ == "home_page",
+                        rx.desktop_only(
+                            rx.box(
+                                rx.container(
+                                    rx.text(
+                                        "Suite à plusieurs retours en "
+                                        "ce sens, les messages privés sont "
+                                        "actuellement en développement !",
+                                        class_name="mobile-text",
+                                        font_color='gray',
+                                    ),
+                                    size="4",
+                                    max_height="2em",
+                                    padding_y="0.25em",
+                                ),
+                                width='100%',
+                                background_color='var(--blue-3)',
+                            ),
+                        ),
+                    ),
                     width="100%",
                     margin_bottom=["0", "0", "0", "2em"],
                     padding_top=["0", "0", "0", "2em"],

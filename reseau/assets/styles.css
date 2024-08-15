@@ -3,7 +3,13 @@
       background-color: #F9F8F8;
     }
 
-    .autosize-textarea:focus {
+    .autosize-textarea-post:focus {
+        outline: none;
+        border: 2px solid #ccc;
+        border-radius: 7px;
+    }
+
+    .autosize-textarea-comment:focus {
         outline: none;
         border: 2px solid #ccc;
         border-radius: 7px;
@@ -11,18 +17,34 @@
 }
 
 .dark {
-    .autosize-textarea:focus {
+    .autosize-textarea-post:focus {
+        outline: none;
+        border: 2px solid #62605b;
+        border-radius: 7px;
+    }
+
+    .autosize-textarea-comment:focus {
         outline: none;
         border: 2px solid #62605b;
         border-radius: 7px;
     }
 }
 
-.autosize-textarea {
+.autosize-textarea-post {
     resize: none;
     overflow: hidden;
     min-height: 100px;
-    max-height: 300px;
+    padding: 10px;
+    border: 0.5px solid #ccc;
+    border-radius: 7px;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.autosize-textarea-comment {
+    resize: none;
+    overflow: hidden;
+    min-height: 1.5em;
     padding: 10px;
     border: 0.5px solid #ccc;
     border-radius: 7px;

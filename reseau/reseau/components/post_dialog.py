@@ -7,6 +7,15 @@ from ..components.write_comment_form import write_comment_form
 from ..models import Comment, Post, UserAccount
 
 
+comment_text_style = {
+    'style': rx.Style(
+        overflow='hidden',
+        text_overflow='break-word',
+        max_height='3em',
+    ),
+}
+
+
 class PostDialog(rx.ComponentState):
 
     @classmethod
@@ -14,6 +23,7 @@ class PostDialog(rx.ComponentState):
         post: Post = props.pop('post', None)
         post_datetime: str = props.pop('post_datetime', '')
         post_author: UserAccount = props.pop('post_author', None)
+        post_comments_count: int = props.pop('post_comments_count', 0)
 
         post_comments: list[Tuple[Comment, str, UserAccount]] = (
             props.pop('post_comments', [])
@@ -74,9 +84,10 @@ class PostDialog(rx.ComponentState):
                                 class_name='desktop-title',
                                 margin_bottom='0.5em',
                             ),
-                            rx.text(
+                            rx.box(
                                 post.content,
                                 class_name='desktop-text',
+                                **comment_text_style,
                             ),
                         ),
                         rx.mobile_only(
@@ -85,10 +96,22 @@ class PostDialog(rx.ComponentState):
                                 class_name='mobile-title',
                                 margin_bottom='0.3em',
                             ),
-                            rx.text(
+                            rx.box(
                                 post.content,
                                 class_name='mobile-text',
+                                **comment_text_style,
                             ),
+                        ),
+                        rx.cond(
+                            post_comments_count > 0,
+                            rx.text(
+                                f"{post_comments_count} commentaire(s)",
+                                class_name='discreet-text',
+                            ),
+                            rx.text(
+                                "Sois le premier à commenter",
+                                class_name='discreet-text',
+                            )
                         ),
                         width='100%',
                     ),
@@ -165,7 +188,10 @@ class PostDialog(rx.ComponentState):
                                 },
                             ),
                             rx.text(
-                                post.content,
+                                f"{post.content}",
+                                style={
+                                    'white_space': 'pre-wrap',
+                                },
                             ),
                             spacing='3',
                         ),
@@ -182,10 +208,11 @@ class PostDialog(rx.ComponentState):
                             rx.text(
                                 post.content,
                                 style={
+                                    'white_space': 'pre-wrap',
                                     'font_size': '0.9em',
                                 },
                             ),
-                            spacing='1',
+                            spacing='2',
                         ),
                     ),
                     direction='column',
@@ -211,7 +238,8 @@ class PostDialog(rx.ComponentState):
                     spacing='4',
                     padding=['1em 0.5em', '1.5em'],
                 ),
-                padding=['0em 0em', '0em'],
+                padding=['0em', '0em'],
+                max_width=['95%', '90%', '75%', '60%', '50%'],
             ),
         )
 
