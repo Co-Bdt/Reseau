@@ -5,5 +5,7 @@ metadata:
   labels:
     {{- include "reseau.labels" . | nindent 4 }}
 data:
+  AWS_ACCESS_KEY_ID: "AKIA2UC27ZISX5A7NJ6D"
+  AWS_SECRET_ACCESS_KEY: "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"
   GMAIL_APP_PASSWORD: "xpic zpwf rvxx jqpt" # for the use of gmail smtp server
 {{ printf "environments/configmap.%s.yaml" .Values.environment | .Files.Get | indent 2 }}

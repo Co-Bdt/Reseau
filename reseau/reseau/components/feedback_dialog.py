@@ -29,7 +29,9 @@ class FeedbackDialogState(BaseState):
         with open(
             f"./feedbacks/{self.authenticated_user.id}_mail_files.txt",
                 'w') as fp:
-            fp.write(self.message)
+            fp.write(f"{self.authenticated_user.first_name} "
+                     f"{self.authenticated_user.last_name}\n"
+                     f"{self.message}")
 
         # Reopen the file in read mode to read its content
         with open(

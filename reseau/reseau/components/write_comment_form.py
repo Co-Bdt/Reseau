@@ -1,6 +1,7 @@
 from typing import Callable
 import reflex as rx
 
+from ..components.autosize import autosize_textarea
 from ..models import Post
 
 
@@ -24,13 +25,12 @@ class WriteCommentForm(rx.ComponentState):
                 value=post.id,
                 style=rx.Style(display="none"),
             ),
-            rx.input(
-                name="content",
-                placeholder="Commente...",
-                on_change=cls.handle_comment_change,
+            # rx.input(
+            autosize_textarea(
+                # A classic textarea works with a form using the id
+                id="content",
+                class_name="autosize-textarea-comment",
                 width="100%",
-                size="3",
-                radius="large",
                 font_size=["0.9em", "1em"],
             ),
             rx.flex(
@@ -41,17 +41,10 @@ class WriteCommentForm(rx.ComponentState):
                         variant="soft",
                     ),
                 ),
-                rx.cond(
-                    cls.is_comment_empty,
+                rx.form.submit(
                     rx.button(
                         "Commenter",
-                        disabled=True,
-                    ),
-                    rx.form.submit(
-                        rx.button(
-                            "Commenter",
-                            type="submit",
-                        ),
+                        type="submit",
                     ),
                 ),
                 spacing="3",
