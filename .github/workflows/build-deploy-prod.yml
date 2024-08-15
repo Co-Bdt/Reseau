@@ -1,6 +1,6 @@
 # This workflow will deploy the latest image from GitHub Container Registry to GKE when there is a push to the "main" branch.
 
-name: Build and Deploy to GKE Production
+name: Build and Deploy to GKE
 
 on:
   [workflow_dispatch]
