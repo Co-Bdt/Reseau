@@ -165,7 +165,7 @@ class RegistrationState(BaseState):
         # Set success and redirect to login page after a brief delay.
         self.success = True
         yield
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.5)
 
         # Create the user's directory
         Path(
@@ -173,11 +173,15 @@ class RegistrationState(BaseState):
             f'{new_user.id}'
         ).mkdir(parents=True, exist_ok=True)
 
-        # Download the profile pic to make it readable by the rest of the app.
-        bucket.download_file(
-            self.profile_pic,
-            rx.get_upload_dir() / f'{new_user.id}' / f'{self.profile_pic}',
-        )
+        try:
+            # Download the profile picto make it readable
+            # by the rest of the app.
+            bucket.download_file(
+                new_user.profile_picture,
+                rx.get_upload_dir() / f'{new_user.id}' / f'{self.profile_pic}',
+            )
+        except Exception:
+            pass
 
         yield [rx.redirect(LOGIN_ROUTE), RegistrationState.set_success(False)]
 
@@ -212,11 +216,19 @@ class RegistrationState(BaseState):
             # we need to refresh the session.
             session.refresh(new_user)
 
-        # Upload the profile picture to S3
-        bucket.upload_file(
-            f'{rx.get_upload_dir()}/{self.profile_pic}',
-            self.profile_pic
-        )
+            # Update the user profile picture with its id as prefix.
+            new_user.profile_picture = f'{new_user.id}/{self.profile_pic}'
+            session.commit()
+            session.refresh(new_user)
+
+            try:
+                # Upload the profile picture to S3
+                bucket.upload_file(
+                    f'{rx.get_upload_dir()}/{self.profile_pic}',
+                    f'{new_user.profile_picture}'
+                )
+            except Exception:
+                pass
 
         return new_user
 

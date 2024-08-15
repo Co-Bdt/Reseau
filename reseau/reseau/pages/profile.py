@@ -88,11 +88,14 @@ class ProfileState(BaseState):
         s3 = boto3.resource('s3')
         bucket = s3.Bucket(S3_BUCKET_NAME)
 
-        # Upload the profile picture to S3
-        bucket.upload_file(
-            f"{rx.get_upload_dir()}/{self.profile_pic}",
-            self.profile_pic,
-        )
+        try:
+            # Upload the profile picture to S3
+            bucket.upload_file(
+                f"{rx.get_upload_dir()}/{self.profile_pic}",
+                self.profile_pic,
+            )
+        except Exception:
+            pass
 
         # Remove the old profile picture starting with the user's id
         # from the file system (old system of storing profile pictures)
