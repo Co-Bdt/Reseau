@@ -1,12 +1,11 @@
 from datetime import datetime
-import os
 import reflex as rx
 import sqlalchemy as sa
 from typing import Tuple
 
 from ..common.base_state import BaseState
 from ..common.template import template
-from ..components.landing import landing
+from ..components.landing import landing_page
 from ..components.post_dialog import post_dialog
 from ..components.write_post_dialog import write_post_dialog
 from ..models import Comment, Post, UserAccount
@@ -16,7 +15,7 @@ from ..scripts.load_profile_pictures import load_profile_pictures
 
 class HomeState(BaseState):
     # posts to display
-    posts_displayed: list[Tuple[Post, str, UserAccount, bool]] = []
+    posts_displayed: list[Tuple[Post, str, UserAccount, int]] = []
     post_author: UserAccount = None  # author of a post
     # comments of a post
     post_comments: list[Tuple[Comment, str, UserAccount]] = []
@@ -51,8 +50,7 @@ class HomeState(BaseState):
                 (post,
                  f"{post.published_at: %d/%m/%y %H:%M}",
                  post.useraccount,
-                 os.path.isfile(f"{rx.get_upload_dir()}/{post.author_id}" +
-                                "_profile_picture.png")),
+                 len(post.comment_list)),
             )
 
     def load_post_details(self, post_id: int):
@@ -95,6 +93,9 @@ class HomeState(BaseState):
         return rx.toast.success("Post publié.")
 
     def publish_comment(self, form_data: dict):
+        if not form_data['content']:
+            return rx.toast.warning("Ton commentaire est vide.")
+
         post_id = form_data["post_id"]
         comment = Comment(
             content=form_data["content"],
@@ -144,7 +145,7 @@ def home_page() -> rx.Component:
                                 post=post[0],
                                 post_datetime=post[1],
                                 post_author=post[2],
-                                post_profile_picture_exist=post[3],
+                                post_comments_count=post[3],
                                 post_comments=HomeState.post_comments,
                                 load_post_details=HomeState.load_post_details,
                                 publish_comment=HomeState.publish_comment,
@@ -157,7 +158,7 @@ def home_page() -> rx.Component:
                 width="100%",
             ),
             rx.box(
-                landing(),
+                landing_page(),
                 position="absolute",
                 top="50%",
                 left="50%",

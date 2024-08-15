@@ -63,8 +63,5 @@ RUN reflex db init
 CMD [ -d alembic ] && reflex db migrate; \
 	caddy start && reflex run --env prod --backend-only --loglevel debug
 
-# Run scripts to setup the database
-RUN chmod +x ./reseau/scripts/setup_db.sh && ./reseau/scripts/setup_db.sh
-
 # To ensure the image is associated with the correct repository
 LABEL org.opencontainers.image.source="https://github.com/Co-Bdt/Reseau"

@@ -114,7 +114,7 @@ def write_post_dialog(**props):
                     ),
                     autosize_textarea(
                         id="content",
-                        class_name="autosize-textarea",
+                        class_name="autosize-textarea-post",
                         font_size=["0.9em", "1em"],
                     ),
                     direction="column",
