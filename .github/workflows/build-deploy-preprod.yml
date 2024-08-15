@@ -1,10 +1,10 @@
 # This workflow deploy the latest Helm Chart to GKE Pre-production when manually triggered or triggered by the provision_infra_preprod pipeline.
 
-name: Deploy to GKE Pre-production
+name: Build and Deploy to GKE Pre-production
 
 on:
-  [workflow_dispatch]
-  #[repository_dispatch]
+  #[workflow_dispatch]
+  [repository_dispatch]
   
 env:
   WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
