@@ -6,7 +6,7 @@ from typing import Tuple
 
 from ..common.base_state import BaseState
 from ..common.template import template
-from ..components.landing import landing
+from ..components.landing import landing_page
 from ..components.post_dialog import post_dialog
 from ..components.write_post_dialog import write_post_dialog
 from ..models import Comment, Post, UserAccount
@@ -157,7 +157,7 @@ def home_page() -> rx.Component:
                 width="100%",
             ),
             rx.box(
-                landing(),
+                landing_page(),
                 position="absolute",
                 top="50%",
                 left="50%",

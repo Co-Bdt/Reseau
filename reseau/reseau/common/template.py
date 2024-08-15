@@ -31,8 +31,9 @@ def template(
                 rx.container(
                     page(),
                     size="4",
-                    padding_y=["1em", "1em", "1em", "0", "0"],
                     padding_x=["1em", "1em", "1em", "1em", "0"],
+                    padding_top=["1em", "1em", "1em", "0", "0"],
+                    padding_bottom=["1em", "1em", "1em", "4em"],
                 ),
                 feedback_dialog(),
                 width="100%",
