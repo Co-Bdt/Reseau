@@ -10,7 +10,28 @@ PROFILE_ROUTE = "/profil"
 MEMBERS_ROUTE = "/membres"
 
 
+google_ads_script1 = rx.script(
+    src=(
+        "https://www.googletagmanager.com/gtag/js?"
+        "id=AW-16676736858"
+    ),
+)
+
+google_ads_script2 = rx.script(
+    """
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'AW-16676736858');
+    """,
+)
+
+
 app = rx.App(
+    head_components=[
+        google_ads_script1,
+        google_ads_script2
+    ],
     theme=rx.theme(
         appearance="light",
         accent_color="amber",
