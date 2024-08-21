@@ -12,9 +12,6 @@ class LogInState(BaseState):
     """Handle login form submission and
     redirect to proper routes after authentication."""
 
-    email: str = ""
-    password: str = ""
-
     success: bool = False
     redirect_to: str = ""
 
@@ -28,12 +25,12 @@ class LogInState(BaseState):
         Args:
             form_data: A dict of form fields and values.
         """
-        email = self.email
+        email = form_data["email"]
         if not email:
             yield rx.set_focus("email")
             yield rx.toast.error("Ton email est requis.")
             return
-        password = self.password
+        password = form_data["password"]
         if not password:
             yield rx.set_focus("password")
             yield rx.toast.error("Ton mot de passe est requis.")
@@ -103,8 +100,6 @@ def log_in_page() -> rx.Component:
                 rx.input(
                     id='email',
                     size='3',
-                    value=LogInState.email,
-                    on_change=LogInState.set_email,
                     width='100%',
                 ),
                 justify='start',
@@ -128,8 +123,6 @@ def log_in_page() -> rx.Component:
                     id='password',
                     type='password',
                     size='3',
-                    value=LogInState.password,
-                    on_change=LogInState.set_password,
                     width='100%',
                 ),
                 justify='start',
@@ -165,7 +158,7 @@ def log_in_page() -> rx.Component:
         rx.box(
             rx.vstack(
                 login_form,
-                rx.cond(  # conditionally show error messages
+                rx.cond(  # Conditionally show success messages
                     LogInState.success,
                     rx.center(
                         rx.vstack(
