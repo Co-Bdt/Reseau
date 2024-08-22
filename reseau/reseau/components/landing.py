@@ -4,12 +4,59 @@ from collections.abc import AsyncGenerator
 import reflex as rx
 import smtplib
 
+from ..components.profile_picture import profile_picture
+from ..models import UserAccount
 from ..reseau import REGISTER_ROUTE
 from rxconfig import GMAIL_APP_PASSWORD
 
 
 class LandingState(rx.State):
     is_email_empty: bool = True
+
+    @staticmethod
+    def last_user_card(user: UserAccount):
+        return rx.card(
+            rx.hstack(
+                profile_picture(
+                    style={
+                        'width': '2em',
+                        'height': '2em',
+                    },
+                    profile_picture=user.profile_picture
+                ),
+                rx.vstack(
+                    rx.hstack(
+                        rx.text(
+                            user.first_name,
+                            class_name='mobile-text',
+                            # Crop the text if too long
+                            style={
+                                'text_overflow': 'ellipsis',
+                                'white_space': 'nowrap',
+                                'overflow': 'hidden',
+                            }
+                        ),
+                        rx.text(
+                            user.last_name,
+                            class_name='mobile-text',
+                            style={
+                                'text_overflow': 'ellipsis',
+                                'white_space': 'nowrap',
+                                'overflow': 'hidden',
+                            }
+                        ),
+                        spacing='1',
+                    ),
+                    rx.text(
+                        user.city.name,
+                        class_name='discreet-text',
+                    ),
+                    spacing='0',
+                ),
+            ),
+            width='16em',
+            margin_bottom='0.5em',
+        )
 
     def handle_email_change(self, email_value):
         if email_value:
@@ -84,7 +131,9 @@ class LandingState(rx.State):
         s.quit()
 
 
-def landing_page() -> rx.Component:
+def landing_page(
+    last_users: list[UserAccount]
+) -> rx.Component:
     return rx.vstack(
         rx.vstack(
             rx.desktop_only(
@@ -115,32 +164,20 @@ def landing_page() -> rx.Component:
                     style={
                         'font_size': '1.2em',
                         'text_align': 'center',
-                        'margin_bottom': '20px',
+                        'margin_bottom': '1em',
                     },
                 ),
-                # rx.text(
-                #     "avec des gars en développement personnel",
-                #     style={
-                #         'font_size': '1.2em',
-                #         'text_align': 'center',
-                #     }
-                # )
             ),
             rx.mobile_and_tablet(
                 rx.text(
-                    "La première plateforme pour connecter",
-                    class_name='desktop-text',
-                    style={
-                        'text_align': 'center',
-                    }
-                ),
-                rx.text(
+                    "La première plateforme pour connecter\n"
                     "avec des gars en développement personnel",
                     class_name='desktop-text',
                     style={
                         'text_align': 'center',
+                        'white_space': 'pre-line',
                     }
-                )
+                ),
             ),
             rx.link(
                 rx.button("Rejoindre", size='3'),
@@ -150,8 +187,39 @@ def landing_page() -> rx.Component:
             spacing='5',
             justify='center',
             align='center',
-            margin_top='5em',
-            margin_bottom='8em',
+            margin_top='4em',
+        ),
+
+        rx.separator(
+            margin_top='3em',
+            margin_bottom='3em',
+        ),
+
+        # Display the last 2 useraccount created
+        rx.mobile_and_tablet(
+            rx.text(
+                "Derniers inscrits :",
+                class_name='mobile-text',
+                style={
+                    'text_align': 'center',
+                }
+            ),
+        ),
+        rx.desktop_only(
+            rx.text(
+                "Derniers inscrits :",
+                class_name='desktop-text',
+                style={
+                    'text_align': 'center',
+                }
+            ),
+        ),
+        rx.box(
+            rx.foreach(
+                last_users,
+                lambda user: LandingState.last_user_card(user)
+            ),
+            margin_bottom='3em',
         ),
 
         rx.form.root(
@@ -162,6 +230,9 @@ def landing_page() -> rx.Component:
                         "jours majeures ? "
                         "(pas de spam, promis)",
                         class_name='desktop-text',
+                        style={
+                            'text_align': 'center',
+                        }
                     ),
                 ),
                 rx.mobile_and_tablet(
@@ -170,6 +241,9 @@ def landing_page() -> rx.Component:
                         "jours majeures ? "
                         "(pas de spam, promis)",
                         class_name='mobile-text',
+                        style={
+                            'text_align': 'center',
+                        }
                     ),
                 ),
                 rx.hstack(

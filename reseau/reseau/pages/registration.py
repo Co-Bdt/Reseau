@@ -154,7 +154,7 @@ class RegistrationState(BaseState):
         new_user = self.complete_registration(
             new_user=UserAccount(
                 first_name=first_name,
-                last_name=last_name,
+                last_name=UserAccount.format_last_name(last_name),
                 email=email,
                 password_hash=UserAccount.hash_password(password),
                 profile_picture=self.profile_pic,
@@ -249,8 +249,8 @@ def registration_page() -> rx.Component:
                         src=rx.get_upload_url(RegistrationState.profile_pic),
                         width='5em',
                         height='5em',
-                        border='1px solid #ccc',
                         border_radius='50%',
+                        object_fit="cover",
                     ),
                     id='profile_img',
                     padding='0px',

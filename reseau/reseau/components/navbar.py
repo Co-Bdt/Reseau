@@ -68,7 +68,6 @@ def navbar():
             rx.link(
                 profile_picture(
                     style=rx.Style(
-                        border="0.5px solid #ccc",
                         width="2.2em",
                         height="2.2em",
                     ),

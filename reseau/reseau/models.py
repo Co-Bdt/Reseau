@@ -55,6 +55,17 @@ class UserAccount(
     )
 
     @staticmethod
+    def format_last_name(last_name: str) -> str:
+        """
+        Format the last name so the first letter and each letter
+        after a '-' or a space are capitalized.
+        """
+        return ' '.join(
+            '-'.join(part.capitalize() for part in segment.split('-'))
+            for segment in last_name.split()
+        )
+
+    @staticmethod
     def hash_password(secret: str) -> str:
         """Hash the secret using bcrypt.
 
@@ -171,7 +182,8 @@ class Post(
     title: str = Field(nullable=False)
     content: str = Field(nullable=False)
     published_at: datetime = Field(nullable=False)
-    published: bool = True
+    is_published: bool = Field(nullable=False, default=True)
+    is_pinned: bool = Field(nullable=False, default=False)
 
     # Foreign keys
     author_id: int = Field(

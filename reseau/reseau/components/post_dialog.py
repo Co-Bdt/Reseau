@@ -34,11 +34,38 @@ class PostDialog(rx.ComponentState):
         return rx.dialog.root(
             rx.dialog.trigger(
                 rx.card(
+                    rx.cond(
+                        post.is_pinned,
+                        rx.box(
+                            rx.hstack(
+                                rx.icon(
+                                    tag='pin',
+                                    color='black',
+                                    size=16,
+                                ),
+                                rx.text(
+                                    "Épinglé",
+                                    style={
+                                        'color': 'black',
+                                        'font_size': '0.8em',
+                                        'font_weight': '600',
+                                    },
+                                ),
+                                spacing='2',
+                            ),
+                            width='100%',
+                            background_color=rx.color_mode_cond(
+                                '#FFC53D',
+                                '#E4B037'
+                            ),
+                            padding_x='0.8em',
+                            padding_y='0.5em',
+                        ),
+                    ),
                     rx.vstack(
                         rx.hstack(
                             profile_picture(
                                 style=rx.Style(
-                                    border='0.5px solid #ccc',
                                     width='2.7em',
                                     height='2.7em',
                                 ),
@@ -114,8 +141,9 @@ class PostDialog(rx.ComponentState):
                             )
                         ),
                         width='100%',
+                        padding=['1em', '1.2em'],
                     ),
-                    padding=['1em', '1.2em'],
+                    padding='0',
                     cursor='pointer',
                 ),
                 on_click=load_post_details(post.id)
@@ -125,7 +153,6 @@ class PostDialog(rx.ComponentState):
                     rx.hstack(
                         profile_picture(
                             style=rx.Style(
-                                border='0.5px solid #ccc',
                                 width='2.7em',
                                 height='2.7em',
                             ),

@@ -5,7 +5,7 @@ import sqlalchemy as sa
 
 from ..common.base_state import BaseState
 from ..common.template import template
-from ..components.user_card import user_card
+from ..components.members_grid import members_grid
 from ..models import City, Interest, UserAccount, UserInterest
 from ..reseau import MEMBERS_ROUTE
 
@@ -39,8 +39,6 @@ class MembersState(BaseState):
                     user_interest.append(interest.interest)
                 self.users_displayed.append(
                     (user,
-                     #  os.path.isfile(f"{rx.get_upload_dir()}/{user.id}" +
-                     #                 "_profile_picture.png"),
                      user.city,
                      user_interest)
                 )
@@ -137,19 +135,19 @@ def members_page() -> rx.Component:
                 MembersState.users_displayed,
                 rx.box(
                     rx.desktop_only(
-                        user_card(
+                        members_grid(
                             users=MembersState.users_displayed,
                             columns="3",
                         ),
                     ),
                     rx.tablet_only(
-                        user_card(
+                        members_grid(
                             users=MembersState.users_displayed,
                             columns="2",
                         ),
                     ),
                     rx.mobile_only(
-                        user_card(
+                        members_grid(
                             users=MembersState.users_displayed,
                             columns="1",
                         ),

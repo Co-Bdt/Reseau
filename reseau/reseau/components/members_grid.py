@@ -1,11 +1,11 @@
 from typing import Tuple
 import reflex as rx
 
-from ..components.profile_picture import profile_picture
+from .profile_picture import profile_picture
 from ..models import City, Interest, UserAccount
 
 
-class UserCard(rx.ComponentState):
+class MembersGrid(rx.ComponentState):
 
     def interest_chip(interest: Interest) -> rx.Component:
         return rx.badge(
@@ -33,7 +33,6 @@ class UserCard(rx.ComponentState):
                                     style=rx.Style(
                                         width='2.7em',
                                         height='2.7em',
-                                        border='0.5px solid #ccc',
                                     ),
                                     profile_picture=user[0].profile_picture,
                                 ),
@@ -62,7 +61,7 @@ class UserCard(rx.ComponentState):
                             rx.hstack(
                                 rx.foreach(
                                     user[2],
-                                    UserCard.interest_chip,
+                                    MembersGrid.interest_chip,
                                 ),
                                 spacing='1',
                             ),
@@ -106,4 +105,4 @@ class UserCard(rx.ComponentState):
         )
 
 
-user_card = UserCard.create
+members_grid = MembersGrid.create

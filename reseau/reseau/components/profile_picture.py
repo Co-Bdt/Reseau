@@ -17,6 +17,7 @@ class ProfilePicture(rx.ComponentState):
                 src=rx.get_upload_url(profile_picture),
                 alt="Profile Picture",
                 border_radius="50%",
+                object_fit="cover",
                 style=style,
             ),
             rx.image(
@@ -25,6 +26,7 @@ class ProfilePicture(rx.ComponentState):
                         ),
                 alt="Profile Picture",
                 border_radius="50%",
+                object_fit="cover",
                 style=style,
             ),
         )
