@@ -31,5 +31,7 @@ spec:
                 name: {{ include "reseau.fullname" . }}-configmap
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
+          startupProbe:
+            {{- toYaml .Values.startupProbe | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
