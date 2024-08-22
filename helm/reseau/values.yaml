@@ -50,8 +50,12 @@ resources:
 livenessProbe:
   httpGet:
     port: 3000
-  initialDelaySeconds: 45
   periodSeconds: 30
+startupProbe:
+  httpGet:
+    port: 3000
+  failureThreshold: 3
+  periodSeconds: 300
 
 autoscaling:
   enabled: true
