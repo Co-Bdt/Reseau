@@ -1,8 +1,15 @@
+from datetime import datetime
 from typing import Tuple
 import reflex as rx
 
+from ..models import (
+    City,
+    Interest,
+    PrivateMessage,
+    UserAccount,
+    UserPrivateMessage,
+)
 from .profile_picture import profile_picture
-from ..models import City, Interest, UserAccount
 
 
 class MembersGrid(rx.ComponentState):
@@ -14,6 +21,25 @@ class MembersGrid(rx.ComponentState):
             radius='full',
             variant='surface',
         )
+
+    def send_message(self, user_id: int) -> None:
+        print("recipient_id", user_id)
+
+        with rx.session() as session:
+            new_message = PrivateMessage(
+                content="Hey toi",
+                published_at=datetime.now(),
+            )
+            session.add(new_message)
+            session.commit()
+            session.refresh(new_message)
+
+            session.add(UserPrivateMessage(
+                sender_id=1,
+                recipient_id=user_id,
+                private_message_id=new_message.id
+            ))
+            session.commit()
 
     @classmethod
     def get_component(cls, **props) -> rx.Component:
@@ -54,6 +80,14 @@ class MembersGrid(rx.ComponentState):
                                         class_name='discreet-text',
                                     ),
                                     spacing='1',
+                                ),
+                                rx.icon_button(
+                                    rx.icon(
+                                        'mail',
+                                    ),
+                                    on_click=cls.send_message(
+                                        user[0].id,
+                                    ),
                                 ),
                                 width='100%',
                                 align='start',

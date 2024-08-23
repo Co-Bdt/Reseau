@@ -50,6 +50,22 @@ class UserAccount(
     comment_list: Optional[list["Comment"]] = Relationship(
         back_populates="useraccount"
     )
+    user_private_message_sent_list: Optional[list["UserPrivateMessage"]] = (
+        Relationship(
+            back_populates="sender",
+            sa_relationship_kwargs={
+                "foreign_keys": "UserPrivateMessage.sender_id"
+            }
+        )
+    )
+    user_private_message_received_list: Optional[list["UserPrivateMessage"]] = (
+        Relationship(
+            back_populates="recipient",
+            sa_relationship_kwargs={
+                "foreign_keys": "UserPrivateMessage.recipient_id"
+            }
+        )
+    )
     auth_session: "AuthSession" = Relationship(
         back_populates="useraccount"
     )
@@ -215,7 +231,7 @@ class Comment(
 
     content: str = Field(nullable=False)
     published_at: datetime = Field(nullable=False)
-    published: bool = True
+    is_published: bool = Field(nullable=False, default=True)
 
     # Foreign keys
     post_id: int = Field(
@@ -247,6 +263,80 @@ class Comment(
     )
     useraccount: "UserAccount" = Relationship(
         back_populates="comment_list"
+    )
+
+
+class PrivateMessage(
+    rx.Model,
+    table=True
+):
+    """A PrivateMessage model."""
+
+    content: str = Field(nullable=False)
+    published_at: datetime = Field(nullable=False)
+
+    # Relationships
+    user_private_message_list: Optional[list["UserPrivateMessage"]] = (
+        Relationship(back_populates="private_message")
+    )
+
+
+class UserPrivateMessage(
+    rx.Model,
+    table=True
+):
+    """A UserPrivateMessage model to associate Users with PrivateMessages."""
+
+    # Foreign keys
+    sender_id: int = Field(
+        sa_column=Column(
+            Integer,
+            ForeignKey(
+                "useraccount.id",
+                name="fk_userprivatemessage_sender_id_useraccount",
+            ),
+            index=True,
+            nullable=False,
+        ),
+    )
+    recipient_id: int = Field(
+        sa_column=Column(
+            Integer,
+            ForeignKey(
+                "useraccount.id",
+                name="fk_userprivatemessage_recipient_id_useraccount",
+            ),
+            index=True,
+            nullable=False,
+        ),
+    )
+    private_message_id: int = Field(
+        sa_column=Column(
+            Integer,
+            ForeignKey(
+                "privatemessage.id",
+                name="fk_userprivatemessage_private_message_id_privatemessage",
+            ),
+            index=True,
+            nullable=False,
+        ),
+    )
+
+    # Relationships
+    sender: "UserAccount" = Relationship(
+        back_populates="user_private_message_sent_list",
+        sa_relationship_kwargs={
+            "foreign_keys": "UserPrivateMessage.sender_id"
+        }
+    )
+    recipient: "UserAccount" = Relationship(
+        back_populates="user_private_message_received_list",
+        sa_relationship_kwargs={
+            "foreign_keys": "UserPrivateMessage.recipient_id"
+        }
+    )
+    private_message: "PrivateMessage" = Relationship(
+        back_populates="user_private_message_list"
     )
 
 
