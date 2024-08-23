@@ -211,7 +211,7 @@ class PostDialog(rx.ComponentState):
                                 post.title,
                                 style={
                                     'font_weight': '700',
-                                    'font_size': '1.1em',
+                                    'font_size': '1.3em',
                                 },
                             ),
                             rx.text(
@@ -229,7 +229,7 @@ class PostDialog(rx.ComponentState):
                                 post.title,
                                 style={
                                     'font_weight': '700',
-                                    'font_size': '1em',
+                                    'font_size': '1.2em',
                                 },
                             ),
                             rx.text(
