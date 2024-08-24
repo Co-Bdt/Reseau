@@ -1,13 +1,11 @@
-from datetime import datetime
 from typing import Tuple
 import reflex as rx
 
+from ..components.user_hover_card import user_hover_card
 from ..models import (
     City,
     Interest,
-    PrivateMessage,
     UserAccount,
-    UserPrivateMessage,
 )
 from .profile_picture import profile_picture
 
@@ -21,25 +19,6 @@ class MembersGrid(rx.ComponentState):
             radius='full',
             variant='surface',
         )
-
-    def send_message(self, user_id: int) -> None:
-        print("recipient_id", user_id)
-
-        with rx.session() as session:
-            new_message = PrivateMessage(
-                content="Hey toi",
-                published_at=datetime.now(),
-            )
-            session.add(new_message)
-            session.commit()
-            session.refresh(new_message)
-
-            session.add(UserPrivateMessage(
-                sender_id=1,
-                recipient_id=user_id,
-                private_message_id=new_message.id
-            ))
-            session.commit()
 
     @classmethod
     def get_component(cls, **props) -> rx.Component:
@@ -55,12 +34,24 @@ class MembersGrid(rx.ComponentState):
                     rx.box(
                         rx.vstack(
                             rx.hstack(
-                                profile_picture(
-                                    style=rx.Style(
-                                        width='2.7em',
-                                        height='2.7em',
+                                rx.hover_card.root(
+                                    rx.hover_card.trigger(
+                                        rx.link(
+                                            profile_picture(
+                                                style=rx.Style(
+                                                    width='2.7em',
+                                                    height='2.7em',
+                                                ),
+                                                profile_picture=user[0].profile_picture,  # noqa: E501
+                                            ),
+                                        ),
                                     ),
-                                    profile_picture=user[0].profile_picture,
+                                    rx.hover_card.content(
+                                        user_hover_card(
+                                            user[0],
+                                            user[1],
+                                        ),
+                                    ),
                                 ),
                                 rx.vstack(
                                     rx.hstack(
@@ -75,19 +66,11 @@ class MembersGrid(rx.ComponentState):
                                         spacing='1',
                                     ),
                                     rx.text(
-                                        (f"{user[1].name} "
-                                         f"({user[1].postal_code})"),
+                                        f"{user[1].name} "
+                                        f"({user[1].postal_code})",
                                         class_name='discreet-text',
                                     ),
                                     spacing='1',
-                                ),
-                                rx.icon_button(
-                                    rx.icon(
-                                        'mail',
-                                    ),
-                                    on_click=cls.send_message(
-                                        user[0].id,
-                                    ),
                                 ),
                                 width='100%',
                                 align='start',
