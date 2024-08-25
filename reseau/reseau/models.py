@@ -58,7 +58,7 @@ class UserAccount(
             }
         )
     )
-    user_private_message_received_list: Optional[list["UserPrivateMessage"]] = (
+    user_private_message_received_list: Optional[list["UserPrivateMessage"]] = (  # noqa: E501
         Relationship(
             back_populates="recipient",
             sa_relationship_kwargs={
@@ -321,6 +321,7 @@ class UserPrivateMessage(
             nullable=False,
         ),
     )
+    is_read: bool = Field(nullable=False, default=False)
 
     # Relationships
     sender: "UserAccount" = Relationship(

@@ -8,7 +8,6 @@ REGISTER_ROUTE = '/rejoindre'
 LOGIN_ROUTE = '/connexion'
 PROFILE_ROUTE = '/profil'
 MEMBERS_ROUTE = '/membres'
-PRIVATE_DISCUSSIONS_ROUTE = '/messages'
 
 
 google_ads_script1 = rx.script(

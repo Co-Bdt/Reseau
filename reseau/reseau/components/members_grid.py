@@ -34,22 +34,50 @@ class MembersGrid(rx.ComponentState):
                     rx.box(
                         rx.vstack(
                             rx.hstack(
-                                rx.hover_card.root(
-                                    rx.hover_card.trigger(
-                                        rx.link(
-                                            profile_picture(
-                                                style=rx.Style(
-                                                    width='2.7em',
-                                                    height='2.7em',
+                                rx.desktop_only(
+                                    rx.hover_card.root(
+                                        rx.hover_card.trigger(
+                                            rx.link(
+                                                profile_picture(
+                                                    style=rx.Style(
+                                                        width='2.7em',
+                                                        height='2.7em',
+                                                    ),
+                                                    profile_picture=user[0].profile_picture,  # noqa: E501
                                                 ),
-                                                profile_picture=user[0].profile_picture,  # noqa: E501
+                                            ),
+                                        ),
+                                        rx.hover_card.content(
+                                            user_hover_card(
+                                                user[0],
+                                                user[1],
                                             ),
                                         ),
                                     ),
-                                    rx.hover_card.content(
-                                        user_hover_card(
-                                            user[0],
-                                            user[1],
+                                ),
+                                rx.mobile_and_tablet(
+                                    rx.popover.root(
+                                        rx.popover.trigger(
+                                            rx.button(
+                                                profile_picture(
+                                                    style=rx.Style(
+                                                        width='2.7em',
+                                                        height='2.7em',
+                                                    ),
+                                                    profile_picture=user[0].profile_picture,  # noqa: E501
+                                                ),
+                                                width='2.7em',
+                                                height='2.7em',
+                                                border_radius="50%",
+                                                padding='0',
+                                                background_color='transparent',
+                                            ),
+                                        ),
+                                        rx.popover.content(
+                                            user_hover_card(
+                                                user[0],
+                                                user[1],
+                                            ),
                                         ),
                                     ),
                                 ),

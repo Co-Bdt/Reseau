@@ -1,16 +1,22 @@
 import reflex as rx
 from typing import Callable
 
-
 from ..common.base_state import BaseState
-from ..components.private_discussion import private_discussion
+from ..components.private_discussions_popover import private_discussions_popover  # noqa
 from ..components.profile_picture import profile_picture
 from ..reseau import MEMBERS_ROUTE, PROFILE_ROUTE
 from .site_name import site_name
 
 
-class NavbarState(BaseState):
-    ...
+item_style = rx.Style(
+    cursor='pointer',
+    align='center',
+    padding='6px',
+    border_radius='0.5em',
+    _hover={
+        'bg': rx.color('gray', 4),
+    },
+)
 
 
 def navbar():
@@ -25,14 +31,7 @@ def navbar():
                         light=rx.icon(icon, color='black', size=28),
                         dark=rx.icon(icon, color='white', size=28),
                     ),
-                    padding='6px',
-                    align='center',
-                    style={
-                        '_hover': {
-                            'bg': rx.color('gray', 4),
-                        },
-                        'border-radius': '0.5em',
-                    },
+                    style=item_style,
                 ),
             ),
             rx.mobile_and_tablet(
@@ -56,7 +55,6 @@ def navbar():
 
     def sidebar_items() -> rx.Component:
         '''A list of sidebar links.'''
-        from ..pages.private_discussions import PrivateDiscussionsState
 
         return rx.hstack(
             rx.cond(
@@ -69,77 +67,23 @@ def navbar():
             ),
             rx.cond(
                 BaseState.is_authenticated,
-                # sidebar_item(
-                #     'message-square',
-                #     None,
-                #     PRIVATE_DISCUSSIONS_ROUTE
-                # ),
-                rx.button(
-                    "Discussions",
-                    # rx.menu.root(
-                    #     rx.menu.trigger(
-                    #         rx.icon(
-                    #             'message-square',
-                    #             size=28,
-                    #         ),
-                    #     ),
-                    #     rx.menu.content(
-                    #         rx.text(
-                    #             "Discussions",
-                    #             font_weight='500',
-                    #         ),
-                    #         rx.foreach(
-                    #             PrivateDiscussionsState.private_discussions,
-                    #             lambda discussion: rx.dialog.root(
-                    #                 rx.dialog.trigger(
-                    #                     rx.card(
-                    #                         rx.text(
-                    #                             f"{discussion.first_name} "
-                    #                             f"{discussion.last_name}"
-                    #                         ),
-                    #                     ),
-                    #                     on_click=PrivateDiscussionsState.load_private_messages(  # noqa: E501
-                    #                         discussion.id
-                    #                     ),
-                    #                 ),
-                    #                 rx.dialog.content(
-                    #                     rx.dialog.title(
-                    #                         rx.text(
-                    #                             f"{discussion.first_name} "
-                    #                             f"{discussion.last_name}"
-                    #                         ),
-                    #                     ),
-                    #                     private_discussion(
-                    #                         authenticated_user=PrivateDiscussionsState.authenticated_user,  # noqa: E501
-                    #                         other_user=discussion,
-                    #                         messages=PrivateDiscussionsState.discussion_messages,  # noqa: E501
-                    #                         send_message=PrivateDiscussionsState.send_message
-                    #                     )
-                    #                 )
-                    #             ),
-                    #         ),
-                    #         padding='0.8em',
-                    #     ),
-                    # ),
-                    on_click=rx.call_script(
-                        """
-                        console.log("navbar on_click")
-                        """
-                    ),
-                ),
+                private_discussions_popover()
             ),
-            rx.link(
-                profile_picture(
-                    style=rx.Style(
-                        width=['1.8em', '1.8em', '1.8em', '2em'],
-                        height=['1.8em', '1.8em', '1.8em', '2em'],
+            rx.hstack(
+                rx.link(
+                    profile_picture(
+                        style=rx.Style(
+                            width=['1.8em', '1.8em', '1.8em', '2em'],
+                            height=['1.8em', '1.8em', '1.8em', '2em'],
+                        ),
+                        profile_picture=(
+                            BaseState.authenticated_user.profile_picture
+                        ),
                     ),
-                    profile_picture=(
-                        NavbarState.authenticated_user.profile_picture
-                    ),
+                    href=PROFILE_ROUTE,
                 ),
-                href=PROFILE_ROUTE,
-                padding='6px',
+                style=item_style,
+                padding='4px',
             ),
             spacing='5',
             width='100%',

@@ -42,14 +42,27 @@ def user_hover_card(user: UserAccount, city: City) -> rx.Component:
                     ),
                     rx.dialog.content(
                         rx.dialog.title(
-                            f"{user.first_name} {user.last_name}",
+                            rx.hstack(
+                                profile_picture(
+                                    style=rx.Style(
+                                        width=['2.5em', '2.5em', '2.5em', '2.1em'],  # noqa: E501
+                                        height=['2.5em', '2.5em', '2.5em', '2.1em'],  # noqa: E501
+                                    ),
+                                    profile_picture=user.profile_picture
+                                ),
+                                rx.text(
+                                    f"{user.first_name} "
+                                    f"{user.last_name}"
+                                ),
+                            ),
                         ),
                         private_discussion(
-                            authenticated_user=PrivateDiscussionsState.authenticated_user,  # noqa: E501
                             other_user=user,
                             messages=PrivateDiscussionsState.discussion_messages,  # noqa: E501
                             send_message=PrivateDiscussionsState.send_message
-                        )
+                        ),
+                        max_height='75vh',
+                        padding='1em',
                     ),
                 ),
                 justify='end',
