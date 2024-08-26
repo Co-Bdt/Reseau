@@ -14,6 +14,8 @@ from ..scripts.load_profile_pictures import load_profile_pictures
 
 
 class HomeState(BaseState):
+    # 2 last users created
+    last_users: list[UserAccount] = []
     # posts to display
     posts_displayed: list[Tuple[Post, str, UserAccount, int]] = []
     post_author: UserAccount = None  # author of a post
@@ -31,19 +33,35 @@ class HomeState(BaseState):
 
     def init(self):
         self.run_script()
+        self.load_last_users()
         self.load_all_posts()
+
+    def load_last_users(self):
+        with rx.session() as session:
+            self.last_users = session.exec(
+                UserAccount.select().options(
+                    sa.orm.selectinload(UserAccount.city),
+                )
+                .order_by(UserAccount.id.desc())
+                .limit(2)
+            ).all()
 
     def load_all_posts(self):
         self.posts_displayed = []
         with rx.session() as session:
             posts = session.exec(
                 Post.select().options(
-                    sa.orm.selectinload(Post.useraccount),
+                    sa.orm.selectinload(Post.useraccount)
+                    .selectinload(UserAccount.city),
                     sa.orm.selectinload(Post.comment_list),
                 )
-                .where(Post.published)
+                .where(Post.is_published)
                 .order_by(Post.published_at.desc())
             ).all()
+            # Put pinned posts at the top
+            pinned_posts = [post for post in posts if post.is_pinned]
+            other_posts = [post for post in posts if not post.is_pinned]
+            posts = pinned_posts + other_posts
 
         for post in posts:
             self.posts_displayed.append(
@@ -158,7 +176,9 @@ def home_page() -> rx.Component:
                 width="100%",
             ),
             rx.box(
-                landing_page(),
+                landing_page(
+                    last_users=HomeState.last_users,
+                ),
                 position="absolute",
                 top="50%",
                 left="50%",

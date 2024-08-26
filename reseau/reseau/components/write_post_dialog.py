@@ -72,7 +72,6 @@ def write_post_dialog(**props):
                             style=rx.Style(
                                 width="2.7em",
                                 height="2.7em",
-                                border="0.5px solid #ccc",
                             ),
                             profile_picture=user.profile_picture,
                         ),

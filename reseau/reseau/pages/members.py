@@ -5,7 +5,7 @@ import sqlalchemy as sa
 
 from ..common.base_state import BaseState
 from ..common.template import template
-from ..components.user_card import user_card
+from ..components.members_grid import members_grid
 from ..models import City, Interest, UserAccount, UserInterest
 from ..reseau import MEMBERS_ROUTE
 
@@ -13,8 +13,8 @@ from ..reseau import MEMBERS_ROUTE
 class MembersState(BaseState):
     # users with their city to display
     users_displayed: list[Tuple[UserAccount, City, list[Interest]]] = []
-    search_term: str = ""  # the term typed in the search bar
-    city_searched: City = None  # the first city detected with the search term
+    search_term: str = ''  # the term typed in the search bar
+    city_found: City = None  # the first city found with the search term
 
     def init(self):
         self.load_users()
@@ -39,8 +39,6 @@ class MembersState(BaseState):
                     user_interest.append(interest.interest)
                 self.users_displayed.append(
                     (user,
-                     #  os.path.isfile(f"{rx.get_upload_dir()}/{user.id}" +
-                     #                 "_profile_picture.png"),
                      user.city,
                      user_interest)
                 )
@@ -55,6 +53,10 @@ class MembersState(BaseState):
         # If no search term, display all users.
         if not self.search_term:
             return self.load_users()
+
+        # Clear state variables.
+        self.users_displayed.clear()
+        self.city_found = None
 
         # Fetch the first city matching the search term.
         with rx.session() as session:
@@ -73,10 +75,9 @@ class MembersState(BaseState):
                 )
             ).first()
 
-        self.users_displayed.clear()
-
         if city is not None:
-            self.city_searched = city
+            self.city_found = city
+            self.users_displayed.clear()
             for user in city.useraccount_list:
                 if user.id != self.authenticated_user.id:
                     user_interest: list[Interest] = []
@@ -87,14 +88,70 @@ class MembersState(BaseState):
                          city,
                          user_interest)
                     )
+        # If no city is found, try to find users with their first or last name.
         else:
-            self.city_searched = City(
-                name=self.search_term,
-                postal_code="00000"
-            )
+            self.search_user(form_data)
 
-        # Display users in random order.
-        shuffle(self.users_displayed)
+        if self.users_displayed:
+            # If found, display users in random order.
+            shuffle(self.users_displayed)
+        else:
+            # Else if no user found.
+            if not self.city_found:
+                self.city_found = City(
+                    name=self.search_term,
+                    postal_code="00000"
+                )
+
+    def search_user(self, form_data):
+        self.search_term = form_data["search_term"]
+        users: list[UserAccount] = []
+
+        # Search first by first name.
+        with rx.session() as session:
+            users = session.exec(
+                UserAccount.select()
+                .options(
+                    sa.orm.selectinload(UserAccount.city),
+                    sa.orm.selectinload(UserAccount.interest_list)
+                    .selectinload(UserInterest.interest)
+                )
+                .where(
+                    sa.func.lower(UserAccount.first_name).startswith(
+                        sa.func.lower(self.search_term)
+                    )
+                )
+            ).all()
+
+        # Search then by last name if no user is found.
+        if not users:
+            with rx.session() as session:
+                users = session.exec(
+                    UserAccount.select()
+                    .options(
+                        sa.orm.selectinload(UserAccount.city),
+                        sa.orm.selectinload(UserAccount.interest_list)
+                        .selectinload(UserInterest.interest)
+                    )
+                    .where(
+                        sa.func.lower(UserAccount.last_name).startswith(
+                            sa.func.lower(self.search_term)
+                        )
+                    )
+                ).all()
+
+        if users:
+            self.users_displayed.clear()
+            for user in users:
+                if user.id != self.authenticated_user.id:
+                    user_interest: list[Interest] = []
+                    for interest in user.interest_list:
+                        user_interest.append(interest.interest)
+                    self.users_displayed.append(
+                        (user,
+                         user.city,
+                         user_interest)
+                    )
 
 
 @rx.page(title="Membres", route=MEMBERS_ROUTE, on_load=MembersState.init)
@@ -114,7 +171,7 @@ def members_page() -> rx.Component:
                     "Membres",
                 ),
             rx.text(
-                "Connecte avec d'autres gars aux mêmes valeurs "
+                "Connecte avec d'autres gars ambitieux "
                 "et progresse avec eux.",
                 style=rx.Style(
                     margin_bottom="0.5em"
@@ -123,7 +180,7 @@ def members_page() -> rx.Component:
             rx.form(
                 rx.input(
                     id="search_term",
-                    placeholder="Recherche une ville",
+                    placeholder="Recherche une ville ou un membre",
                     width="100%",
                     size="3",
                     variant="surface",
@@ -137,19 +194,19 @@ def members_page() -> rx.Component:
                 MembersState.users_displayed,
                 rx.box(
                     rx.desktop_only(
-                        user_card(
+                        members_grid(
                             users=MembersState.users_displayed,
                             columns="3",
                         ),
                     ),
                     rx.tablet_only(
-                        user_card(
+                        members_grid(
                             users=MembersState.users_displayed,
                             columns="2",
                         ),
                     ),
                     rx.mobile_only(
-                        user_card(
+                        members_grid(
                             users=MembersState.users_displayed,
                             columns="1",
                         ),
@@ -157,11 +214,11 @@ def members_page() -> rx.Component:
                     width="100%",
                 ),
                 rx.cond(
-                    MembersState.city_searched,
+                    MembersState.city_found,
                     rx.text(
-                        f"Aucun membre trouvé : \
-                            {MembersState.city_searched.name} \
-                            ({MembersState.city_searched.postal_code})",
+                        f"Aucun membre trouvé : "
+                        f"{MembersState.city_found.name} ",
+                        f"({MembersState.city_found.postal_code})",
                         class_name="mobile-text",
                         width="100%",
                         align="center",

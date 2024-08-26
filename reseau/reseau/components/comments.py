@@ -15,7 +15,6 @@ def comments(
                 rx.hstack(
                     profile_picture(
                         style=rx.Style(
-                            border="0.5px solid #ccc",
                             width="2.5em",
                             height="2.5em",
                         ),
