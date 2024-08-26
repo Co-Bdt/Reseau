@@ -26,9 +26,11 @@ def template(
                             rx.box(
                                 rx.container(
                                     rx.text(
-                                        "Suite à plusieurs retours en "
-                                        "ce sens, les messages privés sont "
-                                        "actuellement en développement !",
+                                        "Les messages privés sont maintenant "
+                                        "disponibles ! N'hésite pas à faire "
+                                        "un retour sur la prochaine "
+                                        "fonctionnalité que tu aimerais "
+                                        "avoir",
                                         class_name="mobile-text",
                                         font_color='gray',
                                     ),

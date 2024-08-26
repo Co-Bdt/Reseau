@@ -5,7 +5,8 @@ from .pages import (
     log_in,
     registration,
     profile,
-    members
+    members,
+    private_discussions,
 )
 
 
@@ -17,5 +18,5 @@ __all__ = [
     "registration",
     "profile",
     "members",
-    "interest",
+    "private_discussions",
 ]

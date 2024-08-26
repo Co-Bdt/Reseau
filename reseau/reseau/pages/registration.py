@@ -319,29 +319,15 @@ def registration_page() -> rx.Component:
             ),
             rx.vstack(
                 rx.tablet_and_desktop(
-                    rx.hstack(
-                        rx.text(
-                            "Email",
-                            class_name='desktop-text',
-                        ),
-                        rx.text(
-                            "(visible des autres membres)",
-                            class_name='desktop-text',
-                            color_scheme='gray',
-                        ),
+                    rx.text(
+                        "Email",
+                        class_name='desktop-text',
                     ),
                 ),
                 rx.mobile_only(
-                    rx.hstack(
-                        rx.text(
-                            "Email",
-                            class_name='mobile-text',
-                        ),
-                        rx.text(
-                            "(visible des autres membres)",
-                            class_name='mobile-text',
-                            color_scheme='gray',
-                        ),
+                    rx.text(
+                        "Email",
+                        class_name='mobile-text',
                     ),
                 ),
                 rx.input(
