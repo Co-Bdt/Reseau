@@ -59,7 +59,6 @@ def user_hover_card(user: UserAccount, city: City) -> rx.Component:
                         private_discussion(
                             other_user=user,
                             messages=PrivateDiscussionsState.discussion_messages,  # noqa: E501
-                            send_message=PrivateDiscussionsState.send_message
                         ),
                         max_height='75vh',
                         padding='1em',

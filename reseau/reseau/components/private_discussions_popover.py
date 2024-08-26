@@ -136,7 +136,6 @@ def private_discussions_popover():
                             private_discussion(
                                 other_user=discussion[0],
                                 messages=PrivateDiscussionsState.discussion_messages,  # noqa
-                                send_message=PrivateDiscussionsState.send_message  # noqa
                             ),
                             max_height='75vh',
                             padding='1em',

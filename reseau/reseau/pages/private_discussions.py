@@ -143,6 +143,9 @@ class PrivateDiscussionsState(BaseState):
             )
             self.discussion_messages = messages
 
+        if mark_as_read:
+            self.mark_discussion_as_read(discussion_id)
+
     def mark_discussion_as_read(self, discussion_id: int):
         """
         Mark a discussion as read.
@@ -159,7 +162,6 @@ class PrivateDiscussionsState(BaseState):
             ).all()
             for message in messages:
                 if not message.is_read:
-                    print("mark as read")
                     message.is_read = True
                     session.add(message)
             session.commit()

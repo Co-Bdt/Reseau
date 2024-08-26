@@ -1,15 +1,16 @@
 import reflex as rx
-from typing import Callable, List
+from typing import List
+
 
 from ..common.base_state import BaseState
-
-from reseau.components.profile_picture import profile_picture
+from ..components.profile_picture import profile_picture
 from ..models import UserPrivateMessage, UserAccount
+from ..pages.private_discussions import PrivateDiscussionsState
 
 
 common_style = rx.Style(
     max_width='80%',
-    padding='0.8em',
+    padding='0.6em',
     border='0.5px solid #eaeaea',
     border_radius='1em',
     box_shadow='0px 2px 2px rgba(0, 0, 0, 0.15)',
@@ -19,7 +20,6 @@ common_style = rx.Style(
 def private_discussion(
     other_user: UserAccount,
     messages: List[UserPrivateMessage],
-    send_message: Callable,
 ):
     '''
     A component to display a private discussion with another user.
@@ -66,32 +66,16 @@ def private_discussion(
                         value=other_user.id,
                         style=rx.Style(display='none'),
                     ),
-                    rx.box(
-                        rx.tablet_and_desktop(
-                            rx.input(
-                                name='message',
-                                placeholder=f"Écris à {other_user.first_name}",
-                                size='3',
-                            ),
-                        ),
-                        rx.mobile_only(
-                            rx.input(
-                                name='message',
-                                placeholder=f"Écris à {other_user.first_name}",
-                                size='2',
-                            ),
-                        ),
+                    rx.input(
+                        name='message',
+                        placeholder=f"Écris à {other_user.first_name}",
+                        size='3',
                         width='100%',
                     ),
-                    rx.tablet_and_desktop(
-                        rx.button("Envoyer", type='submit', size='3'),
-                    ),
-                    rx.mobile_only(
-                        rx.button("Envoyer", type='submit', size='2'),
-                    ),
+                    rx.button("Envoyer", type='submit', size='3'),
                     width='100%',
                 ),
-                on_submit=send_message,
+                on_submit=PrivateDiscussionsState.send_message,
                 reset_on_submit=True,
             ),
             width='100%',
