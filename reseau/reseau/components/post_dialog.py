@@ -69,7 +69,7 @@ class PostDialog(rx.ComponentState):
                                     width='2.7em',
                                     height='2.7em',
                                 ),
-                                profile_picture=post_author.profile_picture,
+                                profile_picture=post_author.profile_picture,  # noqa: E501
                             ),
                             rx.vstack(
                                 rx.tablet_and_desktop(

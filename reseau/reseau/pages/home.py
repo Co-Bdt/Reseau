@@ -51,7 +51,8 @@ class HomeState(BaseState):
         with rx.session() as session:
             posts = session.exec(
                 Post.select().options(
-                    sa.orm.selectinload(Post.useraccount),
+                    sa.orm.selectinload(Post.useraccount)
+                    .selectinload(UserAccount.city),
                     sa.orm.selectinload(Post.comment_list),
                 )
                 .where(Post.is_published)
