@@ -46,8 +46,4 @@ jobs:
 
     - name: Deploy Chart
       run: |-
-        helm upgrade reseau helm/reseau-*.tgz --install -f helm/reseau/environments/values.prod.yaml --wait --timeout 10m0s #--dry-run
-        
-    - name: Verify deployment
-      run: |-
-        helm list
+        helm upgrade reseau helm/reseau-*.tgz --install -f helm/reseau/environments/values.prod.yaml --wait --timeout 10m0s
