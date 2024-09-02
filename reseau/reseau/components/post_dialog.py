@@ -69,7 +69,7 @@ class PostDialog(rx.ComponentState):
                                     width='2.7em',
                                     height='2.7em',
                                 ),
-                                profile_picture=post_author.profile_picture,  # noqa: E501
+                                profile_picture=post_author.profile_picture,
                             ),
                             rx.vstack(
                                 rx.tablet_and_desktop(
@@ -145,6 +145,11 @@ class PostDialog(rx.ComponentState):
                     ),
                     padding='0',
                     cursor='pointer',
+                    style={
+                        '_hover': {
+                            'box_shadow': '0px 1px 3px 1px rgba(0, 0, 0, 0.2)',
+                        },
+                    },
                 ),
                 on_click=load_post_details(post.id)
             ),

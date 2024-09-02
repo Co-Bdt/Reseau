@@ -1,6 +1,4 @@
 import reflex as rx
-from typing import List
-
 
 from ..common.base_state import BaseState
 from ..components.profile_picture import profile_picture
@@ -10,16 +8,16 @@ from ..pages.private_discussions import PrivateDiscussionsState
 
 common_style = rx.Style(
     max_width='80%',
-    padding='0.6em',
+    padding='0.6em 0.8em',
     border='0.5px solid #eaeaea',
-    border_radius='1em',
+    border_radius='0.5em',
     box_shadow='0px 2px 2px rgba(0, 0, 0, 0.15)',
 )
 
 
 def private_discussion(
     other_user: UserAccount,
-    messages: List[UserPrivateMessage],
+    messages: list[tuple[list[UserPrivateMessage], str]],
 ):
     '''
     A component to display a private discussion with another user.
@@ -40,7 +38,7 @@ def private_discussion(
                 rx.flex(
                     rx.foreach(
                         messages,
-                        lambda msg: message_bubble(msg)
+                        lambda msg: message_group(msg)
                     ),
                     direction='column',
                     width='100%',
@@ -85,6 +83,35 @@ def private_discussion(
     )
 
 
+def message_group(
+    messages: tuple[list[UserPrivateMessage], str]
+):
+    '''
+    A component to display a group of messages.
+
+    Args:
+        messages: A list of UserPrivateMessage objects.
+    '''
+    return rx.vstack(
+        rx.hstack(
+            rx.text(
+                messages[1],
+                text_align='center',
+                font_size='0.9em',
+                color='gray',
+            ),
+            width='100%',
+            justify='center',
+        ),
+        rx.foreach(
+            messages[0],
+            lambda message: message_bubble(message),
+        ),
+        width='100%',
+        margin_bottom='0.5em',
+    )
+
+
 def message_bubble(
     message: UserPrivateMessage
 ):
@@ -98,9 +125,21 @@ def message_bubble(
         message.sender_id == BaseState.authenticated_user.id,
         rx.hstack(
             rx.box(
-                rx.text(
-                    message.private_message.content,
-                    font_size=['0.9em', '0.9em', '0.9em', '1em'],
+                rx.hstack(
+                    rx.text(
+                        message.private_message.content,
+                        font_size=['0.9em', '0.9em', '0.9em', '1em'],
+                    ),
+                    rx.text(
+                        rx.moment(
+                            message.private_message.published_at,
+                            format="HH:mm"
+                        ),
+                        font_size='0.7em',
+                        color='gray',
+                    ),
+                    width='100%',
+                    align_items='end',
                 ),
                 background_color=rx.color_mode_cond(
                     light='#F9F8F8',
@@ -115,6 +154,7 @@ def message_bubble(
                 ),
                 profile_picture=message.sender.profile_picture
             ),
+            width='100%',
             justify='end',
             align_items='start',
         ),
@@ -127,9 +167,20 @@ def message_bubble(
                 profile_picture=message.sender.profile_picture
             ),
             rx.box(
-                rx.text(
-                    message.private_message.content,
-                    font_size=['0.9em', '0.9em', '0.9em', '1em'],
+                rx.hstack(
+                    rx.text(
+                        message.private_message.content,
+                        font_size=['0.9em', '0.9em', '0.9em', '1em'],
+                    ),
+                    rx.text(
+                        rx.moment(
+                            message.private_message.published_at,
+                            format="HH:mm"
+                        ),
+                        font_size='0.7em',
+                        color='gray',
+                    ),
+                    align_items='end',
                 ),
                 background_color=rx.color_mode_cond(
                     light='#FFF6E0',

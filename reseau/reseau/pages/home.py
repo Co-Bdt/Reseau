@@ -5,6 +5,7 @@ from typing import Tuple
 
 from ..common.base_state import BaseState
 from ..common.template import template
+from ..common.translate import from_now
 from ..components.landing import landing_page
 from ..components.post_dialog import post_dialog
 from ..components.write_post_dialog import write_post_dialog
@@ -66,7 +67,7 @@ class HomeState(BaseState):
         for post in posts:
             self.posts_displayed.append(
                 (post,
-                 f"{post.published_at: %d/%m/%y %H:%M}",
+                 from_now(post.published_at),
                  post.useraccount,
                  len(post.comment_list)),
             )
@@ -85,7 +86,7 @@ class HomeState(BaseState):
         for comment in comments:
             self.post_comments.append(
                 (comment,
-                 f"{comment.published_at: %d/%m/%y %H:%M}",
+                 from_now(comment.published_at),
                  comment.useraccount),
             )
 

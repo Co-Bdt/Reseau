@@ -1,8 +1,10 @@
 from datetime import datetime
+from itertools import groupby
 import reflex as rx
 import sqlalchemy as sa
 
 from ..common.base_state import BaseState
+from ..common.translate import format_to_date
 from ..models import PrivateMessage, UserAccount, UserPrivateMessage
 
 
@@ -15,7 +17,7 @@ class PrivateDiscussionsState(BaseState):
     # and all the private messages between them
     private_discussions: list[tuple[UserAccount, bool]] = []
     # Messages of the current discussion
-    discussion_messages: list[UserPrivateMessage] = []
+    discussion_messages: list[tuple[list[UserPrivateMessage], str]] = []
 
     def load_private_discussions(self, event: bool = True):
         """
@@ -141,7 +143,15 @@ class PrivateDiscussionsState(BaseState):
                 messages,
                 key=lambda x: x.private_message.published_at
             )
-            self.discussion_messages = messages
+
+            # Function with which we group the messages by date
+            def get_date(message: UserPrivateMessage):
+                return message.private_message.published_at.date()
+
+            self.discussion_messages = [
+                (list(group), format_to_date(date))
+                for date, group in groupby(messages, key=get_date)
+            ]
 
         if mark_as_read:
             self.mark_discussion_as_read(discussion_id)
