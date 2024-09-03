@@ -18,8 +18,11 @@ def template(
                     rx.container(
                         navbar(),
                         size='4',
+                        padding='0',
                     ),
-                    rx.separator(),
+                    rx.separator(
+                        margin_top='-1px',
+                    ),
                     rx.cond(
                         page.__name__ == 'home_page',
                         rx.desktop_only(

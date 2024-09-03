@@ -1,6 +1,10 @@
 import reflex as rx
 from typing import Callable
 
+# from reseau.pages.home import HomeState
+
+# from ..pages.members import MembersState, members_page
+
 from ..common.base_state import BaseState
 from ..components.private_discussions_popover import private_discussions_popover  # noqa
 from ..components.profile_picture import profile_picture
@@ -19,7 +23,17 @@ item_style = rx.Style(
 )
 
 
-def navbar():
+class NavbarState(rx.State):
+    default_tab: str = "community"
+
+    # def on_tab_change(self, value):
+    #     if value == "community":
+    #         return HomeState.init()
+    #     elif value == "members":
+    #         return MembersState.init()
+
+
+def navbar() -> rx.Component:
     def sidebar_item(
         icon: str, func: Callable, href: str
     ) -> rx.Component:
@@ -93,14 +107,39 @@ def navbar():
 
     return rx.box(
         rx.tablet_and_desktop(
-            rx.hstack(
-                site_name(),
-                sidebar_items(),
-                width='100%',
-                padding_top='1em',
-                padding_bottom=['1em', '1em', '1em', '2em'],
-                justify='start',
-                align='center',
+            rx.vstack(
+                rx.hstack(
+                    site_name(),
+                    sidebar_items(),
+                    width='100%',
+                    padding_top='1em',
+                    # padding_bottom=['1em', '1em', '1em', '2em'],
+                    justify='start',
+                    align='center',
+                ),
+                rx.tabs.root(
+                    rx.tabs.list(
+                        rx.tabs.trigger(
+                            "Communauté",
+                            # margin_left='5em',
+                        ),
+                        rx.tabs.trigger(
+                            rx.link("Membres", href=MEMBERS_ROUTE),
+                            # value="members"
+                        ),
+                    ),
+                    # rx.tabs.content(
+                    #     rx.text("item on tab 1"),
+                    #     value="community",
+                    # ),
+                    # rx.tabs.content(
+                    #     members_page(),
+                    #     value="members",
+                    # ),
+                    default_value=NavbarState.default_tab,
+                    # on_change=lambda value: NavbarState.on_tab_change(value),
+                    width="100%",
+                ),
             ),
         ),
         rx.mobile_only(

@@ -146,31 +146,31 @@ def home_page() -> rx.Component:
                 rx.heading(
                     "Communauté",
                 ),
-                write_post_dialog(
-                    user=HomeState.authenticated_user,
-                    publish_post=HomeState.publish_post
-                ),
-                rx.tablet_and_desktop(
-                    rx.spacer(spacing='2'),
-                ),
-                rx.grid(
-                    rx.foreach(
-                        HomeState.posts_displayed,
-                        lambda post:
-                            post_dialog(
-                                post=post[0],
-                                post_datetime=post[1],
-                                post_author=post[2],
-                                post_comments_count=post[3],
-                                post_comments=HomeState.post_comments,
-                                load_post_details=HomeState.load_post_details,
-                                publish_comment=HomeState.publish_comment,
-                            ),
-                    ),
-                    columns='1',
-                    width='100%',
-                    spacing='3',
-                ),
+                # write_post_dialog(
+                #     user=HomeState.authenticated_user,
+                #     publish_post=HomeState.publish_post
+                # ),
+                # rx.tablet_and_desktop(
+                #     rx.spacer(spacing='2'),
+                # ),
+                # rx.grid(
+                #     rx.foreach(
+                #         HomeState.posts_displayed,
+                #         lambda post:
+                #             post_dialog(
+                #                 post=post[0],
+                #                 post_datetime=post[1],
+                #                 post_author=post[2],
+                #                 post_comments_count=post[3],
+                #                 post_comments=HomeState.post_comments,
+                #                 load_post_details=HomeState.load_post_details,
+                #                 publish_comment=HomeState.publish_comment,
+                #             ),
+                #     ),
+                #     columns='1',
+                #     width='100%',
+                #     spacing='3',
+                # ),
                 width='100%',
             ),
             rx.box(
