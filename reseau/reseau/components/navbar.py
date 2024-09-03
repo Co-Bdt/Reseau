@@ -1,14 +1,10 @@
 import reflex as rx
 from typing import Callable
 
-# from reseau.pages.home import HomeState
-
-# from ..pages.members import MembersState, members_page
-
 from ..common.base_state import BaseState
 from ..components.private_discussions_popover import private_discussions_popover  # noqa
 from ..components.profile_picture import profile_picture
-from ..reseau import MEMBERS_ROUTE, PROFILE_ROUTE
+from ..reseau import HOME_ROUTE, MEMBERS_ROUTE, PROFILE_ROUTE
 from .site_name import site_name
 
 
@@ -24,16 +20,16 @@ item_style = rx.Style(
 
 
 class NavbarState(rx.State):
-    default_tab: str = "community"
+    default_tab: str = "home_page"
+    current_tab: str = ""
 
-    # def on_tab_change(self, value):
-    #     if value == "community":
-    #         return HomeState.init()
-    #     elif value == "members":
-    #         return MembersState.init()
+    def on_tab_change(self, value):
+        self.current_tab = value
 
 
-def navbar() -> rx.Component:
+def navbar(
+    current_page: str
+) -> rx.Component:
     def sidebar_item(
         icon: str, func: Callable, href: str
     ) -> rx.Component:
@@ -73,14 +69,6 @@ def navbar() -> rx.Component:
         return rx.hstack(
             rx.cond(
                 BaseState.is_authenticated,
-                sidebar_item(
-                    'user-search',
-                    None,
-                    MEMBERS_ROUTE
-                ),
-            ),
-            rx.cond(
-                BaseState.is_authenticated,
                 private_discussions_popover()
             ),
             rx.hstack(
@@ -113,7 +101,6 @@ def navbar() -> rx.Component:
                     sidebar_items(),
                     width='100%',
                     padding_top='1em',
-                    # padding_bottom=['1em', '1em', '1em', '2em'],
                     justify='start',
                     align='center',
                 ),
@@ -121,23 +108,33 @@ def navbar() -> rx.Component:
                     rx.tabs.list(
                         rx.tabs.trigger(
                             "Communauté",
-                            # margin_left='5em',
+                            value="home_page",
+                            on_click=rx.redirect(HOME_ROUTE),
+                            cursor='pointer',
                         ),
                         rx.tabs.trigger(
-                            rx.link("Membres", href=MEMBERS_ROUTE),
-                            # value="members"
+                            "Membres",
+                            value="members_page",
+                            on_click=rx.redirect(MEMBERS_ROUTE),
+                            cursor='pointer',
                         ),
+                        size='2',
                     ),
-                    # rx.tabs.content(
-                    #     rx.text("item on tab 1"),
-                    #     value="community",
-                    # ),
-                    # rx.tabs.content(
-                    #     members_page(),
-                    #     value="members",
-                    # ),
+                    rx.tabs.content(
+                        rx.spacer(),
+                        value="home_page",
+                    ),
+                    rx.tabs.content(
+                        rx.spacer(),
+                        value="members_page",
+                    ),
                     default_value=NavbarState.default_tab,
-                    # on_change=lambda value: NavbarState.on_tab_change(value),
+                    value=rx.cond(
+                        NavbarState.current_tab,
+                        NavbarState.current_tab,
+                        current_page,
+                    ),
+                    on_change=lambda value: NavbarState.on_tab_change(value),
                     width="100%",
                 ),
             ),

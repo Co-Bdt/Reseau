@@ -213,13 +213,40 @@ class Post(
             nullable=False,
         ),
     )
+    category_id: int = Field(
+        sa_column=Column(
+            Integer,
+            ForeignKey(
+                "postcategory.id",
+                name="fk_post_category_id_postcategory",
+            ),
+            index=True,
+            nullable=False,
+            default=1,
+        )
+    )
 
     # Relationships
     useraccount: "UserAccount" = Relationship(
         back_populates="post_list"
     )
+    postcategory: "PostCategory" = Relationship(
+        back_populates="post_list"
+    )
     comment_list: Optional[list["Comment"]] = Relationship(
         back_populates="post"
+    )
+
+
+class PostCategory(
+    rx.Model,
+    table=True
+):
+    name: str = Field(nullable=False)
+
+    # Relationships
+    post_list: Optional[list["Post"]] = Relationship(
+        back_populates="postcategory"
     )
 
 

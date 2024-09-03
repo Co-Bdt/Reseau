@@ -9,7 +9,7 @@ from ..common.translate import from_now
 from ..components.landing import landing_page
 from ..components.post_dialog import post_dialog
 from ..components.write_post_dialog import write_post_dialog
-from ..models import Comment, Post, UserAccount
+from ..models import Comment, Post, PostCategory, UserAccount
 from ..reseau import HOME_ROUTE
 from ..scripts.load_profile_pictures import load_profile_pictures
 
@@ -21,7 +21,7 @@ class HomeState(BaseState):
     post_author: UserAccount = None  # author of a post
     # comments of a post
     post_comments: list[Tuple[Comment, str, UserAccount]] = []
-    profile_pictures_exist: list[bool] = []
+    postcategories: list[PostCategory] = []
 
     def run_script(self):
         '''Uncomment any one-time script needed for app initialization here.'''
@@ -34,7 +34,8 @@ class HomeState(BaseState):
     def init(self):
         self.run_script()
         self.load_last_users()
-        self.load_all_posts()
+        self.load_posts()
+        self.load_postcategories()
 
     def load_last_users(self):
         with rx.session() as session:
@@ -46,7 +47,7 @@ class HomeState(BaseState):
                 .limit(2)
             ).all()
 
-    def load_all_posts(self):
+    def load_posts(self):
         self.posts_displayed = []
         with rx.session() as session:
             posts = session.exec(
@@ -88,6 +89,15 @@ class HomeState(BaseState):
                  from_now(comment.published_at),
                  comment.useraccount),
             )
+    
+    def load_postcategories(self):
+        self.postcategories = []
+
+        with rx.session() as session:
+            postcategories = session.exec(
+                PostCategory.select()
+            ).all()
+        self.postcategories = postcategories
 
     def publish_post(self, form_data: dict):
         title = form_data['title']
@@ -106,7 +116,7 @@ class HomeState(BaseState):
             session.add(post)
             session.commit()
 
-        self.load_all_posts()
+        self.load_posts()
 
         return rx.toast.success("Post publié.")
 
@@ -143,34 +153,38 @@ def home_page() -> rx.Component:
         rx.cond(
             HomeState.is_authenticated,
             rx.vstack(
-                rx.heading(
-                    "Communauté",
+                rx.foreach(
+                    HomeState.postcategories,
+                    lambda postcategory:
+                        rx.badge(
+                            postcategory.name,
+                        )
                 ),
-                # write_post_dialog(
-                #     user=HomeState.authenticated_user,
-                #     publish_post=HomeState.publish_post
-                # ),
-                # rx.tablet_and_desktop(
-                #     rx.spacer(spacing='2'),
-                # ),
-                # rx.grid(
-                #     rx.foreach(
-                #         HomeState.posts_displayed,
-                #         lambda post:
-                #             post_dialog(
-                #                 post=post[0],
-                #                 post_datetime=post[1],
-                #                 post_author=post[2],
-                #                 post_comments_count=post[3],
-                #                 post_comments=HomeState.post_comments,
-                #                 load_post_details=HomeState.load_post_details,
-                #                 publish_comment=HomeState.publish_comment,
-                #             ),
-                #     ),
-                #     columns='1',
-                #     width='100%',
-                #     spacing='3',
-                # ),
+                write_post_dialog(
+                    user=HomeState.authenticated_user,
+                    publish_post=HomeState.publish_post
+                ),
+                rx.tablet_and_desktop(
+                    rx.spacer(spacing='2'),
+                ),
+                rx.grid(
+                    rx.foreach(
+                        HomeState.posts_displayed,
+                        lambda post:
+                            post_dialog(
+                                post=post[0],
+                                post_datetime=post[1],
+                                post_author=post[2],
+                                post_comments_count=post[3],
+                                post_comments=HomeState.post_comments,
+                                load_post_details=HomeState.load_post_details,
+                                publish_comment=HomeState.publish_comment,
+                            ),
+                    ),
+                    columns='1',
+                    width='100%',
+                    spacing='3',
+                ),
                 width='100%',
             ),
             rx.box(

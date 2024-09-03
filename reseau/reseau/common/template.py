@@ -16,7 +16,9 @@ def template(
             rx.box(
                 rx.box(
                     rx.container(
-                        navbar(),
+                        navbar(
+                            current_page=page.__name__,
+                        ),
                         size='4',
                         padding='0',
                     ),
