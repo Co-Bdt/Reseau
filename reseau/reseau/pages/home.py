@@ -15,8 +15,7 @@ from ..scripts.load_profile_pictures import load_profile_pictures
 
 
 class HomeState(BaseState):
-    # 2 last users created
-    last_users: list[UserAccount] = []
+    last_users: list[UserAccount] = []  # 2 last users created
     # posts to display
     posts_displayed: list[Tuple[Post, str, UserAccount, int]] = []
     post_author: UserAccount = None  # author of a post
@@ -25,7 +24,7 @@ class HomeState(BaseState):
     profile_pictures_exist: list[bool] = []
 
     def run_script(self):
-        """Uncomment any one-time script needed for app initialization here."""
+        '''Uncomment any one-time script needed for app initialization here.'''
         # delete_cities()
         # insert_cities()
         # delete_users()
@@ -91,8 +90,8 @@ class HomeState(BaseState):
             )
 
     def publish_post(self, form_data: dict):
-        title = form_data["title"]
-        content = form_data["content"]
+        title = form_data['title']
+        content = form_data['content']
 
         if not content:
             return rx.toast.warning("Ton post doit avoir un contenu.")
@@ -115,9 +114,9 @@ class HomeState(BaseState):
         if not form_data['content']:
             return rx.toast.warning("Ton commentaire est vide.")
 
-        post_id = form_data["post_id"]
+        post_id = form_data['post_id']
         comment = Comment(
-            content=form_data["content"],
+            content=form_data['content'],
             post_id=post_id,
             author_id=self.authenticated_user.id,
             published_at=datetime.now(),
@@ -130,31 +129,29 @@ class HomeState(BaseState):
         return rx.toast.success("Commentaire publié.")
 
 
-@rx.page(title="Reseau", route=HOME_ROUTE, on_load=HomeState.init)
+@rx.page(title='Reseau', route=HOME_ROUTE, on_load=HomeState.init)
 @template
 def home_page() -> rx.Component:
-    """Render the landing page for visitors, \
+    '''Render the landing page for visitors, \
         or the home page for authenticated users.
 
     Returns:
         A reflex component.
-    """
+    '''
     return rx.cond(
         HomeState.is_hydrated,
-        # toggle dark/light mode using right top corner button
-        # can't work while icons stay black
         rx.cond(
-            BaseState.is_authenticated,
+            HomeState.is_authenticated,
             rx.vstack(
                 rx.heading(
                     "Communauté",
                 ),
                 write_post_dialog(
-                    user=BaseState.authenticated_user,
+                    user=HomeState.authenticated_user,
                     publish_post=HomeState.publish_post
                 ),
                 rx.tablet_and_desktop(
-                    rx.spacer(spacing="2"),
+                    rx.spacer(spacing='2'),
                 ),
                 rx.grid(
                     rx.foreach(
@@ -170,21 +167,21 @@ def home_page() -> rx.Component:
                                 publish_comment=HomeState.publish_comment,
                             ),
                     ),
-                    columns="1",
-                    width="100%",
-                    spacing="3",
+                    columns='1',
+                    width='100%',
+                    spacing='3',
                 ),
-                width="100%",
+                width='100%',
             ),
             rx.box(
                 landing_page(
                     last_users=HomeState.last_users,
                 ),
-                position="absolute",
-                top="50%",
-                left="50%",
-                transform="translateX(-50%) translateY(-50%)",
-                width=["80%", "80%", "70%", "60%", "50%"],
+                position='absolute',
+                top='50%',
+                left='50%',
+                transform='translateX(-50%) translateY(-50%)',
+                width=['80%', '80%', '70%', '60%', '50%'],
             ),
         ),
     )
