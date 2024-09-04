@@ -47,16 +47,22 @@ title_input_style = {
 class WritePostDialogState(BaseState):
     title: str = ""
     content: str = ""
+    selected_category_id: int = 0
+
+    def set_selected_category_id(self, selected_category):
+        print(selected_category)
+        # self.category_id = selected_category
 
     def clear_fields(self):
         self.title = ""
         self.content = ""
 
 
-def write_post_dialog(**props):
-    user: UserAccount = props.pop("user")
-    publish_post: Callable = props.pop("publish_post")
-
+def write_post_dialog(
+    user: UserAccount,
+    postcategories: list[str],
+    publish_post: Callable
+):
     return rx.dialog.root(
         rx.dialog.trigger(
             rx.button(
@@ -115,6 +121,16 @@ def write_post_dialog(**props):
                         id="content",
                         class_name="autosize-textarea-post",
                         font_size=["0.9em", "1em"],
+                    ),
+                    rx.select(
+                        postcategories,
+                        name='category',
+                        placeholder="Catégorie",
+                        on_change=WritePostDialogState.set_selected_category_id
+                    ),
+                    rx.input(
+                        value=WritePostDialogState.selected_category_id,
+                        display='none'
                     ),
                     direction="column",
                     spacing="2",

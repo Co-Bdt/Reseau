@@ -49,7 +49,7 @@ def template(
                         ),
                     ),
                     width='100%',
-                    margin_bottom=['0', '0', '0', '2em'],
+                    margin_bottom=['0', '0', '0', '1.75em'],
                     padding_top=['0', '0', '0', '2em'],
                     background_color=rx.color_mode_cond(
                         light='white',

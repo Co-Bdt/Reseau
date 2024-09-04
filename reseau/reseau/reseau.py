@@ -9,6 +9,8 @@ LOGIN_ROUTE = '/connexion'
 PROFILE_ROUTE = '/profil'
 MEMBERS_ROUTE = '/membres'
 
+DEFAULT_POSTCATEGORY = 0
+
 
 google_ads_script1 = rx.script(
     src=(
