@@ -1,7 +1,7 @@
 from typing import Callable
 import reflex as rx
 
-from ..components.autosize import autosize_textarea
+from .custom.autosize import autosize_textarea
 from ..models import Post
 
 

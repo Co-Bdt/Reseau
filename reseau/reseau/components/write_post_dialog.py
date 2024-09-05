@@ -2,7 +2,7 @@ import reflex as rx
 from typing import Callable
 
 from ..common.base_state import BaseState
-from ..components.autosize import autosize_textarea
+from .custom.autosize import autosize_textarea
 from ..components.profile_picture import profile_picture
 from ..models import PostCategory, UserAccount
 

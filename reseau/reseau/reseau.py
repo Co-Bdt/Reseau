@@ -11,6 +11,8 @@ MEMBERS_ROUTE = '/membres'
 
 DEFAULT_POSTCATEGORY = 0
 
+GOOGLE_AUTH_CLIENT_ID = '758161621186-e6ik90q2ockdgkree447m69au233f353.apps.googleusercontent.com'  # noqa: E501
+
 
 google_ads_script1 = rx.script(
     src=(

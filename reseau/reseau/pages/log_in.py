@@ -1,9 +1,15 @@
 import asyncio
 from collections.abc import AsyncGenerator
+from google.auth.transport import requests
+from google.oauth2.id_token import verify_oauth2_token
 import reflex as rx
 
 from ..common.base_state import BaseState
-from ..reseau import LOGIN_ROUTE, REGISTER_ROUTE
+from ..components.custom.react_oauth_google import (
+    GoogleLogin,
+    GoogleOAuthProvider
+)
+from ..reseau import GOOGLE_AUTH_CLIENT_ID, LOGIN_ROUTE, REGISTER_ROUTE
 from ..models import UserAccount
 from ..common.template import template
 
@@ -73,6 +79,15 @@ class LogInState(BaseState):
         elif page == LOGIN_ROUTE:
             return rx.redirect(self.redirect_to or "/")
 
+    def on_google_auth_success(self, id_token: dict):
+        print(
+            verify_oauth2_token(
+                id_token["credential"],
+                requests.Request(),
+                GOOGLE_AUTH_CLIENT_ID,
+            )
+        )
+
 
 @rx.page(route=LOGIN_ROUTE)
 @template
@@ -135,6 +150,12 @@ def log_in_page() -> rx.Component:
                 size='3',
                 width='100%',
                 margin_top='1em',
+            ),
+            GoogleOAuthProvider.create(
+                GoogleLogin.create(
+                    on_success=LogInState.on_google_auth_success
+                ),
+                client_id=GOOGLE_AUTH_CLIENT_ID,
             ),
             rx.center(
                 rx.link(
