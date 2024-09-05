@@ -4,7 +4,7 @@ from typing import Callable
 from ..common.base_state import BaseState
 from ..components.autosize import autosize_textarea
 from ..components.profile_picture import profile_picture
-from ..models import UserAccount
+from ..models import PostCategory, UserAccount
 
 
 dialog_button_style = {
@@ -47,11 +47,10 @@ title_input_style = {
 class WritePostDialogState(BaseState):
     title: str = ""
     content: str = ""
-    selected_category_id: int = 0
+    selected_category: str = ""
 
-    def set_selected_category_id(self, selected_category):
-        print(selected_category)
-        # self.category_id = selected_category
+    def on_change_selected_category(self, category: str):
+        self.selected_category = category
 
     def clear_fields(self):
         self.title = ""
@@ -60,7 +59,7 @@ class WritePostDialogState(BaseState):
 
 def write_post_dialog(
     user: UserAccount,
-    postcategories: list[str],
+    postcategories: list[PostCategory],
     publish_post: Callable
 ):
     return rx.dialog.root(
@@ -122,46 +121,74 @@ def write_post_dialog(
                         class_name="autosize-textarea-post",
                         font_size=["0.9em", "1em"],
                     ),
-                    rx.select(
-                        postcategories,
-                        name='category',
-                        placeholder="Catégorie",
-                        on_change=WritePostDialogState.set_selected_category_id
-                    ),
-                    rx.input(
-                        value=WritePostDialogState.selected_category_id,
-                        display='none'
-                    ),
                     direction="column",
                     spacing="2",
                 ),
                 rx.flex(
-                    rx.dialog.close(
-                        rx.button(
-                            "Annuler",
-                            color_scheme="gray",
-                            variant="soft",
+                    rx.select.root(
+                        rx.select.trigger(
+                            placeholder="Choisis un canal",
+                            radius="full",
+                            style=rx.Style(
+                                padding='1em',
+                                box_shadow='none',
+                                font_weight='500',
+                                _hover={
+                                    'bg': '#f1f0ef',
+                                },
+                            )
                         ),
-                    ),
-                    rx.cond(
-                        WritePostDialogState.title,
-                        rx.dialog.close(
-                            rx.form.submit(
-                                rx.button(
-                                    "Publier",
-                                    type="submit",
-                                    on_click=WritePostDialogState.clear_fields,
+                        rx.select.content(
+                            rx.foreach(
+                                postcategories,
+                                lambda postcategory: rx.select.item(
+                                    rx.text(
+                                        postcategory.name,
+                                        style=rx.Style(
+                                            font_size='1.1em',
+                                            font_weight='500',
+                                        ),
+                                    ),
+                                    value=postcategory.name,
                                 ),
                             ),
+                            position='popper',
+                            side='bottom',
+                            align='start',
                         ),
-                        rx.button(
-                            "Publier",
-                            disabled=True,
-                        ),
+                        name='category',
+                        value=WritePostDialogState.selected_category,
+                        on_change=WritePostDialogState.on_change_selected_category,  # noqa: E501
                     ),
-                    spacing="3",
+                    rx.hstack(
+                        rx.dialog.close(
+                            rx.button(
+                                "Annuler",
+                                color_scheme="gray",
+                                variant="soft",
+                            ),
+                        ),
+                        rx.cond(
+                            WritePostDialogState.title &
+                            WritePostDialogState.selected_category,
+                            rx.dialog.close(
+                                rx.form.submit(
+                                    rx.button(
+                                        "Publier",
+                                        type="submit",
+                                        on_click=WritePostDialogState.clear_fields,  # noqa: E501
+                                    ),
+                                ),
+                            ),
+                            rx.button(
+                                "Publier",
+                                disabled=True,
+                            ),
+                        ),
+                        spacing="3",
+                    ),
                     margin_top="16px",
-                    justify="end",
+                    justify_content="space-between",
                 ),
                 on_submit=publish_post,
                 reset_on_submit=True,

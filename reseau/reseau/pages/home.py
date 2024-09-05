@@ -16,12 +16,15 @@ from ..scripts.load_profile_pictures import load_profile_pictures
 
 class HomeState(BaseState):
     last_users: list[UserAccount] = []  # 2 last users created
+
     # posts to display
     posts_displayed: list[tuple[Post, str, UserAccount, int]] = []
     post_author: UserAccount = None  # author of a post
     # comments of a post
     post_comments: list[tuple[Comment, str, UserAccount]] = []
-    postcategories: tuple[list[PostCategory], list[str]] = ()
+
+    postcategories: list[PostCategory] = []
+    current_postcategory: int = DEFAULT_POSTCATEGORY
 
     def run_script(self):
         '''Uncomment any one-time script needed for app initialization here.'''
@@ -34,7 +37,7 @@ class HomeState(BaseState):
     def init(self):
         self.run_script()
         self.load_last_users()
-        self.load_posts(DEFAULT_POSTCATEGORY)
+        self.load_posts(self.current_postcategory)
         self.load_postcategories()
 
     def load_last_users(self):
@@ -103,45 +106,45 @@ class HomeState(BaseState):
 
     def load_postcategories(self):
         self.postcategories = []
-        postcategories_as_str = []
 
         with rx.session() as session:
             postcategories = session.exec(
                 PostCategory.select()
             ).all()
-        for postcategory in postcategories:
-            postcategories_as_str.append(postcategory.name)
-        self.postcategories = (postcategories, postcategories_as_str)
+        self.postcategories = postcategories
+
+    def set_current_postcategory(self, postcategory: PostCategory):
+        self.current_postcategory = postcategory['id']
+        return HomeState.load_posts(postcategory['id'])
 
     def publish_post(self, form_data: dict):
         title = form_data['title']
         content = form_data['content']
         category = form_data['category']
-        print(category)
 
         if not content:
             return rx.toast.warning("Ton post doit avoir un contenu.")
 
-        category_id = DEFAULT_POSTCATEGORY
-        # for postcategory in HomeState.postcategories[0]:
-        #     if postcategory.name == category:
-        #         category_id = postcategory.id
-        #         print(category_id)
-        #         break
+        # Fetch the postcategory from the database.
+        with rx.session() as session:
+            postcategory = session.exec(
+                PostCategory.select().where(
+                    PostCategory.name == category
+                )
+            ).one_or_none()
 
         post = Post(
             title=title,
             content=content,
             author_id=self.authenticated_user.id,
-            category_id=category_id,
+            category_id=postcategory.id,
             published_at=datetime.now(),
         )
-        # with rx.session() as session:
-        #     session.add(post)
-        #     session.commit()
+        with rx.session() as session:
+            session.add(post)
+            session.commit()
 
-        self.load_posts(DEFAULT_POSTCATEGORY)
-
+        self.load_posts(self.current_postcategory)
         return rx.toast.success("Post publié.")
 
     def publish_comment(self, form_data: dict):
@@ -179,11 +182,13 @@ def home_page() -> rx.Component:
             rx.vstack(
                 write_post_dialog(
                     user=HomeState.authenticated_user,
-                    postcategories=HomeState.postcategories[1],
+                    postcategories=HomeState.postcategories,
                     publish_post=HomeState.publish_post
                 ),
                 postcategory_badges(
-                    postcategories=HomeState.postcategories[0],
+                    postcategories=HomeState.postcategories,
+                    current_postcategory=HomeState.current_postcategory,
+                    on_change_current_postcategory=HomeState.set_current_postcategory  # noqa: E501
                 ),
                 rx.grid(
                     rx.foreach(

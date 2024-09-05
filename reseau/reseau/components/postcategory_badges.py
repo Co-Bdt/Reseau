@@ -16,18 +16,10 @@ postcategory_all = PostCategory(
 )
 
 
-class PostCategoryBadgesState(rx.State):
-    current_postcategory: int = 0
-
-    def set_current_postcategory(self, postcategory: PostCategory):
-        from reseau.pages.home import HomeState
-
-        self.current_postcategory = postcategory['id']
-        return HomeState.load_posts(postcategory['id'])
-
-
 def postcategory_badges(
-    postcategories: list[PostCategory]
+    postcategories: list[PostCategory],
+    current_postcategory: int,
+    on_change_current_postcategory: callable
 ) -> rx.Component:
 
     def selected_badge(postcategory: PostCategory) -> rx.Component:
@@ -36,7 +28,7 @@ def postcategory_badges(
             **badge_props,
             color='white',
             background='gray',
-            border='1px gray'
+            box_shadow='inset 0 0 0 1px gray'
         )
 
     def unselected_badge(postcategory: PostCategory) -> rx.Component:
@@ -48,14 +40,14 @@ def postcategory_badges(
                 'color': 'white',
                 'bg': 'gray'
             },
-            on_click=PostCategoryBadgesState.set_current_postcategory(
+            on_click=on_change_current_postcategory(
                 postcategory
             ),
         )
 
     return rx.flex(
         rx.cond(
-            PostCategoryBadgesState.current_postcategory == postcategory_all.id,  # noqa: E501
+            current_postcategory == postcategory_all.id,  # noqa: E501
             selected_badge(postcategory_all),
             unselected_badge(postcategory_all),
         ),
@@ -63,7 +55,7 @@ def postcategory_badges(
             postcategories,
             lambda postcategory:
                 rx.cond(
-                    PostCategoryBadgesState.current_postcategory == postcategory.id,  # noqa: E501
+                    current_postcategory == postcategory.id,  # noqa: E501
                     selected_badge(postcategory),
                     unselected_badge(postcategory),
                 )

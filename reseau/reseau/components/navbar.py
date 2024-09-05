@@ -1,5 +1,4 @@
 import reflex as rx
-from typing import Callable
 
 from ..common.base_state import BaseState
 from ..components.private_discussions_popover import private_discussions_popover  # noqa
@@ -30,38 +29,38 @@ class NavbarState(rx.State):
 def navbar(
     current_page: str
 ) -> rx.Component:
-    def sidebar_item(
-        icon: str, func: Callable, href: str
-    ) -> rx.Component:
-        '''A sidebar link.'''
-        return rx.link(
-            rx.desktop_only(
-                rx.hstack(
-                    rx.color_mode_cond(
-                        light=rx.icon(icon, color='black', size=28),
-                        dark=rx.icon(icon, color='white', size=28),
-                    ),
-                    style=item_style,
-                ),
-            ),
-            rx.mobile_and_tablet(
-                rx.color_mode_cond(
-                    light=rx.icon(icon, color='black', size=24),
-                    dark=rx.icon(icon, color='white', size=24),
-                ),
-                padding='6px',
-                align='center',
-                style={
-                    '_hover': {
-                        'bg': rx.color('gray', 4),
-                    },
-                    'border-radius': '0.5em',
-                },
-            ),
-            href=href,
-            on_click=func,
-            underline='none',
-        )
+    # def sidebar_item(
+    #     icon: str, func: Callable, href: str
+    # ) -> rx.Component:
+    #     '''A sidebar link.'''
+    #     return rx.link(
+    #         rx.desktop_only(
+    #             rx.hstack(
+    #                 rx.color_mode_cond(
+    #                     light=rx.icon(icon, color='black', size=28),
+    #                     dark=rx.icon(icon, color='white', size=28),
+    #                 ),
+    #                 style=item_style,
+    #             ),
+    #         ),
+    #         rx.mobile_and_tablet(
+    #             rx.color_mode_cond(
+    #                 light=rx.icon(icon, color='black', size=24),
+    #                 dark=rx.icon(icon, color='white', size=24),
+    #             ),
+    #             padding='6px',
+    #             align='center',
+    #             style={
+    #                 '_hover': {
+    #                     'bg': rx.color('gray', 4),
+    #                 },
+    #                 'border-radius': '0.5em',
+    #             },
+    #         ),
+    #         href=href,
+    #         on_click=func,
+    #         underline='none',
+    #     )
 
     def sidebar_items() -> rx.Component:
         '''A list of sidebar links.'''
@@ -109,14 +108,20 @@ def navbar(
                         rx.tabs.trigger(
                             "Communauté",
                             value="home_page",
+                            style=rx.Style(
+                                cursor='pointer',
+                                font_size='1.1em',
+                            ),
                             on_click=rx.redirect(HOME_ROUTE),
-                            cursor='pointer',
                         ),
                         rx.tabs.trigger(
                             "Membres",
                             value="members_page",
+                            style=rx.Style(
+                                cursor='pointer',
+                                font_size='1.1em',
+                            ),
                             on_click=rx.redirect(MEMBERS_ROUTE),
-                            cursor='pointer',
                         ),
                         size='2',
                     ),
@@ -137,6 +142,7 @@ def navbar(
                     on_change=lambda value: NavbarState.on_tab_change(value),
                     width="100%",
                 ),
+                spacing='4',
             ),
         ),
         rx.mobile_only(

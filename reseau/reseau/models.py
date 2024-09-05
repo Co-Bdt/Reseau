@@ -243,6 +243,7 @@ class PostCategory(
     table=True
 ):
     name: str = Field(nullable=False)
+    description: str = Field(nullable=False)
 
     # Relationships
     post_list: Optional[list["Post"]] = Relationship(
