@@ -19,7 +19,7 @@ class UserAccount(
     first_name: str = Field(nullable=True)
     last_name: str = Field(nullable=True)
     email: str = Field(nullable=False, unique=True, index=True)
-    password_hash: str = Field(nullable=False)
+    password_hash: str = Field(nullable=True)
     profile_text: str = Field(nullable=True)
     profile_picture: str = Field(nullable=True)
     enabled: bool = Field(default=True)

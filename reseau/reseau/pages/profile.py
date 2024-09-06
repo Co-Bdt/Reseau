@@ -6,7 +6,7 @@ import sqlalchemy as sa
 from ..common.base_state import BaseState
 from ..common.template import template
 from ..components.profile_text import profile_text
-from ..components.profile_chips import profile_chips
+from ..components.interest_badges import interest_badges
 from ..models import Interest, UserAccount, UserInterest
 from ..reseau import PROFILE_ROUTE
 from rxconfig import S3_BUCKET_NAME
@@ -15,6 +15,7 @@ from rxconfig import S3_BUCKET_NAME
 class ProfileState(BaseState):
     profile_text: str = ''  # the user's profile text
     profile_pic: str = ''  # the user's profile image name
+    interests_names: list[str] = []  # all interests names
     # the user's selected interests names
     selected_interests_names: list[str] = []
 
@@ -27,6 +28,13 @@ class ProfileState(BaseState):
         else:
             self.profile_pic = "blank_profile_picture"
         yield
+
+        # Load interests from database
+        with rx.session() as session:
+            interests = session.exec(
+                Interest.select().order_by(Interest.name)
+            ).all()
+        self.interests_names = [interest.name for interest in interests]
 
         # Load the user's interests
         with rx.session() as session:
@@ -142,7 +150,6 @@ class ProfileState(BaseState):
             ).all()
             for user_interest in user_interests:
                 session.delete(user_interest)
-            # session.commit()
 
             for interest_id in selected_interests_ids:
                 user_interest = UserInterest(
@@ -306,8 +313,9 @@ def profile_page() -> rx.Component:
                 width='100%',
                 margin_bottom='1em',
             ),
-            profile_chips(
-                selected_interests=ProfileState.selected_interests_names,
+            interest_badges(
+                interests_names=ProfileState.interests_names,
+                selected_interests_names=ProfileState.selected_interests_names,
                 add_selected=ProfileState.add_selected,
                 remove_selected=ProfileState.remove_selected,
             ),

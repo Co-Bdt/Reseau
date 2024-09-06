@@ -47,7 +47,7 @@ def postcategory_badges(
 
     return rx.flex(
         rx.cond(
-            current_postcategory == postcategory_all.id,  # noqa: E501
+            current_postcategory == postcategory_all.id,
             selected_badge(postcategory_all),
             unselected_badge(postcategory_all),
         ),
@@ -55,7 +55,7 @@ def postcategory_badges(
             postcategories,
             lambda postcategory:
                 rx.cond(
-                    current_postcategory == postcategory.id,  # noqa: E501
+                    current_postcategory == postcategory.id,
                     selected_badge(postcategory),
                     unselected_badge(postcategory),
                 )

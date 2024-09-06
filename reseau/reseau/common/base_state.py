@@ -1,9 +1,13 @@
 import datetime
+from google.auth.transport import requests
+from google.oauth2.id_token import verify_oauth2_token
+import json
 import reflex as rx
 from secrets import token_urlsafe
 from sqlmodel import select
 
 from ..models import AuthSession, UserAccount
+from ..reseau import GOOGLE_AUTH_CLIENT_ID
 
 
 AUTH_TOKEN_LOCAL_STORAGE_KEY = "_auth_tokens"
@@ -57,18 +61,6 @@ class BaseState(rx.State):
         """
         return token_urlsafe(16)
 
-    def do_logout(self) -> None:
-        """Destroy AuthSessions associated with the auth_token."""
-        with rx.session() as session:
-            for auth_session in session.exec(
-                AuthSession.select().where(
-                    AuthSession.session_id == self.auth_token
-                )
-            ).all():
-                session.delete(auth_session)
-            session.commit()
-        return self.set_auth_token(None)
-
     def _login(
         self,
         user_id: int,
@@ -89,7 +81,6 @@ class BaseState(rx.State):
             self.do_logout()
         if user_id < 0:
             return
-        # self.auth_token = self.auth_token or self.generate_auth_token()
         self.set_auth_token(self.generate_auth_token())
         with rx.session() as session:
             session.add(
@@ -98,6 +89,53 @@ class BaseState(rx.State):
                     session_id=self.auth_token,
                     expiration=datetime.datetime.now(datetime.timezone.utc)
                     + expiration_delta,
+                )
+            )
+            session.commit()
+
+    def do_logout(self) -> None:
+        """Destroy AuthSessions associated with the auth_token."""
+        with rx.session() as session:
+            for auth_session in session.exec(
+                AuthSession.select().where(
+                    AuthSession.session_id == self.auth_token
+                )
+            ).all():
+                session.delete(auth_session)
+            session.commit()
+        return self.set_auth_token(None)
+
+    # @rx.var(cache=True)
+    # def get_google_token_info(self) -> dict[str, str]:
+    #     ...
+    #     try:
+    #         return verify_oauth2_token(
+    #             json.loads(self.auth_token)["credential"],
+    #             requests.Request(),
+    #             GOOGLE_AUTH_CLIENT_ID,
+    #         )
+    #     except Exception as exc:
+    #         if self.auth_token:
+    #             print(f"Error verifying token: {exc}")
+    #     return {}
+
+    def _google_login(
+        self,
+        user_id: int,
+        id_token: dict
+    ) -> None:
+        if self.is_authenticated:
+            self.do_logout()
+        if user_id < 0:
+            return
+        self.set_auth_token(id_token['jti'])
+        with rx.session() as session:
+            session.add(
+                AuthSession(  # type: ignore
+                    useraccount_id=user_id,
+                    session_id=self.auth_token,
+                    expiration=datetime.datetime(1970, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
+                    + datetime.timedelta(seconds=id_token['exp']),
                 )
             )
             session.commit()
