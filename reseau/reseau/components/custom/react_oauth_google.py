@@ -12,4 +12,5 @@ class GoogleLogin(rx.Component):
     library = "@react-oauth/google"
     tag = "GoogleLogin"
 
+    text: rx.Var[str]
     on_success: rx.EventHandler[lambda data: [data]]

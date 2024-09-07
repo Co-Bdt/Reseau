@@ -11,7 +11,7 @@ from reseau.models import UserAccount
 from reseau.reseau import GOOGLE_AUTH_CLIENT_ID, HOME_ROUTE, LOGIN_ROUTE
 
 
-class RegistrationProfileStepState(rx.State):
+class RegistrationAccountStepState(rx.State):
     '''
     Handle the account step of registration and
     redirect to profile step.
@@ -19,8 +19,23 @@ class RegistrationProfileStepState(rx.State):
     first_name: str = ''
     last_name: str = ''
     email: str = ''
+
     password: str = ''
-    confirm_password: str = ''
+    password_type: str = ''
+
+    def init(self):
+        '''
+        Initialize the state.
+        Make sure the password and confirm password fields
+        are hidden by default.
+        '''
+        self.password_type = 'password'
+
+    def toggle_password_type(self):
+        '''Toggle password visibility.'''
+        self.password_type = (
+            'text' if self.password_type == 'password' else 'password'
+        )
 
     async def on_google_auth_success(self, id_token: dict):
         from reseau.pages.registration import RegistrationState
@@ -51,7 +66,11 @@ class RegistrationProfileStepState(rx.State):
                 existing_user.id,
                 user_data
             )
-            yield rx.redirect(HOME_ROUTE)
+            yield [
+                rx.redirect(HOME_ROUTE),
+                RegistrationState.set_account_success(False),
+                RegistrationState.set_registration_success(False),
+            ]
             return
 
         registration = await self.get_state(RegistrationState)
@@ -137,13 +156,6 @@ class RegistrationProfileStepState(rx.State):
                     10 caractères."
             )
             return
-        if password != form_data['confirm_password']:
-            yield [
-                rx.set_value('confirm_password', ''),
-                rx.set_focus('confirm_password'),
-            ]
-            yield rx.toast.error("Les mots de passe ne correspondent pas.")
-            return
 
         # Pass user data to registration page
         # and set account step success
@@ -161,141 +173,155 @@ class RegistrationProfileStepState(rx.State):
 def account_step():
     return rx.form(
         rx.vstack(
-            GoogleOAuthProvider.create(
-                GoogleLogin.create(
-                    on_success=RegistrationProfileStepState.on_google_auth_success  # noqa: E501
+            rx.center(
+                rx.vstack(
+                    rx.hstack(
+                        rx.image(
+                            "/favicon.ico",
+                            style=rx.Style(
+                                width='1.75em',
+                                height='1.75em',
+                            ),
+                        ),
+                        align_items='start',
+                    ),
+                    rx.text(
+                        "Rejoins une communauté de gars ambitieux",
+                        font_weight='500',
+                        font_size='1.2em',
+                    ),
+                    align_items='center',
                 ),
-                client_id=GOOGLE_AUTH_CLIENT_ID,
+                margin_bottom='1em',
+            ),
+
+            rx.box(
+                GoogleOAuthProvider.create(
+                    GoogleLogin.create(
+                        text='continue_with',
+                        on_success=RegistrationAccountStepState.on_google_auth_success  # noqa: E501
+                    ),
+                    client_id=GOOGLE_AUTH_CLIENT_ID,
+                ),
             ),
 
             rx.center(
-                rx.divider(size='3'),
+                rx.hstack(
+                    rx.divider(
+                        size='3',
+                        width='100%',
+                    ),
+                    rx.text(
+                        "ou",
+                    ),
+                    rx.divider(
+                        size='3',
+                        width='100%',
+                    ),
+                    width='100%',
+                ),
                 width='100%',
+                margin_y='0.5em',
             ),
 
-            rx.vstack(
-                rx.tablet_and_desktop(
+            rx.hstack(
+                rx.vstack(
                     rx.text(
                         "Prénom",
-                        class_name='desktop-text',
+                        class_name='discreet-text',
                     ),
-                ),
-                rx.mobile_only(
-                    rx.text(
-                        "Prénom",
-                        class_name='mobile-text',
+                    rx.input(
+                        id='first_name',
+                        size='3',
+                        on_change=RegistrationAccountStepState.set_first_name,
+                        width='100%',
                     ),
-                ),
-                rx.input(
-                    id='first_name',
-                    size='3',
-                    on_change=RegistrationProfileStepState.set_first_name,
+                    justify='start',
+                    spacing='1',
                     width='100%',
                 ),
-                justify='start',
-                spacing='1',
-                width='100%',
-            ),
-            rx.vstack(
-                rx.tablet_and_desktop(
+                rx.vstack(
                     rx.text(
                         "Nom",
-                        class_name='desktop-text',
+                        class_name='discreet-text',
                     ),
-                ),
-                rx.mobile_only(
-                    rx.text(
-                        "Nom",
-                        class_name='mobile-text',
+                    rx.input(
+                        id='last_name',
+                        size='3',
+                        on_change=RegistrationAccountStepState.set_last_name,
+                        width='100%',
                     ),
-                ),
-                rx.input(
-                    id='last_name',
-                    size='3',
-                    on_change=RegistrationProfileStepState.set_last_name,
+                    justify='start',
+                    spacing='1',
                     width='100%',
                 ),
-                justify='start',
-                spacing='1',
                 width='100%',
             ),
-            rx.vstack(
-                rx.tablet_and_desktop(
+            rx.hstack(
+                rx.vstack(
                     rx.text(
                         "Email",
-                        class_name='desktop-text',
+                        class_name='discreet-text',
                     ),
-                ),
-                rx.mobile_only(
-                    rx.text(
-                        "Email",
-                        class_name='mobile-text',
+                    rx.input(
+                        id='email',
+                        size='3',
+                        on_change=RegistrationAccountStepState.set_email,
+                        width='100%',
                     ),
-                ),
-                rx.input(
-                    id='email',
-                    size='3',
-                    on_change=RegistrationProfileStepState.set_email,
+                    justify='start',
+                    spacing='1',
                     width='100%',
                 ),
-                justify='start',
-                spacing='1',
-                width='100%',
-            ),
-            rx.vstack(
-                rx.tablet_and_desktop(
+                rx.vstack(
                     rx.text(
                         "Mot de passe",
-                        class_name='desktop-text',
+                        class_name='discreet-text',
                     ),
-                ),
-                rx.mobile_only(
-                    rx.text(
-                        "Mot de passe",
-                        class_name='mobile-text',
+                    rx.input(
+                        rx.cond(
+                            RegistrationAccountStepState.password_type ==
+                            'password',
+                            rx.icon(
+                                'eye',
+                                size=20,
+                                style=rx.Style(
+                                    margin_right='0.4em',
+                                    padding='0.1em',
+                                    cursor='pointer',
+                                ),
+                                on_click=RegistrationAccountStepState.toggle_password_type,  # noqa: E501
+                            ),
+                            rx.icon(
+                                'eye-off',
+                                size=20,
+                                style=rx.Style(
+                                    margin_right='0.4em',
+                                    padding='0.1em',
+                                    cursor='pointer',
+                                ),
+                                on_click=RegistrationAccountStepState.toggle_password_type,  # noqa: E501
+                            ),
+                        ),
+                        id='password',
+                        type=RegistrationAccountStepState.password_type,
+                        size='3',
+                        width='100%',
+                        align_items='center',
+                        on_change=RegistrationAccountStepState.set_password,
                     ),
-                ),
-                rx.input(
-                    id='password',
-                    type='password',
-                    size='3',
-                    on_change=RegistrationProfileStepState.set_password,
+                    justify='start',
+                    spacing='1',
                     width='100%',
                 ),
-                justify='start',
-                spacing='1',
-                width='100%',
-            ),
-            rx.vstack(
-                rx.tablet_and_desktop(
-                    rx.text(
-                        "Confirmation",
-                        class_name='desktop-text',
-                    ),
-                ),
-                rx.mobile_only(
-                    rx.text(
-                        "Confirmation",
-                        class_name='mobile-text',
-                    ),
-                ),
-                rx.input(
-                    id='confirm_password',
-                    type='password',
-                    size='3',
-                    on_change=RegistrationProfileStepState.set_confirm_password,  # noqa: E501
-                    width='100%',
-                ),
-                justify='start',
-                spacing='1',
                 width='100%',
             ),
             rx.button(
                 "Continuer",
                 type='submit',
                 size='3',
-                width='100%',
                 margin_top='1em',
+                width='200px',
             ),
             rx.center(
                 rx.link(
@@ -308,6 +334,7 @@ def account_step():
                 spacing='5',
                 width='100%',
             ),
+            align_items='center',
         ),
-        on_submit=RegistrationProfileStepState.handle_account,
+        on_submit=RegistrationAccountStepState.handle_account,
     )

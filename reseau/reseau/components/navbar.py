@@ -149,6 +149,7 @@ def navbar(
             rx.hstack(
                 site_name(),
                 sidebar_items(),
+                padding_x='1em',
                 padding_y='1em',
                 justify='start',
                 align='center',

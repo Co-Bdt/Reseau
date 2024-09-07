@@ -121,6 +121,28 @@ class RegistrationProfileStepState(rx.State):
 def profile_step():
     return rx.form(
         rx.vstack(
+            rx.center(
+                rx.vstack(
+                    rx.hstack(
+                        rx.image(
+                            "/favicon.ico",
+                            style=rx.Style(
+                                width='1.75em',
+                                height='1.75em',
+                            ),
+                        ),
+                        align_items='start',
+                    ),
+                    rx.text(
+                        "Rejoins une communauté de gars ambitieux",
+                        font_weight='600',
+                        font_size='1.2em',
+                    ),
+                    align_items='center',
+                ),
+                margin_bottom='1em',
+            ),
+
             rx.hstack(
                 rx.upload(
                     rx.image(
@@ -144,41 +166,30 @@ def profile_step():
                         rx.upload_files(upload_id='profile_img')
                     ),
                 ),
-                width='100%',
+                rx.vstack(
+                    rx.text(
+                        "Localisation (ou ville proche)",
+                        class_name='discreet-text',
+                    ),
+                    rx.select(
+                        RegistrationProfileStepState.cities_names,
+                        name='city',
+                        placeholder="Choisis ta ville",
+                        size='3',
+                        on_change=RegistrationProfileStepState.set_city,
+                        width='100%',
+                    ),
+                    justify='start',
+                    spacing='1',
+                    width='200px',
+                ),
+                spacing='5',
                 justify='center',
             ),
 
-            rx.vstack(
-                rx.tablet_and_desktop(
-                    rx.text(
-                        "Localisation (ou ville proche)",
-                        class_name='desktop-text',
-                    ),
-                ),
-                rx.mobile_only(
-                    rx.text(
-                        "Localisation (ou ville proche)",
-                        class_name='mobile-text',
-                    ),
-                ),
-                rx.select(
-                    RegistrationProfileStepState.cities_names,
-                    name='city',
-                    placeholder="Choisis ta ville",
-                    size='3',
-                    on_change=RegistrationProfileStepState.set_city,
-                    width='100%',
-                ),
-                justify='start',
-                spacing='1',
-                width='100%',
+            rx.spacer(
+                margin='0 0 0.5em 0',
             ),
-
-            rx.center(
-                rx.divider(size='3'),
-                width='100%',
-            ),
-
             interest_badges(
                 interests_names=RegistrationProfileStepState.interests_names,
                 selected_interests_names=RegistrationProfileStepState.selected_interests_names,  # noqa: E501
@@ -187,12 +198,13 @@ def profile_step():
             ),
 
             rx.button(
-                "Rejoindre",
+                "Rejoindre 🚀",
                 type='submit',
                 size='3',
-                width='100%',
+                width='200px',
                 margin_top='1em',
             ),
+            align_items='center',
         ),
         on_submit=RegistrationProfileStepState.handle_registration,
     )

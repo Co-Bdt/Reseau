@@ -1,3 +1,6 @@
+delete from userinterest where interest_id=4;
+delete from interest where id = 4;
+
 update interest set name='Entrepreneuriat' where id = 1;
 update interest set name='Musculation' where id = 2;
 update interest set name='Santé mentale' where id = 3;

@@ -6,7 +6,7 @@ import reflex as rx
 
 from ..common.base_state import BaseState
 from ..common.template import template
-from ..components.registration.registration_account_step import account_step  # noqa: E501
+from ..components.registration.registration_account_step import RegistrationAccountStepState, account_step  # noqa: E501
 from ..components.registration.registration_profile_step import RegistrationProfileStepState, profile_step  # noqa: E501
 from ..models import Interest, UserAccount, UserInterest
 from ..reseau import HOME_ROUTE, LOGIN_ROUTE, REGISTER_ROUTE
@@ -26,7 +26,9 @@ class RegistrationState(BaseState):
     registration_success: bool = False
 
     def init(self):
-        return RegistrationProfileStepState.init()
+        yield RegistrationAccountStepState.init()
+        yield RegistrationProfileStepState.init()
+        return
 
     def update_interests(
         self, new_user: UserAccount,
@@ -134,58 +136,47 @@ def registration_page() -> rx.Component:
     Returns:
         A reflex component.
     '''
-    # registration_form = rx.form(
-    #     rx.vstack(
-    #         width='100%',
-    #         justify='center',
-    #         min_height='80vh',
-    #     ),
-    #     margin='0',
-    #     on_submit=RegistrationState.handle_registration,
-    # )
 
     return rx.cond(
         RegistrationState.is_hydrated,
-        rx.box(
-            rx.vstack(
-                rx.cond(
-                    ~RegistrationState.account_success,
-                    account_step(),
-                    profile_step(),
-                ),
-                rx.cond(
-                    RegistrationState.registration_success,
-                    rx.center(
-                        rx.vstack(
-                            rx.spinner(),
-                            rx.text(
-                                "Inscription réussie",
-                                size='3',
-                                weight='medium',
-                            ),
-                            align='center',
-                        ),
-                        width='100%',
-                    ),
-                    # This is a placeholder for the success message
-                    # to always takes the space.
+        rx.vstack(
+            rx.cond(
+                ~RegistrationState.account_success,
+                account_step(),
+                profile_step(),
+            ),
+            rx.cond(
+                RegistrationState.registration_success,
+                rx.center(
                     rx.vstack(
-                        rx.spinner(
-                            visibility='hidden',
-                        ),
+                        rx.spinner(),
                         rx.text(
                             "Inscription réussie",
                             size='3',
                             weight='medium',
-                            visibility='hidden',
                         ),
+                        align='center',
+                    ),
+                    width='100%',
+                ),
+                # This is a placeholder for the success message
+                # to always takes the space.
+                rx.vstack(
+                    rx.spinner(
+                        visibility='hidden',
+                    ),
+                    rx.text(
+                        "Inscription réussie",
+                        size='3',
+                        weight='medium',
+                        visibility='hidden',
                     ),
                 ),
-                position='absolute',
-                top='50%',
-                left='50%',
-                transform='translateX(-50%) translateY(-50%)',
-                min_width='260px',
             ),
+            position='absolute',
+            top='50%',
+            left='50%',
+            transform='translateX(-50%) translateY(-50%)',
+            min_width='260px',
         ),
     )

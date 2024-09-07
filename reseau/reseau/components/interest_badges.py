@@ -40,18 +40,20 @@ def interest_badges(
         )
 
     return rx.vstack(
-        rx.hstack(
-            rx.heading(
-                "Intérêts",
-                margin='0',
-            ),
-            spacing='1',
-            width='100%',
-            margin_bottom='0.5em',
-        ),
-
         # Selected Items
         rx.flex(
+            # Hidden badge to reserve space
+            rx.badge(
+                "Hidden",
+                rx.icon('circle-x', size=18),
+                **chip_props,
+                visibility='hidden',
+                display=rx.cond(
+                    selected_interests_names,
+                    'none',
+                    'flex',
+                ),
+            ),
             rx.foreach(
                 selected_interests_names,
                 selected_item_chip,
@@ -75,5 +77,4 @@ def interest_badges(
         justify_content='start',
         align_items='start',
         width='100%',
-        margin_top='1em',
     )

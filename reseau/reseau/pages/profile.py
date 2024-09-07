@@ -201,17 +201,8 @@ def profile_page() -> rx.Component:
     return rx.cond(
         ProfileState.is_hydrated,
         rx.vstack(
-            rx.hstack(
-                rx.heading(
-                    "Ton profil",
-                ),
-                rx.tablet_and_desktop(
-                    rx.color_mode.button(
-                        padding_top='0',
-                    ),
-                ),
-                width='100%',
-                justify='between',
+            rx.heading(
+                "Ton profil",
             ),
             rx.tablet_and_desktop(
                 rx.hstack(
@@ -268,44 +259,39 @@ def profile_page() -> rx.Component:
             rx.mobile_only(
                 rx.vstack(
                     rx.hstack(
-                        rx.hstack(
-                            rx.upload(
-                                rx.image(
-                                    src=rx.get_upload_url(
-                                        ProfileState.profile_pic
-                                    ),
-                                    width=['4em'],
-                                    height=['4em'],
-                                    border_radius='50%',
-                                    object_fit="cover",
+                        rx.upload(
+                            rx.image(
+                                src=rx.get_upload_url(
+                                    ProfileState.profile_pic
                                 ),
-                                id='profile_img',
-                                multiple=False,
-                                accept={
-                                    'image/png': ['.png'],
-                                    'image/jpeg': ['.jpg', '.jpeg'],
-                                },
-                                on_drop=ProfileState.handle_upload(
-                                    rx.upload_files(upload_id='profile_img')
-                                ),
-                                margin_right='0.5em',
-                                padding='0',
+                                width=['4em'],
                                 height=['4em'],
-                                border='none',
+                                border_radius='50%',
+                                object_fit="cover",
                             ),
-                            rx.text(
-                                ProfileState.authenticated_user.first_name,
-                                class_name='desktop-medium-text'
+                            id='profile_img',
+                            multiple=False,
+                            accept={
+                                'image/png': ['.png'],
+                                'image/jpeg': ['.jpg', '.jpeg'],
+                            },
+                            on_drop=ProfileState.handle_upload(
+                                rx.upload_files(upload_id='profile_img')
                             ),
-                            rx.text(
-                                ProfileState.authenticated_user.last_name,
-                                class_name='desktop-medium-text'
-                            ),
-                            spacing='1',
+                            margin_right='0.5em',
+                            padding='0',
+                            height=['4em'],
+                            border='none',
                         ),
-                        rx.color_mode.button(),
-                        width='100%',
-                        justify='between',
+                        rx.text(
+                            ProfileState.authenticated_user.first_name,
+                            class_name='desktop-medium-text'
+                        ),
+                        rx.text(
+                            ProfileState.authenticated_user.last_name,
+                            class_name='desktop-medium-text'
+                        ),
+                        spacing='1',
                     ),
                     profile_text(
                         ProfileState.profile_text,
@@ -315,12 +301,18 @@ def profile_page() -> rx.Component:
                 width='100%',
                 margin_bottom='1em',
             ),
+
+            rx.heading(
+                "Intérêts",
+                margin='0 0 0.5em 0',
+            ),
             interest_badges(
                 interests_names=ProfileState.interests_names,
                 selected_interests_names=ProfileState.selected_interests_names,
                 add_selected=ProfileState.add_selected,
                 remove_selected=ProfileState.remove_selected,
             ),
+
             rx.hstack(
                 rx.button(
                     "Valider",
