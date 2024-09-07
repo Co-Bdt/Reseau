@@ -1,5 +1,6 @@
 import boto3
 from pathlib import Path
+from random import shuffle
 import reflex as rx
 import sqlalchemy as sa
 
@@ -35,6 +36,7 @@ class ProfileState(BaseState):
                 Interest.select().order_by(Interest.name)
             ).all()
         self.interests_names = [interest.name for interest in interests]
+        shuffle(self.interests_names)
 
         # Load the user's interests
         with rx.session() as session:
@@ -83,11 +85,11 @@ class ProfileState(BaseState):
             )
 
     def add_selected(self, item: str):
-        # limit selected items to 2
-        if len(self.selected_interests_names) < 2:
+        # limit selected items to 4
+        if len(self.selected_interests_names) < 4:
             self.selected_interests_names.append(item)
         else:
-            return rx.toast.warning("Tu ne peux sélectionner que 2 intérêts.")
+            return rx.toast.warning("Tu ne peux sélectionner que 4 intérêts.")
 
     def remove_selected(self, item: str):
         self.selected_interests_names.remove(item)

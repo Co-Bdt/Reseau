@@ -8,7 +8,7 @@ from reseau.components.custom.react_oauth_google import (
     GoogleOAuthProvider
 )
 from reseau.models import UserAccount
-from reseau.reseau import GOOGLE_AUTH_CLIENT_ID, LOGIN_ROUTE
+from reseau.reseau import GOOGLE_AUTH_CLIENT_ID, HOME_ROUTE, LOGIN_ROUTE
 
 
 class RegistrationProfileStepState(rx.State):
@@ -33,6 +33,25 @@ class RegistrationProfileStepState(rx.State):
                 GOOGLE_AUTH_CLIENT_ID,
             )
         except Exception:
+            yield rx.toast.error("La vérification du compte Google a échoué.")
+            return
+
+        # Directly login if the user detected from
+        # the google account is already registered
+        with rx.session() as session:
+            existing_user = (
+                session.exec(
+                    UserAccount.select()
+                    .where(UserAccount.email == user_data['email'])
+                ).one_or_none()
+            )
+        if existing_user is not None:
+            registration = await self.get_state(RegistrationState)
+            registration._google_login(
+                existing_user.id,
+                user_data
+            )
+            yield rx.redirect(HOME_ROUTE)
             return
 
         registration = await self.get_state(RegistrationState)
@@ -55,8 +74,6 @@ class RegistrationProfileStepState(rx.State):
         '''
         from reseau.pages.registration import RegistrationState
 
-        # TODO: Directly login if the user detected from
-        # the google account is already registered
         existing_user = None
 
         first_name = form_data['first_name']

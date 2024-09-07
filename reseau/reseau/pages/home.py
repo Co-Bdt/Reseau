@@ -27,11 +27,7 @@ class HomeState(BaseState):
     current_postcategory: int = DEFAULT_POSTCATEGORY
 
     def run_script(self):
-        '''Uncomment any one-time script needed for app initialization here.'''
-        # delete_cities()
-        # insert_cities()
-        # delete_users()
-        # insert_interests()
+        '''Add any one-time script needed for app initialization here.'''
         load_profile_pictures()
 
     def init(self):

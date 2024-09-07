@@ -1,4 +1,4 @@
-
+from random import shuffle
 import reflex as rx
 
 from reseau.components.interest_badges import interest_badges
@@ -11,13 +11,13 @@ class RegistrationProfileStepState(rx.State):
     Handle the profile step of the registration and
     redirect to login page.
     '''
-    cities_as_str: list[str] = []
-    interests_as_str: list[str] = []
+    cities_names: list[str] = []
+    interests_names: list[str] = []
 
     city: str = ''
     profile_pic: str = ''
     # the user's selected interests names
-    selected_interests: list[str] = []
+    selected_interests_names: list[str] = []
 
     def init(self):
         '''
@@ -31,16 +31,17 @@ class RegistrationProfileStepState(rx.State):
             cities = session.exec(
                 City.select().order_by(City.name)
             ).all()
-        self.cities_as_str = [f'{city.name} ({city.postal_code})'
-                              for city in cities]
-        self.cities_as_str = sorted(self.cities_as_str)
+        self.cities_names = [f'{city.name} ({city.postal_code})'
+                             for city in cities]
+        self.cities_names = sorted(self.cities_names)
 
         # Load interests from database
         with rx.session() as session:
             interests = session.exec(
-                Interest.select().order_by(Interest.name)
+                Interest.select()
             ).all()
-        self.interests_as_str = [interest.name for interest in interests]
+        self.interests_names = [interest.name for interest in interests]
+        shuffle(self.interests_names)
 
     async def handle_upload(self, files: list[rx.UploadFile]):
         '''Handle the upload of file(s).
@@ -61,13 +62,13 @@ class RegistrationProfileStepState(rx.State):
 
     def add_selected_interest(self, item: str):
         # limit selected items to 4
-        if len(self.selected_interests) < 4:
-            self.selected_interests.append(item)
+        if len(self.selected_interests_names) < 4:
+            self.selected_interests_names.append(item)
         else:
             return rx.toast.warning("Tu ne peux sélectionner que 4 intérêts.")
 
     def remove_selected_interest(self, item: str):
-        self.selected_interests.remove(item)
+        self.selected_interests_names.remove(item)
 
     async def handle_registration(self, form_data):
         '''Handle the registration form submission.
@@ -82,7 +83,7 @@ class RegistrationProfileStepState(rx.State):
             yield rx.toast.error("La ville ne peut pas être vide.")
             return
 
-        if len(self.selected_interests) < 2:
+        if len(self.selected_interests_names) < 2:
             yield rx.toast.error(
                 "Tu dois sélectionner au moins deux intérêts."
             )
@@ -112,7 +113,9 @@ class RegistrationProfileStepState(rx.State):
 
         # Pass user selected interests and complete user registration
         # We need to register the user before update its interests
-        yield RegistrationState.complete_registration(self.selected_interests)
+        yield RegistrationState.complete_registration(
+            self.selected_interests_names
+        )
 
 
 def profile_step():
@@ -159,7 +162,7 @@ def profile_step():
                     ),
                 ),
                 rx.select(
-                    RegistrationProfileStepState.cities_as_str,
+                    RegistrationProfileStepState.cities_names,
                     name='city',
                     placeholder="Choisis ta ville",
                     size='3',
@@ -177,8 +180,8 @@ def profile_step():
             ),
 
             interest_badges(
-                interests_names=RegistrationProfileStepState.interests_as_str,
-                selected_interests_names=RegistrationProfileStepState.selected_interests,  # noqa: E501
+                interests_names=RegistrationProfileStepState.interests_names,
+                selected_interests_names=RegistrationProfileStepState.selected_interests_names,  # noqa: E501
                 add_selected=RegistrationProfileStepState.add_selected_interest,  # noqa: E501
                 remove_selected=RegistrationProfileStepState.remove_selected_interest,  # noqa: E501
             ),
