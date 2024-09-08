@@ -4,7 +4,6 @@ import reflex as rx
 chip_props = {
     'radius': 'full',
     'variant': 'surface',
-    'size': '3',
     'cursor': 'pointer',
     'style': {'_hover': {'opacity': 0.75}},
 }
@@ -15,12 +14,14 @@ def interest_badges(
     selected_interests_names: list[str],
     add_selected: callable,
     remove_selected: callable,
+    badge_size: str,
 ) -> rx.Component:
 
     def selected_item_chip(item: str) -> rx.Component:
         return rx.badge(
             item,
             rx.icon('circle-x', size=18),
+            size=badge_size,
             color_scheme='green',
             **chip_props,
             on_click=remove_selected(item),
@@ -33,6 +34,7 @@ def interest_badges(
             rx.badge(
                 item,
                 rx.icon('circle-plus', size=18),
+                size=badge_size,
                 color_scheme='gray',
                 **chip_props,
                 on_click=add_selected(item),
@@ -46,6 +48,7 @@ def interest_badges(
             rx.badge(
                 "Hidden",
                 rx.icon('circle-x', size=18),
+                size=badge_size,
                 **chip_props,
                 visibility='hidden',
                 display=rx.cond(

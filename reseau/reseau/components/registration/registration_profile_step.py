@@ -125,7 +125,7 @@ def profile_step():
                 rx.vstack(
                     rx.hstack(
                         rx.image(
-                            "/favicon.ico",
+                            '/favicon.ico',
                             style=rx.Style(
                                 width='1.75em',
                                 height='1.75em',
@@ -134,9 +134,10 @@ def profile_step():
                         align_items='start',
                     ),
                     rx.text(
-                        "Rejoins une communauté de gars ambitieux",
-                        font_weight='600',
+                        "Rejoins une communauté de\ngars ambitieux",
+                        font_weight='500',
                         font_size='1.2em',
+                        text_align='center',
                     ),
                     align_items='center',
                 ),
@@ -190,18 +191,30 @@ def profile_step():
             rx.spacer(
                 margin='0 0 0.5em 0',
             ),
-            interest_badges(
-                interests_names=RegistrationProfileStepState.interests_names,
-                selected_interests_names=RegistrationProfileStepState.selected_interests_names,  # noqa: E501
-                add_selected=RegistrationProfileStepState.add_selected_interest,  # noqa: E501
-                remove_selected=RegistrationProfileStepState.remove_selected_interest,  # noqa: E501
+            rx.desktop_only(
+                interest_badges(
+                    interests_names=RegistrationProfileStepState.interests_names,  # noqa: E501
+                    selected_interests_names=RegistrationProfileStepState.selected_interests_names,  # noqa: E501
+                    add_selected=RegistrationProfileStepState.add_selected_interest,  # noqa: E501
+                    remove_selected=RegistrationProfileStepState.remove_selected_interest,  # noqa: E501
+                    badge_size='3',
+                ),
+            ),
+            rx.mobile_and_tablet(
+                interest_badges(
+                    interests_names=RegistrationProfileStepState.interests_names,  # noqa: E501
+                    selected_interests_names=RegistrationProfileStepState.selected_interests_names,  # noqa: E501
+                    add_selected=RegistrationProfileStepState.add_selected_interest,  # noqa: E501
+                    remove_selected=RegistrationProfileStepState.remove_selected_interest,  # noqa: E501
+                    badge_size='2',
+                ),
             ),
 
             rx.button(
                 "Rejoindre 🚀",
                 type='submit',
                 size='3',
-                width='200px',
+                width='225px',
                 margin_top='1em',
             ),
             align_items='center',

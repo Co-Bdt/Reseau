@@ -306,11 +306,23 @@ def profile_page() -> rx.Component:
                 "Intérêts",
                 margin='0 0 0.5em 0',
             ),
-            interest_badges(
-                interests_names=ProfileState.interests_names,
-                selected_interests_names=ProfileState.selected_interests_names,
-                add_selected=ProfileState.add_selected,
-                remove_selected=ProfileState.remove_selected,
+            rx.desktop_only(
+                interest_badges(
+                    interests_names=ProfileState.interests_names,
+                    selected_interests_names=ProfileState.selected_interests_names,  # noqa: E501
+                    add_selected=ProfileState.add_selected,
+                    remove_selected=ProfileState.remove_selected,
+                    badge_size='3',
+                ),
+            ),
+            rx.mobile_and_tablet(
+                interest_badges(
+                    interests_names=ProfileState.interests_names,
+                    selected_interests_names=ProfileState.selected_interests_names,  # noqa: E501
+                    add_selected=ProfileState.add_selected,
+                    remove_selected=ProfileState.remove_selected,
+                    badge_size='2',
+                ),
             ),
 
             rx.hstack(

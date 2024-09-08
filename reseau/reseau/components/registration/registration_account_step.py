@@ -11,6 +11,100 @@ from reseau.models import UserAccount
 from reseau.reseau import GOOGLE_AUTH_CLIENT_ID, HOME_ROUTE, LOGIN_ROUTE
 
 
+def first_name():
+    return rx.vstack(
+        rx.text(
+            "Prénom",
+            class_name='discreet-text',
+        ),
+        rx.input(
+            id='first_name',
+            size='3',
+            width='225px',
+            on_change=RegistrationAccountStepState.set_first_name,
+        ),
+        justify='start',
+        spacing='1',
+    ),
+
+
+def last_name():
+    return rx.vstack(
+        rx.text(
+            "Nom",
+            class_name='discreet-text',
+        ),
+        rx.input(
+            id='last_name',
+            size='3',
+            width='225px',
+            on_change=RegistrationAccountStepState.set_last_name,
+        ),
+        justify='start',
+        spacing='1',
+    ),
+
+
+def email():
+    return rx.vstack(
+        rx.text(
+            "Email",
+            class_name='discreet-text',
+        ),
+        rx.input(
+            id='email',
+            size='3',
+            width='225px',
+            on_change=RegistrationAccountStepState.set_email,
+        ),
+        justify='start',
+        spacing='1',
+    ),
+
+
+def password():
+    return rx.vstack(
+        rx.text(
+            "Mot de passe",
+            class_name='discreet-text',
+        ),
+        rx.input(
+            rx.cond(
+                RegistrationAccountStepState.password_type ==
+                'password',
+                rx.icon(
+                    'eye',
+                    size=20,
+                    style=rx.Style(
+                        margin_right='0.4em',
+                        padding='0.1em',
+                        cursor='pointer',
+                    ),
+                    on_click=RegistrationAccountStepState.toggle_password_type,  # noqa: E501
+                ),
+                rx.icon(
+                    'eye-off',
+                    size=20,
+                    style=rx.Style(
+                        margin_right='0.4em',
+                        padding='0.1em',
+                        cursor='pointer',
+                    ),
+                    on_click=RegistrationAccountStepState.toggle_password_type,  # noqa: E501
+                ),
+            ),
+            id='password',
+            type=RegistrationAccountStepState.password_type,
+            size='3',
+            width='225px',
+            align_items='center',
+            on_change=RegistrationAccountStepState.set_password,
+        ),
+        justify='start',
+        spacing='1',
+    ),
+
+
 class RegistrationAccountStepState(rx.State):
     '''
     Handle the account step of registration and
@@ -97,16 +191,23 @@ class RegistrationAccountStepState(rx.State):
 
         first_name = form_data['first_name']
         if not first_name:
+            first_name = self.first_name
+        if not first_name:
             yield rx.set_focus('first_name')
             yield rx.toast.error("Ton prénom est requis.")
             return
+
         last_name = form_data['last_name']
+        if not last_name:
+            last_name = self.last_name
         if not last_name:
             yield rx.set_focus('last_name')
             yield rx.toast.error("Ton nom est requis.")
             return
 
         email = form_data['email']
+        if not email:
+            email = self.email
         if not email:
             yield rx.set_focus('email')
             yield rx.toast.error("Ton e-mail est requis.")
@@ -132,6 +233,8 @@ class RegistrationAccountStepState(rx.State):
 
         password = form_data['password']
         if not password:
+            password = self.password
+        if not password:
             yield rx.set_focus('password')
             yield rx.toast.error("Un mot de passe est requis.")
             return
@@ -146,7 +249,6 @@ class RegistrationAccountStepState(rx.State):
         if not match(pattern, password):
             yield [
                 rx.set_value('password', ''),
-                rx.set_value('confirm_password', ''),
                 rx.set_focus('password'),
             ]
             yield rx.toast.error(
@@ -189,6 +291,7 @@ def account_step():
                         "Rejoins une communauté de gars ambitieux",
                         font_weight='500',
                         font_size='1.2em',
+                        text_align='center',
                     ),
                     align_items='center',
                 ),
@@ -224,104 +327,36 @@ def account_step():
                 margin_y='0.5em',
             ),
 
-            rx.hstack(
-                rx.vstack(
-                    rx.text(
-                        "Prénom",
-                        class_name='discreet-text',
-                    ),
-                    rx.input(
-                        id='first_name',
-                        size='3',
-                        on_change=RegistrationAccountStepState.set_first_name,
-                        width='100%',
-                    ),
-                    justify='start',
-                    spacing='1',
-                    width='100%',
+            rx.tablet_and_desktop(
+                rx.hstack(
+                    first_name(),
+                    last_name(),
+                    justify_content='center',
                 ),
-                rx.vstack(
-                    rx.text(
-                        "Nom",
-                        class_name='discreet-text',
-                    ),
-                    rx.input(
-                        id='last_name',
-                        size='3',
-                        on_change=RegistrationAccountStepState.set_last_name,
-                        width='100%',
-                    ),
-                    justify='start',
-                    spacing='1',
-                    width='100%',
-                ),
-                width='100%',
             ),
-            rx.hstack(
-                rx.vstack(
-                    rx.text(
-                        "Email",
-                        class_name='discreet-text',
-                    ),
-                    rx.input(
-                        id='email',
-                        size='3',
-                        on_change=RegistrationAccountStepState.set_email,
-                        width='100%',
-                    ),
-                    justify='start',
-                    spacing='1',
-                    width='100%',
-                ),
-                rx.vstack(
-                    rx.text(
-                        "Mot de passe",
-                        class_name='discreet-text',
-                    ),
-                    rx.input(
-                        rx.cond(
-                            RegistrationAccountStepState.password_type ==
-                            'password',
-                            rx.icon(
-                                'eye',
-                                size=20,
-                                style=rx.Style(
-                                    margin_right='0.4em',
-                                    padding='0.1em',
-                                    cursor='pointer',
-                                ),
-                                on_click=RegistrationAccountStepState.toggle_password_type,  # noqa: E501
-                            ),
-                            rx.icon(
-                                'eye-off',
-                                size=20,
-                                style=rx.Style(
-                                    margin_right='0.4em',
-                                    padding='0.1em',
-                                    cursor='pointer',
-                                ),
-                                on_click=RegistrationAccountStepState.toggle_password_type,  # noqa: E501
-                            ),
-                        ),
-                        id='password',
-                        type=RegistrationAccountStepState.password_type,
-                        size='3',
-                        width='100%',
-                        align_items='center',
-                        on_change=RegistrationAccountStepState.set_password,
-                    ),
-                    justify='start',
-                    spacing='1',
-                    width='100%',
-                ),
-                width='100%',
+            rx.mobile_only(
+                first_name(),
+                last_name(),
             ),
+
+            rx.tablet_and_desktop(
+                rx.hstack(
+                    email(),
+                    password(),
+                    justify_content='center',
+                ),
+            ),
+            rx.mobile_only(
+                email(),
+                password(),
+            ),
+
             rx.button(
                 "Continuer",
                 type='submit',
                 size='3',
                 margin_top='1em',
-                width='200px',
+                width='225px',
             ),
             rx.center(
                 rx.link(

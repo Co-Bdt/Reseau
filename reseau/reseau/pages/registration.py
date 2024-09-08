@@ -26,6 +26,8 @@ class RegistrationState(BaseState):
     registration_success: bool = False
 
     def init(self):
+        self.account_success = False
+        self.registration_success = False
         yield RegistrationAccountStepState.init()
         yield RegistrationProfileStepState.init()
         return
