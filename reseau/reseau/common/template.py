@@ -22,8 +22,23 @@ def template(
                         size='4',
                         padding='0',
                     ),
-                    rx.separator(
+                    rx.box(
                         margin_top='-1px',
+                        width='calc((100vw - var(--container-4)) / 2)',
+                        height='1px',
+                        style=rx.Style(
+                            background_color='#e2e1de'
+                        )
+                    ),
+                    rx.box(
+                        margin_top='-1px',
+                        position='absolute',
+                        right='0',
+                        width='calc((100vw - var(--container-4)) / 2)',
+                        height='1px',
+                        style=rx.Style(
+                            background_color='#e2e1de'
+                        )
                     ),
                     rx.cond(
                         page.__name__ == 'home_page',
@@ -63,7 +78,9 @@ def template(
                     padding_top=['1em', '1em', '1em', '0', '0'],
                     padding_bottom=['1em', '1em', '1em', '4em'],
                 ),
-                feedback_dialog(),
+                feedback_dialog(
+                    BaseState.authenticated_user,
+                ),
                 class_name='root-box',
                 min_height='100dvh',
                 width='100%',

@@ -2,7 +2,7 @@ from email.mime.text import MIMEText
 import reflex as rx
 import smtplib
 
-from ..common.base_state import BaseState
+from ..models import UserAccount
 from rxconfig import GMAIL_APP_PASSWORD
 
 
@@ -19,23 +19,25 @@ icon_button_style = {
 }
 
 
-class FeedbackDialogState(BaseState):
+class FeedbackDialogState(rx.State):
     message: str = ""
 
     def on_submit(self, form_data: dict):
+        user = form_data['user'].split('-')
+
         # Open a plain text file for writing.
         # This will create the file if it doesn't exist
         # and truncate (erase) its content if it does.
         with open(
-            f"./feedbacks/{self.authenticated_user.id}_mail_files.txt",
+            f"./feedbacks/{user[0]}_mail_files.txt",
                 'w') as fp:
-            fp.write(f"{self.authenticated_user.first_name} "
-                     f"{self.authenticated_user.last_name}\n"
+            fp.write(f"{user[1]} "
+                     f"{user[2]}\n"
                      f"{self.message}")
 
         # Reopen the file in read mode to read its content
         with open(
-            f"./feedbacks/{self.authenticated_user.id}_mail_files.txt",
+            f"./feedbacks/{user[0]}_mail_files.txt",
                 'r') as fp:
             fp.seek(0)  # Move the file pointer to the beginning of the file
             msg = MIMEText(fp.read())
@@ -57,11 +59,13 @@ class FeedbackDialogState(BaseState):
         s.quit()
 
         self.set_message("")
-        return rx.toast.success(f"Merci {self.authenticated_user.first_name}\
+        return rx.toast.success(f"Merci {user[1]}\
                                  pour ton feedback.")
 
 
-def feedback_dialog() -> rx.Component:
+def feedback_dialog(
+    authenticated_user: UserAccount,
+) -> rx.Component:
     """
     Render a dialog to collect feedback from users.
 
@@ -81,6 +85,15 @@ def feedback_dialog() -> rx.Component:
                 rx.text("Qu'est-ce qu'il manque ou pourraît"
                         " être mieux sur la plateforme selon toi ?"),
                 rx.form.root(
+                    rx.input(
+                        id="user",
+                        value=(
+                            f"{authenticated_user.id}-"
+                            f"{authenticated_user.first_name}-"
+                            f"{authenticated_user.last_name}"
+                        ),
+                        display="none",
+                    ),
                     rx.debounce_input(
                         rx.text_area(
                             name="feedback",

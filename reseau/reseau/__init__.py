@@ -11,12 +11,12 @@ from .pages import (
 
 
 __all__ = [
-    "base_state",
     "models",
+    "base_state",
     "home",
     "log_in",
     "registration",
     "profile",
     "members",
-    "private_discussions",
+    "private_discussions"
 ]

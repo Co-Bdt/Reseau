@@ -101,6 +101,7 @@ def members_grid(**props) -> rx.Component:
                                                     spacing='1',
                                                 ),
                                                 color='inherit',
+                                                cursor='default',
                                             ),
                                         ),
                                         rx.hover_card.content(

@@ -4,7 +4,6 @@ import asyncio
 import boto3
 import reflex as rx
 
-from ..common.base_state import BaseState
 from ..common.template import template
 from ..components.registration.registration_account_step import RegistrationAccountStepState, account_step  # noqa: E501
 from ..components.registration.registration_profile_step import RegistrationProfileStepState, profile_step  # noqa: E501
@@ -13,7 +12,7 @@ from ..reseau import HOME_ROUTE, LOGIN_ROUTE, REGISTER_ROUTE
 from rxconfig import S3_BUCKET_NAME
 
 
-class RegistrationState(BaseState):
+class RegistrationState(rx.State):
     '''
     Handle the account step of the registration and
     redirect to the profile step.
@@ -48,7 +47,7 @@ class RegistrationState(BaseState):
             str(interest.id) for interest in selected_interests
         ]
 
-        # Update the authenticated user's interests in the joint table
+        # Update the new user's interests in the joint table
         with rx.session() as session:
             user_interests = session.exec(
                 UserInterest.select().where(

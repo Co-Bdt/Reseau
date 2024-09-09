@@ -13,4 +13,4 @@ def from_now(datetime: datetime):
     # Convert the datetime to an arrow object
     ar = arrow.get(datetime)
 
-    return ar.humanize(locale='fr_FR')
+    return ar.humanize(datetime.now(), 'fr_FR')
