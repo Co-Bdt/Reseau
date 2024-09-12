@@ -163,7 +163,13 @@ def landing_page(
             ),
             rx.link(
                 rx.button(
-                    "Rejoindre",
+                    rx.text(
+                        "Rejoindre",
+                        style=rx.Style(
+                            font_weight="600",
+                            font_family='Inter, sans-serif',
+                        ),
+                    ),
                     size='4',
                     style=rx.Style(
                         width='10em',
@@ -190,13 +196,6 @@ def landing_page(
                 font_family='Satoshi Variable, sans-serif',
             )
         ),
-        # ),
-        # rx.mobile_and_tablet(
-        #     rx.text(
-        #         "Derniers membres inscrits :",
-        #         class_name='discreet-text',
-        #     ),
-        # ),
         rx.hstack(
             rx.foreach(
                 last_users,
@@ -213,13 +212,119 @@ def landing_page(
         rx.box(
             rx.container(
                 rx.vstack(
-                    rx.text(
-                        "Participe à l'expansion d'une communauté solide",
+                    rx.hstack(
+                        rx.text(
+                            "Participe à l'expansion d'une communauté",
+                            style=rx.Style(
+                                color='white',
+                                font_weight="700",
+                                font_size='2em',
+                                font_family='Inter, sans-serif',
+                            ),
+                        ),
+                        rx.text(
+                            " soudée",
+                            white_space="pre",
+                            style=rx.Style(
+                                color='#FFC53D',
+                                font_weight="700",
+                                font_size='2em',
+                                font_family='Inter, sans-serif',
+                            ),
+                        ),
+                        spacing='0',
+                    ),
+                    rx.hstack(
+                        rx.image(
+                            src="/image_etape1.png",
+                            style=rx.Style(
+                                radius='0.75em',
+                            ),
+                        ),
+                        rx.vstack(
+                            rx.text(
+                                "Étape 1",
+                                style=rx.Style(
+                                    color='#FFC53D',
+                                    font_weight="700",
+                                    font_size='0.75em',
+                                    font_family='Inter, sans-serif',
+                                ),
+                            ),
+                            rx.text(
+                                "Crée ton compte",
+                                style=rx.Style(
+                                    color='white',
+                                    font_weight="700",
+                                    font_size='1.75em',
+                                    font_family='Inter, sans-serif',
+                                ),
+                            ),
+                            rx.text(
+                                rx.hstack(
+                                    rx.icon('circle-check'),
+                                    "Indique ta localisation",
+                                ),
+                                rx.hstack(
+                                    rx.icon('circle-check'),
+                                    "Affiche tes intérêts",
+                                    style=rx.Style(
+                                        margin_top='0.5em',
+                                    ),
+                                ),
+                                style=rx.Style(
+                                    margin_top='0.5em',
+                                    color='white',
+                                    font_family='Satoshi Variable, sans-serif',
+                                ),
+                            ),
+                            spacing='0',
+                        ),
+                        spacing='9',
                         style=rx.Style(
-                            color='white',
-                            font_weight="600",
-                            font_size='1.5em',
-                            font_family='Inter, sans-serif',
+                            margin_top='5em',
+                        ),
+                    ),
+                    rx.hstack(
+                        rx.vstack(
+                            rx.text(
+                                "Étape 2",
+                                style=rx.Style(
+                                    color='#FFC53D',
+                                    font_weight="700",
+                                    font_size='0.75em',
+                                    font_family='Inter, sans-serif',
+                                ),
+                            ),
+                            rx.text(
+                                "Présente toi",
+                                style=rx.Style(
+                                    color='white',
+                                    font_weight="700",
+                                    font_size='1.75em',
+                                    font_family='Inter, sans-serif',
+                                ),
+                            ),
+                            rx.text(
+                                "Partage ton histoire, tes ambitions",
+                                rx.text("et discute avec d'autres gars."),
+                                style=rx.Style(
+                                    margin_top='0.5em',
+                                    color='white',
+                                    font_family='Satoshi Variable, sans-serif',
+                                ),
+                            ),
+                            spacing='0',
+                        ),
+                        rx.image(
+                            src="/image_etape2.png",
+                            style=rx.Style(
+                                radius='0.75em',
+                            ),
+                        ),
+                        spacing='9',
+                        style=rx.Style(
+                            margin_top='5em',
                         ),
                     ),
                     align='center',
@@ -227,66 +332,153 @@ def landing_page(
                 size='4',
                 padding='0',
             ),
-            width='100%',
-            background_color='black'
+            style=rx.Style(
+                width='100%',
+                background_color='#020200',
+                padding_y='4em',
+            ),
         ),
 
-        rx.form.root(
+        # Last call to action
+        rx.container(
             rx.vstack(
-                rx.desktop_only(
-                    rx.text(
-                        "Tu préfères être notifié des prochaines mises à "
-                        "jours majeures ? "
-                        "(pas de spam, promis)",
-                        class_name='desktop-text',
-                        style={
-                            'text_align': 'center',
-                        }
+                rx.text(
+                    "Prêt à faire des rencontres inestimables ?",
+                    style=rx.Style(
+                        font_weight="700",
+                        font_size='2em',
+                        font_family='Inter, sans-serif',
                     ),
                 ),
-                rx.mobile_and_tablet(
-                    rx.text(
-                        "Tu préfères être notifié des prochaines mises à "
-                        "jours majeures ? "
-                        "(pas de spam, promis)",
-                        class_name='mobile-text',
-                        style={
-                            'text_align': 'center',
-                        }
+                rx.text(
+                    "Reseau est née de l'isolement que ressentent de nombreux",
+                    " gars dans leur quête de développement personnel. ",
+                    "L'idée est de faire grandir une communauté de personnes ",
+                    "qui partagent la même ambition : devenir la meilleure ",
+                    "version d'eux-mêmes. Au travers de cette plateforme, ",
+                    "tu pourras discuter, partager tes pensées et progresser ",
+                    "avec d'autres gars qui partagent tes valeurs. ",
+                    "Ce projet est en constante évolution, et nous ",
+                    "avons besoin de tes retours pour l'enmener plus loin. ",
+                    style=rx.Style(
+                        margin_top='1em',
+                        font_family='Satoshi Variable, sans-serif',
                     ),
                 ),
-                rx.hstack(
-                    rx.input(
-                        id='email',  # for the set_focus event
-                        name='email',  # for the form_data
-                        placeholder="Ton email",
-                        on_change=LandingState.handle_email_change,
-                        min_width=['0', '0', '260px'],
-                    ),
-                    rx.cond(
-                        LandingState.is_email_empty,
-                        rx.button(
-                            "Envoyer",
-                            disabled=True
-                        ),
-                        rx.form.submit(
-                            rx.button(
-                                "Envoyer",
-                                type='submit',
+                rx.link(
+                    rx.button(
+                        rx.text(
+                            "Rejoindre",
+                            style=rx.Style(
+                                font_weight="600",
+                                font_family='Inter, sans-serif',
                             ),
                         ),
+                        size='3',
+                        style=rx.Style(
+                            width='10em',
+                            box_shadow='0 4px 4px 0 rgba(0, 0, 0, 0.25)',
+                        ),
                     ),
+                    href=REGISTER_ROUTE,
+                    margin_top='1em',
                 ),
-                direction='column',
-                spacing='4',
                 align='center',
+                # style=rx.Style(
+                #     width='100%',
+                #     padding_y='4em',
+                # ),
             ),
-            on_submit=LandingState.handle_submit,
-            reset_on_submit=True,
+            size='4',
+            padding='4em 0 4em 0',
+        ),
+
+        rx.container(
+            rx.hstack(
+                rx.vstack(
+                    rx.text(
+                        "Des questions ?",
+                        style=rx.Style(
+                            color='white',
+                            font_size='1.25em',
+                            font_family='Inter, sans-serif',
+                        ),
+                    ),
+                    rx.link(
+                        rx.button(
+                            rx.text(
+                                "Contacte-nous",
+                                style=rx.Style(
+                                    font_family='Inter, sans-serif',
+                                ),
+                            ),
+                            size='2',
+                            color_scheme='gray',
+                        ),
+                        href="mailto:contact-reseaudevperso@gmail.com",
+                    ),
+                    width='20%',
+                ),
+                rx.form.root(
+                    rx.vstack(
+                        rx.text(
+                            "Tu souhaites être notifié des prochaines mises à "
+                            "jours majeures ?",
+                            rx.text("(pas de spam, promis)"),
+                            style=rx.Style(
+                                color='white',
+                                font_size='0.9em',
+                                font_family='Inter, sans-serif',
+                            ),
+                        ),
+                        rx.hstack(
+                            rx.input(
+                                id='email',  # for the set_focus event
+                                name='email',  # for the form_data
+                                placeholder="Ton email",
+                                on_change=LandingState.handle_email_change,
+                            ),
+                            rx.cond(
+                                LandingState.is_email_empty,
+                                rx.button(
+                                    rx.text(
+                                        "Envoyer",
+                                        style=rx.Style(
+                                            font_family='Inter, sans-serif',
+                                        ),
+                                    ),
+                                    disabled=True,
+                                    style=rx.Style(
+                                        background_color='gray',
+                                    ),
+                                ),
+                                rx.form.submit(
+                                    rx.button(
+                                        rx.text(
+                                            "Envoyer",
+                                            style=rx.Style(
+                                                font_family='Inter, sans-serif',  # noqa: E501
+                                            ),
+                                        ),
+                                        type='submit',
+                                    ),
+                                ),
+                            ),
+                        ),
+                        direction='column',
+                        spacing='4',
+                    ),
+                    on_submit=LandingState.handle_submit,
+                    reset_on_submit=True,
+                ),
+                spacing='9',
+                align_items='start',
+            ),
+            size='4',
+            padding='4em 0 4em 0',
             style=rx.Style(
-                align='center',
                 width='100%',
-                background_color=rx.color('gray'),
+                background_color='#020200',
             ),
         ),
         width='100%',

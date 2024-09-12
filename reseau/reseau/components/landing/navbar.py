@@ -8,7 +8,14 @@ def navbar() -> rx.Component:
     def log_in_button() -> rx.Component:
         return rx.link(
             rx.button(
-                rx.tablet_and_desktop('Connexion'),
+                rx.tablet_and_desktop(
+                    rx.text(
+                        "Connexion",
+                        style=rx.Style(
+                            font_family='Inter, sans-serif',
+                        ),
+                    ),
+                ),
                 rx.mobile_only(
                     rx.icon('log-in'),
                     style=rx.Style(
@@ -32,7 +39,12 @@ def navbar() -> rx.Component:
     def register_button() -> rx.Component:
         return rx.link(
             rx.button(
-                'Rejoindre',
+                rx.text(
+                    "Rejoindre",
+                    style=rx.Style(
+                        font_family='Inter, sans-serif',
+                    ),
+                ),
                 size='3',
                 style=rx.Style(
                     font_family='Inter, sans-serif',
