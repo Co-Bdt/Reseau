@@ -123,25 +123,15 @@ def profile_step():
         rx.vstack(
             rx.center(
                 rx.vstack(
-                    rx.hstack(
-                        rx.image(
-                            '/favicon.ico',
-                            style=rx.Style(
-                                width='1.75em',
-                                height='1.75em',
-                            ),
-                        ),
-                        align_items='start',
-                    ),
                     rx.text(
                         "Rejoins une communauté de\ngars ambitieux",
                         font_weight='500',
-                        font_size='1.2em',
+                        font_size='1.4em',
                         text_align='center',
                     ),
                     align_items='center',
                 ),
-                margin_bottom='1em',
+                margin_bottom='1.5em',
             ),
 
             rx.hstack(
@@ -220,4 +210,10 @@ def profile_step():
             align_items='center',
         ),
         on_submit=RegistrationProfileStepState.handle_registration,
+        width='576px',
+        padding_x='3.5em',
+        padding_y='3em',
+        border='1px solid #E3E4EB',
+        border_radius='0.75em',
+        box_shadow='0px 3px 4px 1px rgba(0, 0, 0, 0.05)'
     )

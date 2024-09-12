@@ -211,8 +211,8 @@ def profile_page() -> rx.Component:
                             src=rx.get_upload_url(
                                 ProfileState.profile_pic
                             ),
-                            width=['6.5em'],
-                            height=['6.5em'],
+                            width=['7.75em'],
+                            height=['7.75em'],
                             border_radius='50%',
                             object_fit="cover",
                         ),
@@ -226,8 +226,8 @@ def profile_page() -> rx.Component:
                             rx.upload_files(upload_id='profile_img')
                         ),
                         padding='0',
-                        width=['8em'],
-                        height=['6.5em'],
+                        width=['9em'],
+                        height=['7.75em'],
                         border='none',
                     ),
                     rx.vstack(

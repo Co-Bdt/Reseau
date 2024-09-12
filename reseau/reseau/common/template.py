@@ -18,6 +18,7 @@ def template(
                     rx.container(
                         navbar(
                             current_page=page.__name__,
+                            are_tabs_visible=page.__name__ != 'profile_page',
                         ),
                         size='4',
                         padding='0',

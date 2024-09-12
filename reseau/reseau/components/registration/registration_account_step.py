@@ -13,12 +13,9 @@ from reseau.reseau import GOOGLE_AUTH_CLIENT_ID, HOME_ROUTE, LOGIN_ROUTE
 
 def first_name():
     return rx.vstack(
-        rx.text(
-            "Prénom",
-            class_name='discreet-text',
-        ),
         rx.input(
             id='first_name',
+            placeholder='Prénom',
             size='3',
             width='225px',
             on_change=RegistrationAccountStepState.set_first_name,
@@ -30,12 +27,9 @@ def first_name():
 
 def last_name():
     return rx.vstack(
-        rx.text(
-            "Nom",
-            class_name='discreet-text',
-        ),
         rx.input(
             id='last_name',
+            placeholder='Nom',
             size='3',
             width='225px',
             on_change=RegistrationAccountStepState.set_last_name,
@@ -47,12 +41,9 @@ def last_name():
 
 def email():
     return rx.vstack(
-        rx.text(
-            "Email",
-            class_name='discreet-text',
-        ),
         rx.input(
             id='email',
+            placeholder='Email',
             size='3',
             width='225px',
             on_change=RegistrationAccountStepState.set_email,
@@ -64,10 +55,6 @@ def email():
 
 def password():
     return rx.vstack(
-        rx.text(
-            "Mot de passe",
-            class_name='discreet-text',
-        ),
         rx.input(
             rx.cond(
                 RegistrationAccountStepState.password_type ==
@@ -94,6 +81,7 @@ def password():
                 ),
             ),
             id='password',
+            placeholder='Mot de passe',
             type=RegistrationAccountStepState.password_type,
             size='3',
             width='225px',
@@ -277,25 +265,15 @@ def account_step():
         rx.vstack(
             rx.center(
                 rx.vstack(
-                    rx.hstack(
-                        rx.image(
-                            "/favicon.ico",
-                            style=rx.Style(
-                                width='1.75em',
-                                height='1.75em',
-                            ),
-                        ),
-                        align_items='start',
-                    ),
                     rx.text(
                         "Rejoins une communauté de gars ambitieux",
                         font_weight='500',
-                        font_size='1.2em',
+                        font_size='1.4em',
                         text_align='center',
                     ),
                     align_items='center',
                 ),
-                margin_bottom='1em',
+                margin_bottom='1.5em',
             ),
 
             rx.box(
@@ -372,4 +350,9 @@ def account_step():
             align_items='center',
         ),
         on_submit=RegistrationAccountStepState.handle_account,
+        padding_x='3.5em',
+        padding_y='3em',
+        border='1px solid #E3E4EB',
+        border_radius='0.75em',
+        box_shadow='0px 3px 4px 1px rgba(0, 0, 0, 0.05)'
     )
