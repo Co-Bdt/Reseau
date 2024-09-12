@@ -25,4 +25,4 @@ def profile_picture(
             object_fit="cover",
             style=style,
         ),
-        )
+    )

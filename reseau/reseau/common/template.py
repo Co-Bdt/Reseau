@@ -3,8 +3,8 @@ from typing import Callable
 import reflex as rx
 
 from ..common.base_state import BaseState
+from ..common.navbar import navbar
 from ..components.feedback_dialog import feedback_dialog
-from ..components.navbar import navbar
 
 
 def template(

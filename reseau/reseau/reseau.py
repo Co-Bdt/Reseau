@@ -43,5 +43,6 @@ app = rx.App(
     style=style,  # Global style configuration
     stylesheets=[  # Specific stylesheets
         '/styles.css',  # This path is relative to assets/
+        "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"  # noqa: E501
     ],
 )

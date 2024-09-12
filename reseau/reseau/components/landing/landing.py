@@ -4,9 +4,11 @@ from collections.abc import AsyncGenerator
 import reflex as rx
 import smtplib
 
-from ..components.profile_picture import profile_picture
-from ..models import UserAccount
-from ..reseau import REGISTER_ROUTE
+
+from ...models import UserAccount
+from ..profile_picture import profile_picture
+from ...reseau import REGISTER_ROUTE
+from reseau.components.landing.navbar import navbar
 from rxconfig import GMAIL_APP_PASSWORD
 
 
@@ -14,48 +16,14 @@ class LandingState(rx.State):
     is_email_empty: bool = True
 
     @staticmethod
-    def last_user_card(user: UserAccount):
-        return rx.card(
-            rx.hstack(
-                profile_picture(
-                    style={
-                        'width': '2em',
-                        'height': '2em',
-                    },
-                    profile_picture=user.profile_picture
-                ),
-                rx.vstack(
-                    rx.hstack(
-                        rx.text(
-                            user.first_name,
-                            class_name='mobile-text',
-                            # Crop the text if too long
-                            style={
-                                'text_overflow': 'ellipsis',
-                                'white_space': 'nowrap',
-                                'overflow': 'hidden',
-                            }
-                        ),
-                        rx.text(
-                            user.last_name,
-                            class_name='mobile-text',
-                            style={
-                                'text_overflow': 'ellipsis',
-                                'white_space': 'nowrap',
-                                'overflow': 'hidden',
-                            }
-                        ),
-                        spacing='1',
-                    ),
-                    rx.text(
-                        user.city.name,
-                        class_name='discreet-text',
-                    ),
-                    spacing='0',
-                ),
+    def last_user_card(user: UserAccount, is_first: bool = False):
+        return profile_picture(
+            style=rx.Style(
+                width='3.25em',
+                height='3.25em',
+                margin_left='-1.25em',
             ),
-            width='16em',
-            margin_bottom='0.5em',
+            profile_picture=user.profile_picture
         )
 
     def handle_email_change(self, email_value):
@@ -135,91 +103,132 @@ def landing_page(
     last_users: list[UserAccount]
 ) -> rx.Component:
     return rx.vstack(
+        rx.container(
+            navbar(),
+            padding='0',
+            size='4',
+            style=rx.Style(
+                width='100%',
+            ),
+        ),
         rx.vstack(
-            rx.desktop_only(
-                rx.heading(
-                    "Reseau",
-                    trim='start',
-                    style={
-                        'font_size': '2.5em',
-                        'letter_spacing': '1px',
-                    }
-                ),
-            ),
-            rx.mobile_and_tablet(
-                rx.heading(
-                    "Reseau",
-                    trim='start',
-                    style={
-                        'font_size': '2em',
-                        'letter_spacing': '1px',
-                        'margin': '0',
-                    }
-                ),
-            ),
-            rx.desktop_only(
+            rx.vstack(
                 rx.text(
-                    "La première plateforme pour connecter "
-                    "avec des gars en développement personnel",
-                    style={
-                        'font_size': '1.2em',
-                        'text_align': 'center',
-                        'margin_bottom': '1em',
-                    },
+                    "Rejoins une communauté",
+                    rx.hstack(
+                        rx.text(
+                            "de gars",
+                            trim='start',
+                        ),
+                        rx.text(
+                            " ambitieux",
+                            trim='start',
+                            white_space="pre",
+                            color='#FFC53D',
+                        ),
+                        spacing='0',
+                        justify='center',
+                    ),
+                    style=rx.Style(
+                        margin_x='1em',
+                        text_align='center',
+                        font_weight="700",
+                        font_size=['1.75em', '2.125em', '2.75em', '3.5em'],
+                        font_family='Inter, sans-serif',
+                    ),
+                ),
+                spacing='0',
+                align='center',
+                style=rx.Style(
+                    margin_top='5em',
                 ),
             ),
-            rx.mobile_and_tablet(
-                rx.text(
-                    "La première plateforme pour connecter\n"
-                    "avec des gars en développement personnel",
-                    class_name='desktop-text',
-                    style={
-                        'text_align': 'center',
-                        'white_space': 'pre-line',
-                    }
+
+            rx.text(
+                rx.tablet_and_desktop(
+                    "Une plateforme dédiée au développement personnel pour",
+                    rx.text("connecter et progresser avec d'autres gars qui partagent tes valeurs."),  # noqa: E501
+                ),
+                rx.mobile_only(
+                    "Une plateforme dédiée au développement personnel pour ",
+                    "connecter et progresser avec d'autres gars qui partagent tes valeurs."  # noqa: E501
+                ),
+                style=rx.Style(
+                    margin_x='1em',
+                    color='#64748B',
+                    text_align='center',
+                    font_size=['0.9em', '1em', '1.125em', '1.25em'],
+                    font_family='Inter, sans-serif',
                 ),
             ),
             rx.link(
-                rx.button("Rejoindre", size='3'),
+                rx.button(
+                    "Rejoindre",
+                    size='4',
+                    style=rx.Style(
+                        width='10em',
+                        box_shadow='0 4px 4px 0 rgba(0, 0, 0, 0.25)',
+                    ),
+                ),
                 href=REGISTER_ROUTE,
-                is_external=False
+                margin_top='0.5em',
             ),
             spacing='5',
             justify='center',
             align='center',
-            margin_top='4em',
         ),
 
-        rx.separator(
-            margin_top='3em',
-            margin_bottom='3em',
+        # Display the last 5 useraccount created
+        # rx.desktop_only(
+        rx.text(
+            "Derniers membres inscrits :",
+            class_name='desktop-text',
+            style=rx.Style(
+                margin_top='6em',
+                color='#64748B',
+                font_size=['0.9em', '1em'],
+                font_family='Satoshi Variable, sans-serif',
+            )
         ),
-
-        # Display the last 2 useraccount created
-        rx.mobile_and_tablet(
-            rx.text(
-                "Derniers inscrits :",
-                class_name='mobile-text',
-                style={
-                    'text_align': 'center',
-                }
-            ),
-        ),
-        rx.desktop_only(
-            rx.text(
-                "Derniers inscrits :",
-                class_name='desktop-text',
-                style={
-                    'text_align': 'center',
-                }
-            ),
-        ),
-        rx.box(
+        # ),
+        # rx.mobile_and_tablet(
+        #     rx.text(
+        #         "Derniers membres inscrits :",
+        #         class_name='discreet-text',
+        #     ),
+        # ),
+        rx.hstack(
             rx.foreach(
                 last_users,
-                lambda user: LandingState.last_user_card(user)
+                lambda user: LandingState.last_user_card(user),
             ),
-            margin_bottom='3em',
+            spacing='0',
+            style=rx.Style(
+                margin_left='1.25em',
+                margin_bottom='4em',
+            ),
+        ),
+
+        # Step by step
+        rx.box(
+            rx.container(
+                rx.vstack(
+                    rx.text(
+                        "Participe à l'expansion d'une communauté solide",
+                        style=rx.Style(
+                            color='white',
+                            font_weight="600",
+                            font_size='1.5em',
+                            font_family='Inter, sans-serif',
+                        ),
+                    ),
+                    align='center',
+                ),
+                size='4',
+                padding='0',
+            ),
+            width='100%',
+            background_color='black'
         ),
 
         rx.form.root(
@@ -274,8 +283,12 @@ def landing_page(
             ),
             on_submit=LandingState.handle_submit,
             reset_on_submit=True,
-            align='center',
-            width='100%',
+            style=rx.Style(
+                align='center',
+                width='100%',
+                background_color=rx.color('gray'),
+            ),
         ),
+        width='100%',
         align='center',
     )

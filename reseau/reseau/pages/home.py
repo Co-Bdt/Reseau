@@ -5,7 +5,7 @@ import sqlalchemy as sa
 from ..common.base_state import BaseState
 from ..common.template import template
 from ..common.translate import from_now
-from ..components.landing import landing_page
+from ..components.landing.landing import landing_page
 from ..components.postcategory_badges import postcategory_badges
 from ..components.post_dialog import post_dialog
 from ..components.write_post_dialog import write_post_dialog
@@ -43,7 +43,7 @@ class HomeState(BaseState):
                     sa.orm.selectinload(UserAccount.city),
                 )
                 .order_by(UserAccount.id.desc())
-                .limit(2)
+                .limit(5)
             ).all()
 
     def load_posts(self, postcategory_id: int):
@@ -210,11 +210,7 @@ def home_page() -> rx.Component:
                 landing_page(
                     last_users=HomeState.last_users,
                 ),
-                position='absolute',
-                top='50%',
-                left='50%',
-                transform='translateX(-50%) translateY(-50%)',
-                width=['80%', '80%', '70%', '60%', '50%'],
+                width='100%',
             ),
         ),
     )
