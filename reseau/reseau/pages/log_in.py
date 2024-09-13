@@ -3,9 +3,12 @@ from collections.abc import AsyncGenerator
 import reflex as rx
 
 from ..common.base_state import BaseState
-from ..reseau import LOGIN_ROUTE, REGISTER_ROUTE
-from ..models import UserAccount
 from ..common.template import template
+from ..components.custom.react_oauth_google import GoogleLogin
+from ..components.custom.react_oauth_google import GoogleOAuthProvider
+from ..components.registration.registration_account_step import RegistrationAccountStepState  # noqa: E501
+from ..models import UserAccount
+from ..reseau import LOGIN_ROUTE, REGISTER_ROUTE, GOOGLE_AUTH_CLIENT_ID
 
 
 class LogInState(BaseState):
@@ -84,73 +87,89 @@ def log_in_page() -> rx.Component:
     """
     login_form = rx.form(
         rx.vstack(
-            rx.vstack(
-                rx.tablet_and_desktop(
-                    rx.text(
-                        "Email",
-                        class_name='desktop-text',
-                    ),
+            rx.text(
+                "Se connecter à Reseau",
+                font_weight='700',
+                font_size='1.75em',
+                font_family='Inter, sans-serif',
+                style=rx.Style(
+                    margin_bottom='0.75em',
                 ),
-                rx.mobile_only(
-                    rx.text(
-                        "Email",
-                        class_name='mobile-text',
-                    ),
-                ),
-                rx.input(
-                    id='email',
-                    size='3',
-                    width='100%',
-                ),
-                justify='start',
-                spacing='2',
-                width='100%',
             ),
-            rx.vstack(
-                rx.tablet_and_desktop(
-                    rx.text(
-                        "Mot de passe",
-                        class_name='desktop-text',
-                    ),
-                ),
-                rx.mobile_only(
-                    rx.text(
-                        "Mot de passe",
-                        class_name='mobile-text',
-                    ),
-                ),
-                rx.input(
-                    id='password',
-                    type='password',
-                    size='3',
-                    width='100%',
-                ),
-                justify='start',
-                spacing='2',
-                width='100%',
+            rx.input(
+                id='email',
+                placeholder='Email',
+                size='3',
+                width='20em',
             ),
+            rx.input(
+                id='password',
+                placeholder='Mot de passe',
+                type='password',
+                size='3',
+                width='20em',
+            ),
+
             rx.button(
                 "Se connecter",
                 type='submit',
                 size='3',
-                width='100%',
+                width='20em',
                 margin_top='1em',
             ),
             rx.center(
                 rx.link(
                     "Pas encore de compte ?",
                     href=REGISTER_ROUTE,
-                    width='100%',
-                    text_align='center',
                 ),
                 direction='column',
                 spacing='5',
                 width='100%',
             ),
+
+            rx.center(
+                rx.hstack(
+                    rx.divider(
+                        size='3',
+                        width='100%',
+                    ),
+                    rx.text(
+                        "ou",
+                        style=rx.Style(
+                            color='#64748B',
+                            font_size='0.9em',
+                            font_family='Inter, sans-serif',
+                        ),
+                    ),
+                    rx.divider(
+                        size='3',
+                        width='100%',
+                    ),
+                    width='100%',
+                ),
+                width='100%',
+                margin_y='0.5em',
+            ),
+            rx.box(
+                GoogleOAuthProvider.create(
+                    GoogleLogin.create(
+                        text='signin_with',
+                        on_success=RegistrationAccountStepState.on_google_auth_success  # noqa: E501
+                    ),
+                    client_id=GOOGLE_AUTH_CLIENT_ID,
+                ),
+                style=rx.Style(
+                    align_self='center',
+                ),
+            ),
             justify='center',
-            min_height='80vh',
         ),
-        on_submit=LogInState.on_submit
+        on_submit=LogInState.on_submit,
+        padding_x='3.5em',
+        padding_y='3em',
+        border='1px solid #E3E4EB',
+        border_radius='0.75em',
+        box_shadow='0px 3px 4px 1px rgba(0, 0, 0, 0.05)',
     )
 
     return rx.cond(
@@ -190,7 +209,6 @@ def log_in_page() -> rx.Component:
                 top='50%',
                 left='50%',
                 transform='translateX(-50%) translateY(-50%)',
-                min_width='260px',
             ),
         ),
     )

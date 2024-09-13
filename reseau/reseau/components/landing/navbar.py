@@ -18,9 +18,6 @@ def navbar() -> rx.Component:
                 ),
                 rx.mobile_only(
                     rx.icon('log-in'),
-                    style=rx.Style(
-                        margin_right='0.5em',
-                    ),
                 ),
                 size='3',
                 variant='ghost',
@@ -83,7 +80,7 @@ def navbar() -> rx.Component:
             justify='start',
             style=rx.Style(
                 width='100%',
-                padding_x=['1em', '1em', '1em', '1em', '0'],
+                padding_x=['1.25em', '1.25em', '1.25em', '1.25em', '0'],
                 padding_top='1em',
             ),
         ),

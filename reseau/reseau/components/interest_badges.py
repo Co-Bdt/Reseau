@@ -5,7 +5,10 @@ chip_props = {
     'radius': 'full',
     'variant': 'surface',
     'cursor': 'pointer',
-    'style': {'_hover': {'opacity': 0.75}},
+    'style': {
+        '_hover': {'opacity': 0.75},
+        'font_family': 'Satoshi Variable, sans-serif',
+    },
 }
 
 

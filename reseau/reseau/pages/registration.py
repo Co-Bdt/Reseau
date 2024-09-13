@@ -174,10 +174,11 @@ def registration_page() -> rx.Component:
                     ),
                 ),
             ),
-            position='absolute',
-            top='50%',
-            left='50%',
-            transform='translateX(-50%) translateY(-50%)',
-            min_width='260px',
+            align='center',
+            justify='center',
+            style=rx.Style(
+                height='100vh',
+                margin='1.25em',
+            ),
         ),
     )

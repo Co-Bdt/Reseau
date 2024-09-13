@@ -124,9 +124,10 @@ def profile_step():
             rx.center(
                 rx.vstack(
                     rx.text(
-                        "Rejoins une communauté de\ngars ambitieux",
-                        font_weight='500',
-                        font_size='1.4em',
+                        "Rejoins une communauté de gars ambitieux",
+                        font_weight='700',
+                        font_size='1.75em',
+                        font_family='Inter, sans-serif',
                         text_align='center',
                     ),
                     align_items='center',
@@ -160,7 +161,11 @@ def profile_step():
                 rx.vstack(
                     rx.text(
                         "Localisation (ou ville proche)",
-                        class_name='discreet-text',
+                        style=rx.Style(
+                            color='gray',
+                            font_size='0.75em',
+                            font_family='Inter, sans-serif',
+                        ),
                     ),
                     rx.select(
                         RegistrationProfileStepState.cities_names,
@@ -204,16 +209,21 @@ def profile_step():
                 "Rejoindre 🚀",
                 type='submit',
                 size='3',
-                width='225px',
-                margin_top='1em',
+                style=rx.Style(
+                    width='225px',
+                    margin_top='1em',
+                    font_family='Inter, sans-serif',
+                ),
             ),
             align_items='center',
         ),
         on_submit=RegistrationProfileStepState.handle_registration,
-        width='576px',
-        padding_x='3.5em',
-        padding_y='3em',
-        border='1px solid #E3E4EB',
-        border_radius='0.75em',
-        box_shadow='0px 3px 4px 1px rgba(0, 0, 0, 0.05)'
+        style=rx.Style(
+            max_width='684px',
+            padding_x=['1.25em', '1.5em', '2.5em', '3.5em'],
+            padding_y='3em',
+            border='1px solid #E3E4EB',
+            border_radius='0.75em',
+            box_shadow='0px 3px 4px 1px rgba(0, 0, 0, 0.05)',
+        ),
     )

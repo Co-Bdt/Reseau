@@ -1,26 +1,26 @@
 import reflex as rx
 
 
-def site_name():
-    return rx.box(
+def site_name(
+    color: str = 'black',
+    **props,
+):
+    return rx.fragment(
         rx.desktop_only(
             rx.link(
                 'Reseau',
                 href='/',
                 underline='none',
                 size='7',
-                color=rx.color_mode_cond(
-                    light='black',
-                    dark='white',
-                ),
+                color=color,
                 style=rx.Style(
                     font_weight='700',
                     font_family='Inter, sans-serif',
+                    kwargs=props,
                 ),
             ),
             width='100%',
             margin='0',
-            padding='6px',
         ),
         rx.mobile_and_tablet(
             rx.link(
@@ -28,18 +28,15 @@ def site_name():
                 href='/',
                 underline='none',
                 size='6',
-                color=rx.color_mode_cond(
-                    light='black',
-                    dark='white',
-                ),
+                color=color,
                 style=rx.Style(
                     font_weight='700',
-                    letter_spacing='1px',
+                    font_family='Inter, sans-serif',
+                    kwargs=props,
                 ),
             ),
             width='100%',
             margin='0',
-            padding='6px',
         ),
         justify='start',
     )

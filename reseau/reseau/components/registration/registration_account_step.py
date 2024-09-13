@@ -12,84 +12,84 @@ from reseau.reseau import GOOGLE_AUTH_CLIENT_ID, HOME_ROUTE, LOGIN_ROUTE
 
 
 def first_name():
-    return rx.vstack(
-        rx.input(
-            id='first_name',
-            placeholder='Prénom',
-            size='3',
-            width='225px',
-            on_change=RegistrationAccountStepState.set_first_name,
+    return rx.input(
+        id='first_name',
+        placeholder='Prénom',
+        size='3',
+        on_change=RegistrationAccountStepState.set_first_name,
+        style=rx.Style(
+            width='100%',
+            font_size='0.9em',
+            font_family='Satoshi Variable, sans-serif',
         ),
-        justify='start',
-        spacing='1',
     ),
 
 
 def last_name():
-    return rx.vstack(
-        rx.input(
-            id='last_name',
-            placeholder='Nom',
-            size='3',
-            width='225px',
-            on_change=RegistrationAccountStepState.set_last_name,
+    return rx.input(
+        id='last_name',
+        placeholder='Nom',
+        size='3',
+        on_change=RegistrationAccountStepState.set_last_name,
+        style=rx.Style(
+            width='100%',
+            font_size='0.9em',
+            font_family='Satoshi Variable, sans-serif',
         ),
-        justify='start',
-        spacing='1',
     ),
 
 
 def email():
-    return rx.vstack(
-        rx.input(
-            id='email',
-            placeholder='Email',
-            size='3',
-            width='225px',
-            on_change=RegistrationAccountStepState.set_email,
+    return rx.input(
+        id='email',
+        placeholder='Email',
+        size='3',
+        on_change=RegistrationAccountStepState.set_email,
+        style=rx.Style(
+            width='100%',
+            font_size='0.9em',
+            font_family='Satoshi Variable, sans-serif',
         ),
-        justify='start',
-        spacing='1',
     ),
 
 
 def password():
-    return rx.vstack(
-        rx.input(
-            rx.cond(
-                RegistrationAccountStepState.password_type ==
-                'password',
-                rx.icon(
-                    'eye',
-                    size=20,
-                    style=rx.Style(
-                        margin_right='0.4em',
-                        padding='0.1em',
-                        cursor='pointer',
-                    ),
-                    on_click=RegistrationAccountStepState.toggle_password_type,  # noqa: E501
+    return rx.input(
+        rx.cond(
+            RegistrationAccountStepState.password_type ==
+            'password',
+            rx.icon(
+                'eye',
+                size=20,
+                style=rx.Style(
+                    margin_right='0.4em',
+                    padding='0.1em',
+                    cursor='pointer',
                 ),
-                rx.icon(
-                    'eye-off',
-                    size=20,
-                    style=rx.Style(
-                        margin_right='0.4em',
-                        padding='0.1em',
-                        cursor='pointer',
-                    ),
-                    on_click=RegistrationAccountStepState.toggle_password_type,  # noqa: E501
-                ),
+                on_click=RegistrationAccountStepState.toggle_password_type,  # noqa: E501
             ),
-            id='password',
-            placeholder='Mot de passe',
-            type=RegistrationAccountStepState.password_type,
-            size='3',
-            width='225px',
-            align_items='center',
-            on_change=RegistrationAccountStepState.set_password,
+            rx.icon(
+                'eye-off',
+                size=20,
+                style=rx.Style(
+                    margin_right='0.4em',
+                    padding='0.1em',
+                    cursor='pointer',
+                ),
+                on_click=RegistrationAccountStepState.toggle_password_type,  # noqa: E501
+            ),
         ),
-        justify='start',
-        spacing='1',
+        id='password',
+        placeholder='Mot de passe',
+        type=RegistrationAccountStepState.password_type,
+        size='3',
+        on_change=RegistrationAccountStepState.set_password,
+        style=rx.Style(
+            width='100%',
+            align_items='center',
+            font_size='0.9em',
+            font_family='Satoshi Variable, sans-serif',
+        ),
     ),
 
 
@@ -267,8 +267,9 @@ def account_step():
                 rx.vstack(
                     rx.text(
                         "Rejoins une communauté de gars ambitieux",
-                        font_weight='500',
-                        font_size='1.4em',
+                        font_weight='700',
+                        font_size='1.75em',
+                        font_family='Inter, sans-serif',
                         text_align='center',
                     ),
                     align_items='center',
@@ -294,6 +295,11 @@ def account_step():
                     ),
                     rx.text(
                         "ou",
+                        style=rx.Style(
+                            color='#64748B',
+                            font_size='0.9em',
+                            font_family='Inter, sans-serif',
+                        ),
                     ),
                     rx.divider(
                         size='3',
@@ -309,39 +315,55 @@ def account_step():
                 rx.hstack(
                     first_name(),
                     last_name(),
-                    justify_content='center',
+                    style=rx.Style(
+                        width='100%',
+                        justify_content='center',
+                    ),
                 ),
+                width='100%',
             ),
             rx.mobile_only(
                 first_name(),
+                rx.spacer(height='0.75em'),
                 last_name(),
+                width='100%',
             ),
 
             rx.tablet_and_desktop(
                 rx.hstack(
                     email(),
                     password(),
-                    justify_content='center',
+                    style=rx.Style(
+                        width='100%',
+                        justify_content='center',
+                    ),
                 ),
+                width='100%',
             ),
             rx.mobile_only(
                 email(),
+                rx.spacer(height='0.75em'),
                 password(),
+                width='100%',
             ),
 
             rx.button(
                 "Continuer",
                 type='submit',
                 size='3',
-                margin_top='1em',
-                width='225px',
+                style=rx.Style(
+                    margin_top='1em',
+                    width='225px',
+                    font_family='Satoshi Variable, sans-serif',
+                ),
             ),
             rx.center(
                 rx.link(
                     rx.text("Déjà un compte ?"),
                     href=LOGIN_ROUTE,
-                    width='100%',
-                    text_align='center',
+                    style=rx.Style(
+                        font_family='Satoshi Variable, sans-serif',
+                    ),
                 ),
                 direction='column',
                 spacing='5',
@@ -350,9 +372,12 @@ def account_step():
             align_items='center',
         ),
         on_submit=RegistrationAccountStepState.handle_account,
-        padding_x='3.5em',
-        padding_y='3em',
-        border='1px solid #E3E4EB',
-        border_radius='0.75em',
-        box_shadow='0px 3px 4px 1px rgba(0, 0, 0, 0.05)'
+        style=rx.Style(
+            max_width='684px',
+            padding_x=['1.25em', '1.5em', '2.5em', '3.5em'],
+            padding_y='3em',
+            border='1px solid #E3E4EB',
+            border_radius='0.75em',
+            box_shadow='0px 3px 4px 1px rgba(0, 0, 0, 0.05)',
+        ),
     )

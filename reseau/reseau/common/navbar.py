@@ -93,79 +93,66 @@ def navbar(
             align='center',
         )
 
-    return rx.box(
-        rx.tablet_and_desktop(
-            rx.vstack(
-                rx.hstack(
-                    site_name(),
-                    sidebar_items(),
-                    width='100%',
-                    padding_top='1em',
-                    justify='start',
-                    align='center',
-                ),
-                rx.cond(
-                    are_tabs_visible,
-                    rx.tabs.root(
-                        rx.tabs.list(
-                            rx.tabs.trigger(
-                                "Communauté",
-                                value="home_page",
-                                style=rx.Style(
-                                    cursor='pointer',
-                                    font_size='1.1em',
-                                ),
-                                on_click=rx.redirect(HOME_ROUTE),
-                            ),
-                            rx.tabs.trigger(
-                                "Membres",
-                                value="members_page",
-                                style=rx.Style(
-                                    cursor='pointer',
-                                    font_size='1.1em',
-                                ),
-                                on_click=rx.redirect(MEMBERS_ROUTE),
-                            ),
-                            size='2',
-                        ),
-                        rx.tabs.content(
-                            rx.spacer(),
-                            value="home_page",
-                        ),
-                        rx.tabs.content(
-                            rx.spacer(),
-                            value="members_page",
-                        ),
-                        default_value=NavbarState.default_tab,
-                        value=rx.cond(
-                            NavbarState.current_tab,
-                            NavbarState.current_tab,
-                            current_page,
-                        ),
-                        on_change=lambda value: NavbarState.on_tab_change(
-                            value
-                        ),
-                        width="100%",
-                    ),
-                    rx.box(
-                        width='100%',
-                        height='1px',
+    return rx.vstack(
+        rx.hstack(
+            site_name(),
+            sidebar_items(),
+            width='100%',
+            justify='start',
+            align='center',
+            padding_y='1em',
+        ),
+        rx.cond(
+            are_tabs_visible,
+            rx.tabs.root(
+                rx.tabs.list(
+                    rx.tabs.trigger(
+                        "Communauté",
+                        value="home_page",
                         style=rx.Style(
-                            background_color='#e2e1de'
-                        )
+                            cursor='pointer',
+                            font_size='1.1em',
+                        ),
+                        on_click=rx.redirect(HOME_ROUTE),
                     ),
+                    rx.tabs.trigger(
+                        "Membres",
+                        value="members_page",
+                        style=rx.Style(
+                            cursor='pointer',
+                            font_size='1.1em',
+                        ),
+                        on_click=rx.redirect(MEMBERS_ROUTE),
+                    ),
+                    size='2',
                 ),
-                spacing='4',
+                rx.tabs.content(
+                    rx.spacer(),
+                    value="home_page",
+                ),
+                rx.tabs.content(
+                    rx.spacer(),
+                    value="members_page",
+                ),
+                default_value=NavbarState.default_tab,
+                value=rx.cond(
+                    NavbarState.current_tab,
+                    NavbarState.current_tab,
+                    current_page,
+                ),
+                on_change=lambda value: NavbarState.on_tab_change(
+                    value
+                ),
+                width="100%",
+            ),
+            rx.box(
+                width='100%',
+                height='1px',
+                style=rx.Style(
+                    background_color='#e2e1de'
+                )
             ),
         ),
-        rx.mobile_only(
-            rx.hstack(
-                site_name(),
-                sidebar_items(),
-                padding_x='1em',
-                padding_y='1em',
-                justify='start',
-                align='center',
-            ),
-        ),
+        spacing='0',
+        padding_x=['1em', '1em', '1em', '1em', '0'],
     )

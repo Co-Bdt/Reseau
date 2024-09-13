@@ -167,16 +167,6 @@ def members_page() -> rx.Component:
     return rx.cond(
         MembersState.is_hydrated,
         rx.vstack(
-            # rx.heading(
-            #     "Membres",
-            # ),
-            rx.text(
-                "Connecte avec d'autres gars ambitieux "
-                "et progresse avec eux.",
-                style=rx.Style(
-                    margin_bottom="0.5em"
-                ),
-            ),
             rx.form(
                 rx.input(
                     id="search_term",
