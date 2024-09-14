@@ -18,23 +18,28 @@ def user_hover_card(user: UserAccount, city: City) -> rx.Component:
         rx.vstack(
             rx.text(
                 f"{user.first_name} {user.last_name}",
-                style={
-                    'font_weight': '500',
-                },
+                style=rx.Style(
+                    font_family='Inter, sans-serif',
+                    font_weight='500',
+                ),
             ),
             rx.text(
                 f"{city.name} ({city.postal_code})",
                 margin_bottom='0.5em',
-                style={
-                    'font_size': '0.8em',
-                    'color': 'gray',
-                },
+                style=rx.Style(
+                    color='gray',
+                    font_family='Inter, sans-serif',
+                    font_size='0.8em',
+                ),
             ),
             rx.hstack(
                 rx.dialog.root(
                     rx.dialog.trigger(
                         rx.button(
-                            "Discussion",
+                            rx.text(
+                                "Discussion",
+                                font_family='Inter, sans-serif'
+                            ),
                             on_click=PrivateDiscussionsState.load_private_messages(  # noqa: E501
                                 user.id,
                             ),
@@ -52,7 +57,8 @@ def user_hover_card(user: UserAccount, city: City) -> rx.Component:
                                 ),
                                 rx.text(
                                     f"{user.first_name} "
-                                    f"{user.last_name}"
+                                    f"{user.last_name}",
+                                    font_family='Inter, sans-serif',
                                 ),
                             ),
                         ),

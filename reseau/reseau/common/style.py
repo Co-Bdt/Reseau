@@ -3,6 +3,8 @@ import reflex as rx
 
 style = {
 
+    "font_family": "Inter, sans-serif",
+
     rx.heading: {
         'font_weight': '700',
         'font_size': '1.25em',

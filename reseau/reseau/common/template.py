@@ -47,13 +47,17 @@ def template(
                             rx.box(
                                 rx.container(
                                     rx.text(
-                                        "Les messages privés sont maintenant "
-                                        "disponibles ! N'hésite pas à faire "
-                                        "un retour sur la prochaine "
-                                        "fonctionnalité que tu aimerais "
-                                        "avoir",
+                                        "Plusieurs canaux de discussions sont "
+                                        "maintenant disponibles ! N'hésite "
+                                        "pas à faire un retour sur la "
+                                        "prochaine fonctionnalité que tu "
+                                        "aimerais avoir",
                                         class_name='mobile-text',
-                                        font_color='gray',
+                                        style=rx.Style(
+                                            font_color='gray',
+                                            font_family='Satoshi Variable, '
+                                                        'sans-serif',
+                                        ),
                                     ),
                                     size='4',
                                     max_height='2em',

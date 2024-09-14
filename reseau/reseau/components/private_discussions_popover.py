@@ -58,8 +58,11 @@ def private_discussions_popover():
         rx.popover.content(
             rx.text(
                 "Discussions",
-                font_weight='500',
-                margin_bottom='0.5em',
+                style=rx.Style(
+                    font_family='Inter, sans-serif',
+                    font_weight='500',
+                    margin_bottom='0.5em',
+                ),
             ),
             rx.cond(
                 PrivateDiscussionsState.private_discussions,
@@ -85,15 +88,16 @@ def private_discussions_popover():
                                         rx.text(
                                             f"{discussion[0].first_name} "
                                             f"{discussion[0].last_name}",
-                                            font_weight='500',
-                                            color=rx.cond(
-                                                discussion[1],
-                                                'gray',
-                                                rx.color_mode_cond(
-                                                    light=rx.color('black'),
-                                                    dark=rx.color('white'),
-                                                )
-                                            )
+                                            style=rx.Style(
+                                                color=rx.cond(
+                                                    discussion[1],
+                                                    'gray',
+                                                    'black',
+                                                ),
+                                                font_family=('Inter, '
+                                                             'sans-serif'),
+                                                font_weight='500',
+                                            ),
                                         ),
                                     ),
                                     rx.cond(
@@ -129,9 +133,12 @@ def private_discussions_popover():
                                     ),
                                     rx.text(
                                         f"{discussion[0].first_name} "
-                                        f"{discussion[0].last_name}"
+                                        f"{discussion[0].last_name}",
+                                        font_family=('Inter, '
+                                                     'sans-serif'),
                                     ),
                                 ),
+                                margin_top='0.5em',
                             ),
                             private_discussion(
                                 other_user=discussion[0],
@@ -145,8 +152,11 @@ def private_discussions_popover():
                 rx.hstack(
                     rx.text(
                         "Démarre une discussion depuis la page des membres",
-                        color='gray',
-                        font_size='0.9em',
+                        style=rx.Style(
+                            color='gray',
+                            font_family='Inter, sans-serif',
+                            font_size='0.9em',
+                        ),
                     ),
                     width='100%',
                     justify='center',

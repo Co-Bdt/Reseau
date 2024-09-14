@@ -161,92 +161,56 @@ def post_dialog(**props):
                         profile_picture=post_author.profile_picture,
                     ),
                     rx.vstack(
-                        rx.tablet_and_desktop(
-                            rx.hstack(
-                                rx.text(
-                                    post_author.first_name,
-                                    style={
-                                        'font_weight': '500',
-                                    },
+                        rx.hstack(
+                            rx.text(
+                                post_author.first_name,
+                                style=rx.Style(
+                                    font_family='Satoshi, sans-serif',
+                                    font_weight='600',
                                 ),
-                                rx.text(
-                                    post_author.last_name,
-                                    style={
-                                        'font_weight': '500',
-                                    },
-                                ),
-                                spacing='1',
                             ),
-                        ),
-                        rx.mobile_only(
-                            rx.hstack(
-                                rx.text(
-                                    post_author.first_name,
-                                    style={
-                                        'font_weight': '500',
-                                        'font_size': '0.9em',
-                                    },
+                            rx.text(
+                                post_author.last_name,
+                                style=rx.Style(
+                                    font_family='Satoshi, sans-serif',
+                                    font_weight='600',
                                 ),
-                                rx.text(
-                                    post_author.last_name,
-                                    style={
-                                        'font_weight': '500',
-                                        'font_size': '0.9em',
-                                    },
-                                ),
-                                spacing='1',
                             ),
+                            spacing='1',
                         ),
                         rx.text(
                             post_datetime,
-                            style={
-                                'font_size': '0.8em',
-                                'color': 'gray',
-                            },
+                            style=rx.Style(
+                                color='gray',
+                                font_family='Satoshi, sans-serif',
+                                font_size='0.8em',
+                            ),
                         ),
                         spacing='0',
                     ),
                 ),
-                rx.tablet_and_desktop(
-                    rx.vstack(
-                        rx.text(
-                            post.title,
-                            style={
-                                'font_weight': '700',
-                                'font_size': '1.3em',
-                            },
+                rx.vstack(
+                    rx.text(
+                        post.title,
+                        style=rx.Style(
+                            font_family='Satoshi, sans-serif',
+                            font_weight='700',
+                            font_size=['1.3em', '1.4em'],
                         ),
-                        rx.text(
-                            f"{post.content}",
-                            style={
-                                'white_space': 'pre-wrap',
-                            },
-                        ),
-                        spacing='3',
                     ),
-                ),
-                rx.mobile_only(
-                    rx.vstack(
-                        rx.text(
-                            post.title,
-                            style={
-                                'font_weight': '700',
-                                'font_size': '1.2em',
-                            },
+                    rx.text(
+                        f"{post.content}",
+                        style=rx.Style(
+                            font_family='Satoshi, sans-serif',
+                            font_size=['0.9em', '1em'],
+                            white_space='pre-wrap',
                         ),
-                        rx.text(
-                            post.content,
-                            style={
-                                'white_space': 'pre-wrap',
-                                'font_size': '0.9em',
-                            },
-                        ),
-                        spacing='2',
                     ),
+                    spacing='3',
                 ),
                 direction='column',
                 spacing='4',
-                padding=['1em 0.5em', '1.5em'],
+                padding=['1em', '1.5em'],
             ),
 
             rx.separator(
@@ -265,9 +229,9 @@ def post_dialog(**props):
                 ),
                 direction='column',
                 spacing='4',
-                padding=['1em 0.5em', '1.5em'],
+                padding=['1em', '1.5em'],
             ),
-            padding=['0em', '0em'],
+            padding='0em',
             max_width=['95%', '90%', '75%', '60%', '50%'],
         ),
     )

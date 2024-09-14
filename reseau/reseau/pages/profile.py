@@ -201,9 +201,6 @@ def profile_page() -> rx.Component:
     return rx.cond(
         ProfileState.is_hydrated,
         rx.vstack(
-            rx.heading(
-                "Ton profil",
-            ),
             rx.tablet_and_desktop(
                 rx.hstack(
                     rx.upload(
@@ -234,13 +231,17 @@ def profile_page() -> rx.Component:
                         rx.hstack(
                             rx.text(
                                 ProfileState.authenticated_user.first_name,
-                                class_name='desktop-medium-text',
-                                style={'font_size': '1.1em'},
+                                style=rx.Style(
+                                    font_weight='600',
+                                    font_size='1.2em',
+                                ),
                             ),
                             rx.text(
                                 ProfileState.authenticated_user.last_name,
-                                class_name='desktop-medium-text',
-                                style={'font_size': '1.1em'},
+                                style=rx.Style(
+                                    font_weight='600',
+                                    font_size='1.2em',
+                                ),
                             ),
                             spacing='1',
                         ),
@@ -285,11 +286,17 @@ def profile_page() -> rx.Component:
                         ),
                         rx.text(
                             ProfileState.authenticated_user.first_name,
-                            class_name='desktop-medium-text'
+                            style=rx.Style(
+                                font_weight='600',
+                                font_size='1.1em',
+                            ),
                         ),
                         rx.text(
                             ProfileState.authenticated_user.last_name,
-                            class_name='desktop-medium-text'
+                            style=rx.Style(
+                                font_weight='600',
+                                font_size='1.1em',
+                            ),
                         ),
                         spacing='1',
                     ),

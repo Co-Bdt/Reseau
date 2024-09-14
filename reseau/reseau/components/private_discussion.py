@@ -47,8 +47,11 @@ def private_discussion(
                 rx.hstack(
                     rx.text(
                         "Tu es sur le point de briser la glace !",
-                        color='gray',
-                        font_size='0.9em',
+                        style=rx.Style(
+                            color='gray',
+                            font_family='Inter, sans-serif',
+                            font_size='0.9em',
+                        ),
                     ),
                     width='100%',
                     justify='center',
@@ -68,9 +71,15 @@ def private_discussion(
                         name='message',
                         placeholder=f"Écris à {other_user.first_name}",
                         size='3',
-                        width='100%',
+                        style=rx.Style(
+                            font_family='Inter, sans-serif',
+                            width='100%',
+                        ),
                     ),
-                    rx.button("Envoyer", type='submit', size='3'),
+                    rx.button(
+                        rx.text("Envoyer", font_family='Inter, sans-serif'),
+                        type='submit', size='3'
+                    ),
                     width='100%',
                 ),
                 on_submit=PrivateDiscussionsState.send_message,
@@ -96,9 +105,12 @@ def message_group(
         rx.hstack(
             rx.text(
                 messages[1],
-                text_align='center',
-                font_size='0.9em',
-                color='gray',
+                style=rx.Style(
+                    text_align='center',
+                    color='gray',
+                    font_size='0.8em',
+                    font_family='Inter, sans-serif',
+                ),
             ),
             width='100%',
             justify='center',
@@ -128,23 +140,26 @@ def message_bubble(
                 rx.hstack(
                     rx.text(
                         message.private_message.content,
-                        font_size=['0.9em', '0.9em', '0.9em', '1em'],
+                        style=rx.Style(
+                            font_family='Inter, sans-serif',
+                            font_size=['0.9em', '0.9em', '0.9em', '1em'],
+                        ),
                     ),
                     rx.text(
                         rx.moment(
                             message.private_message.published_at,
                             format="HH:mm"
                         ),
-                        font_size='0.7em',
-                        color='gray',
+                        style=rx.Style(
+                            color='gray',
+                            font_family='Inter, sans-serif',
+                            font_size='0.7em',
+                        ),
                     ),
                     width='100%',
                     align_items='end',
                 ),
-                background_color=rx.color_mode_cond(
-                    light='#F9F8F8',
-                    dark='#121212',
-                ),
+                background_color='#F9F8F8',
                 style=common_style,
             ),
             profile_picture(
@@ -170,22 +185,25 @@ def message_bubble(
                 rx.hstack(
                     rx.text(
                         message.private_message.content,
-                        font_size=['0.9em', '0.9em', '0.9em', '1em'],
+                        style=rx.Style(
+                            font_family='Inter, sans-serif',
+                            font_size=['0.9em', '0.9em', '0.9em', '1em'],
+                        ),
                     ),
                     rx.text(
                         rx.moment(
                             message.private_message.published_at,
                             format="HH:mm"
                         ),
-                        font_size='0.7em',
-                        color='gray',
+                        style=rx.Style(
+                            color='gray',
+                            font_family='Inter, sans-serif',
+                            font_size='0.7em',
+                        ),
                     ),
                     align_items='end',
                 ),
-                background_color=rx.color_mode_cond(
-                    light='#FFF6E0',
-                    dark='#36290D',
-                ),
+                background_color='#FFF6E0',
                 style=common_style,
             ),
             align_items='start',
