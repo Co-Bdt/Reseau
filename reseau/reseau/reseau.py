@@ -8,6 +8,7 @@ REGISTER_ROUTE = '/rejoindre'
 LOGIN_ROUTE = '/connexion'
 PROFILE_ROUTE = '/profil'
 MEMBERS_ROUTE = '/membres'
+PRIVACY_POLICY_ROUTE = '/privacy-policy'
 
 DEFAULT_POSTCATEGORY = 0
 
