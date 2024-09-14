@@ -1,7 +1,8 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from itertools import groupby
 import reflex as rx
 import sqlalchemy as sa
+import time
 
 from ..common.base_state import BaseState
 from ..common.translate import format_to_date
@@ -139,6 +140,15 @@ class PrivateDiscussionsState(BaseState):
                 )
             ).all()
 
+            # Convert all published_at to Paris time
+            for message in messages:
+                now = time.time()
+                offset = (datetime.fromtimestamp(now) -
+                          datetime.utcfromtimestamp(now))
+                message.private_message.published_at = (
+                    message.private_message.published_at + offset
+                )
+
             messages = sorted(
                 messages,
                 key=lambda x: x.private_message.published_at
@@ -183,7 +193,7 @@ class PrivateDiscussionsState(BaseState):
         with rx.session() as session:
             new_message = PrivateMessage(
                 content=form_data["message"],
-                published_at=datetime.now(),
+                published_at=datetime.now(timezone.utc),
             )
             session.add(new_message)
             session.commit()

@@ -148,7 +148,7 @@ def message_bubble(
                     rx.text(
                         rx.moment(
                             message.private_message.published_at,
-                            format="HH:mm"
+                            format='HH:mm'
                         ),
                         style=rx.Style(
                             color='gray',
