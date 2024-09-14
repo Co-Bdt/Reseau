@@ -4,6 +4,7 @@ import asyncio
 import boto3
 import reflex as rx
 
+from ..common.base_state import BaseState
 from ..common.template import template
 from ..components.registration.registration_account_step import RegistrationAccountStepState, account_step  # noqa: E501
 from ..components.registration.registration_profile_step import RegistrationProfileStepState, profile_step  # noqa: E501
@@ -112,7 +113,8 @@ class RegistrationState(rx.State):
         self.update_interests(new_user, selected_interests)
 
         if self.is_google_auth:
-            self._google_login(
+            base_state = await self.get_state(BaseState)
+            base_state._google_login(
                 new_user.id,
                 self.google_credentials
             )

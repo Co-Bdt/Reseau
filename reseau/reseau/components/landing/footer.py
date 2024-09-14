@@ -16,7 +16,7 @@ def footer(
                     style=rx.Style(
                         color='white',
                         font_weight="600",
-                        font_size=['1.5em', '1.75em', '2.25em', '2.75em'],
+                        font_size=['1.5em', '1.75em', '2.25em'],
                         font_family='Inter, sans-serif',
                     ),
                 ),
@@ -36,7 +36,7 @@ def footer(
                     ),
                     href="mailto:contact-reseaudevperso@gmail.com",
                 ),
-                justify='between',
+                spacing='5',
                 width='100%',
             ),
             rx.form.root(

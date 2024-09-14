@@ -3,12 +3,13 @@ from google.oauth2.id_token import verify_oauth2_token
 from re import match
 import reflex as rx
 
-from reseau.components.custom.react_oauth_google import (
+from ...common.base_state import BaseState
+from ...components.custom.react_oauth_google import (
     GoogleLogin,
     GoogleOAuthProvider
 )
-from reseau.models import UserAccount
-from reseau.reseau import GOOGLE_AUTH_CLIENT_ID, HOME_ROUTE, LOGIN_ROUTE
+from ...models import UserAccount
+from ...reseau import GOOGLE_AUTH_CLIENT_ID, HOME_ROUTE, LOGIN_ROUTE
 
 
 def first_name():
@@ -143,8 +144,8 @@ class RegistrationAccountStepState(rx.State):
                 ).one_or_none()
             )
         if existing_user is not None:
-            registration = await self.get_state(RegistrationState)
-            registration._google_login(
+            base_state = await self.get_state(BaseState)
+            base_state._google_login(
                 existing_user.id,
                 user_data
             )

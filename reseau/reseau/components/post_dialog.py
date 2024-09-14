@@ -73,11 +73,15 @@ def post_dialog(**props):
                                 rx.hstack(
                                     rx.text(
                                         post_author.first_name,
-                                        class_name='desktop-medium-text',
+                                        style=rx.Style(
+                                            font_weight='600',
+                                        ),
                                     ),
                                     rx.text(
                                         post_author.last_name,
-                                        class_name='desktop-medium-text',
+                                        style=rx.Style(
+                                            font_weight='600',
+                                        ),
                                     ),
                                     spacing='1',
                                 ),
@@ -86,11 +90,17 @@ def post_dialog(**props):
                                 rx.hstack(
                                     rx.text(
                                         post_author.first_name,
-                                        class_name='mobile-medium-text',
+                                        style=rx.Style(
+                                            font_weight='600',
+                                            font_size='0.9em',
+                                        ),
                                     ),
                                     rx.text(
                                         post_author.last_name,
-                                        class_name='mobile-medium-text',
+                                        style=rx.Style(
+                                            font_weight='600',
+                                            font_size='0.9em',
+                                        ),
                                     ),
                                     spacing='1',
                                 ),
@@ -105,8 +115,11 @@ def post_dialog(**props):
                     rx.tablet_and_desktop(
                         rx.text(
                             post.title,
-                            class_name='desktop-title',
-                            margin_bottom='0.5em',
+                            style=rx.Style(
+                                font_weight='700',
+                                font_size='1.2em',
+                                margin_bottom='0.5em',
+                            ),
                         ),
                         rx.box(
                             post.content,
@@ -117,8 +130,11 @@ def post_dialog(**props):
                     rx.mobile_only(
                         rx.text(
                             post.title,
-                            class_name='mobile-title',
-                            margin_bottom='0.3em',
+                            style=rx.Style(
+                                font_weight='700',
+                                font_size='1.1em',
+                                margin_bottom='0.3em',
+                            ),
                         ),
                         rx.box(
                             post.content,

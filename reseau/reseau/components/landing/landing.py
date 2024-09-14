@@ -250,7 +250,7 @@ def landing_page(
                     "L'idée est de faire grandir une communauté de personnes ",
                     "qui partagent la même ambition : devenir la meilleure ",
                     "version d'eux-mêmes. Au travers de cette plateforme, ",
-                    "tu pourras discuter, partager tes pensées et progresser ",
+                    "tu pourras rencontrer, discuter et progresser ",
                     "avec d'autres gars qui partagent tes valeurs. ",
                     "Ce projet est en constante évolution, et nous ",
                     "avons besoin de tes retours pour l'enmener plus loin. ",

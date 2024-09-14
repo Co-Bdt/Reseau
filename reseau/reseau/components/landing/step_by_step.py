@@ -59,7 +59,7 @@ def step_two() -> rx.Component:
             style=rx.Style(
                 color='white',
                 font_weight="700",
-                font_size='1.75em',
+                font_size=['1.75em', '2em', '2.25em', '2.75em'],
                 font_family='Inter, sans-serif',
             ),
         ),
@@ -89,9 +89,7 @@ def step_by_step() -> rx.Component:
                     ),
                     step_one(),
                     spacing='9',
-                    # style=rx.Style(
-                    #     margin_top='5em',
-                    # ),
+                    justify='between',
                 ),
                 rx.hstack(
                     step_two(),
@@ -102,6 +100,7 @@ def step_by_step() -> rx.Component:
                         ),
                     ),
                     spacing='9',
+                    justify='between',
                     style=rx.Style(
                         margin_top='5em',
                     ),

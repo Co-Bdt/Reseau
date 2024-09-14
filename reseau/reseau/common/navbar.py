@@ -145,12 +145,16 @@ def navbar(
                 ),
                 width="100%",
             ),
-            rx.box(
+            rx.vstack(
+                rx.spacer(),
+                rx.box(
+                    width='100%',
+                    height='1px',
+                    style=rx.Style(
+                        background_color='#e2e1de'
+                    )
+                ),
                 width='100%',
-                height='1px',
-                style=rx.Style(
-                    background_color='#e2e1de'
-                )
             ),
         ),
         spacing='0',

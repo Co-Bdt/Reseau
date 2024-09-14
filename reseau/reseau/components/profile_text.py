@@ -19,7 +19,7 @@ def profile_text(
             rx.text_area(
                 value=profile_text,
                 placeholder="Qui es-tu ?\
-                    \nQu'est-ce qui te caractérise ?",
+                    \nQuels sont tes projets ?",
                 size='3',
                 max_length=300,
                 on_change=set_profile_text,
@@ -30,7 +30,7 @@ def profile_text(
             rx.text_area(
                 value=profile_text,
                 placeholder="Qui es-tu ?\
-                    \nQu'est-ce qui te caractérise ?",
+                    \nQuels sont tes projets ?",
                 max_length=300,
                 on_change=set_profile_text,
                 style=common_style,
@@ -40,7 +40,7 @@ def profile_text(
             rx.text_area(
                 value=profile_text,
                 placeholder="Qui es-tu ?\
-                    \nQu'est-ce qui te caractérise ?",
+                    \nQuels sont tes projets ?",
                 max_length=300,
                 on_change=set_profile_text,
                 style=rx.Style(
