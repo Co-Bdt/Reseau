@@ -140,14 +140,21 @@ class PrivateDiscussionsState(BaseState):
                 )
             ).all()
 
+            import logging
             # Convert all published_at to Paris time
             for message in messages:
+                logging.debug("before", message.private_message.published_at)
                 now = time.time()
+                logging.debug("now", now)
+                logging.debug("fromts(now)", datetime.fromtimestamp(now))
+                logging.debug("utcfromts(now)", datetime.utcfromtimestamp(now))
                 offset = (datetime.fromtimestamp(now) -
                           datetime.utcfromtimestamp(now))
+                logging.debug("offset", offset)
                 message.private_message.published_at = (
                     message.private_message.published_at + offset
                 )
+                logging.debug("after", message.private_message.published_at)
 
             messages = sorted(
                 messages,
