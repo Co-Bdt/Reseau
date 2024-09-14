@@ -1,8 +1,9 @@
 from datetime import datetime, timezone
 from itertools import groupby
+import os
 import reflex as rx
 import sqlalchemy as sa
-from zoneinfo import ZoneInfo
+import time
 
 from ..common.base_state import BaseState
 from ..common.translate import format_to_date
@@ -140,8 +141,10 @@ class PrivateDiscussionsState(BaseState):
                 )
             ).all()
             # Convert all published_at to Paris time
+            os.environ['TZ'] = 'Europe/Paris'
+            time.tzset()
             for message in messages:
-                paris_now = datetime.now(ZoneInfo("Europe/Paris")).timestamp()
+                paris_now = datetime.now().timestamp()
                 offset = (datetime.fromtimestamp(paris_now) -
                           datetime.utcfromtimestamp(paris_now))
                 message.private_message.published_at = (
