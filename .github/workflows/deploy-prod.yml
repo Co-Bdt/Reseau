@@ -1,4 +1,4 @@
-# This workflow will deploy the latest image from GitHub Container Registry to GKE when there is a push to the "main" branch.
+# This workflow will deploy the latest Reseau image from GHCR to GKE Production when there is a push to the "main" branch.
 
 name: Deploy to GKE Prod
 
