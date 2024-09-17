@@ -96,7 +96,7 @@ def privacy_policy_content() -> rx.Component:
         rx.text("- Par email : contact.reseaudevperso@gmail.com"),
         rx.text("- En visitant notre site Web : https://reseau-devperso.fr"),
         spacing='2',
-        margin_bottom='5    em',
+        margin_bottom='5em',
     ),
 
 

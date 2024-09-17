@@ -1,6 +1,7 @@
 import reflex as rx
 
-from reseau.components.site_name import site_name
+from ...components.site_name import site_name
+from ...reseau import PRIVACY_POLICY_ROUTE
 
 
 def footer(
@@ -15,7 +16,7 @@ def footer(
                     "Tu as des questions ?",
                     style=rx.Style(
                         color='white',
-                        font_weight="600",
+                        font_weight='700',
                         font_size=['1.5em', '1.75em', '2.25em'],
                         font_family='Inter, sans-serif',
                     ),
@@ -106,17 +107,40 @@ def footer(
                     margin_bottom='1em',
                 ),
             ),
-            # TODO: Add privacy policy in a hstack
-            site_name(
-                color='white',
-            ),
-            rx.text(
-                "© 2024",
-                style=rx.Style(
-                    color='rgba(255, 255, 255, 0.5)',
-                    font_size='0.9em',
-                    font_family='Satoshi Variable, sans-serif',
+            rx.hstack(
+                rx.vstack(
+                    site_name(
+                        color='white',
+                    ),
+                    rx.text(
+                        "© 2024",
+                        style=rx.Style(
+                            color='gray',
+                            font_size='0.9em',
+                            font_family='Satoshi Variable, sans-serif',
+                        ),
+                    ),
                 ),
+                rx.vstack(
+                    rx.text(
+                        "LEGAL",
+                        style=rx.Style(
+                            color='gray',
+                            font_weigth='600',
+                            font_size='1.1em',
+                        ),
+                    ),
+                    rx.link(
+                        "Politique de confidentialité",
+                        href=PRIVACY_POLICY_ROUTE,
+                        style=rx.Style(
+                            color='rgba(255, 255, 255, 0.75)',
+                            font_family='Satoshi Variable, sans-serif',
+                        ),
+                    ),
+                ),
+                justify='between',
+                width='100%',
             ),
             align_items='start',
         ),
