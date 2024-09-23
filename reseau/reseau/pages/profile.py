@@ -92,7 +92,12 @@ class ProfileState(BaseState):
             return rx.toast.warning("Tu ne peux sélectionner que 4 intérêts.")
 
     def remove_selected(self, item: str):
-        self.selected_interests_names.remove(item)
+        if len(self.selected_interests_names) > 2:
+            self.selected_interests_names.remove(item)
+        else:
+            return rx.toast.warning(
+                "Tu dois sélectionner au moins 2 intérêts."
+            )
 
     def update_profile_picture(self):
         s3 = boto3.resource('s3')

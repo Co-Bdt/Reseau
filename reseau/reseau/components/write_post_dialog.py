@@ -76,7 +76,7 @@ def write_post_dialog(
                             user.first_name,
                             style=rx.Style(
                                 font_family='Inter, sans-serif',
-                                font_weight='500',
+                                font_weight='600',
                                 margin_left='0.5em',
                             ),
                         ),
@@ -84,7 +84,7 @@ def write_post_dialog(
                             user.last_name,
                             style=rx.Style(
                                 font_family='Inter, sans-serif',
-                                font_weight='500',
+                                font_weight='600',
                             ),
                         ),
                         spacing='1',

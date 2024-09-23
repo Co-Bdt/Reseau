@@ -11,7 +11,7 @@ from ..models import UserAccount
 from ..reseau import LOGIN_ROUTE, REGISTER_ROUTE, GOOGLE_AUTH_CLIENT_ID
 
 
-class LogInState(BaseState):
+class LogInState(rx.State):
     """Handle login form submission and
     redirect to proper routes after authentication."""
 
@@ -59,18 +59,23 @@ class LogInState(BaseState):
             # Set success and mark the user as logged in
             self.success = True
             yield
-            self._login(user.id)
+            base_state = await self.get_state(BaseState)
+            base_state._login(user.id)
+
         await asyncio.sleep(0.5)
         yield [LogInState.redir(), LogInState.set_success(False)]
 
-    def redir(self) -> rx.event.EventSpec | None:
+    async def redir(self) -> rx.event.EventSpec | None:
         """Redirect to the redirect_to route if logged in,
         or to the login page if not."""
         if not self.is_hydrated:
             # wait until after hydration to ensure auth_token is known
             return LogInState.redir()  # type: ignore
+
         page = LOGIN_ROUTE
-        if not self.is_authenticated and page != LOGIN_ROUTE:
+        base_state = await self.get_state(BaseState)
+
+        if not base_state.is_authenticated and page != LOGIN_ROUTE:
             self.redirect_to = page
             return rx.redirect(LOGIN_ROUTE)
         elif page == LOGIN_ROUTE:

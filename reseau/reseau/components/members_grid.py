@@ -148,11 +148,12 @@ def members_grid(**props) -> rx.Component:
                             width='100%',
                             align='start',
                         ),
-                        rx.hstack(
+                        rx.flex(
                             rx.foreach(
                                 user[2],
                                 interest_chip,
                             ),
+                            wrap='wrap',
                             spacing='1',
                         ),
                         rx.box(

@@ -8,11 +8,9 @@ from ..models import Comment, Post, UserAccount
 
 
 comment_text_style = {
-    'style': rx.Style(
-        overflow='hidden',
-        text_overflow='break-word',
-        max_height='3em',
-    ),
+    'overflow': 'hidden',
+    'text_overflow': 'break-word',
+    'max_height': '3em',
 }
 
 
@@ -69,76 +67,50 @@ def post_dialog(**props):
                             profile_picture=post_author.profile_picture,
                         ),
                         rx.vstack(
-                            rx.tablet_and_desktop(
-                                rx.hstack(
-                                    rx.text(
-                                        post_author.first_name,
-                                        style=rx.Style(
-                                            font_weight='600',
-                                        ),
+                            rx.hstack(
+                                rx.text(
+                                    post_author.first_name,
+                                    style=rx.Style(
+                                        font_weight='600',
+                                        font_size=['0.9em', '1em'],
                                     ),
-                                    rx.text(
-                                        post_author.last_name,
-                                        style=rx.Style(
-                                            font_weight='600',
-                                        ),
-                                    ),
-                                    spacing='1',
                                 ),
-                            ),
-                            rx.mobile_only(
-                                rx.hstack(
-                                    rx.text(
-                                        post_author.first_name,
-                                        style=rx.Style(
-                                            font_weight='600',
-                                            font_size='0.9em',
-                                        ),
+                                rx.text(
+                                    post_author.last_name,
+                                    style=rx.Style(
+                                        font_weight='600',
+                                        font_size=['0.9em', '1em'],
                                     ),
-                                    rx.text(
-                                        post_author.last_name,
-                                        style=rx.Style(
-                                            font_weight='600',
-                                            font_size='0.9em',
-                                        ),
-                                    ),
-                                    spacing='1',
                                 ),
+                                spacing='1',
                             ),
-                            rx.text(
-                                post_datetime,
-                                class_name='discreet-text',
+                            rx.hstack(
+                                rx.text(
+                                    post_datetime,
+                                    class_name='discreet-text',
+                                ),
+                                rx.text(
+                                    f" dans {post.postcategory.name}",
+                                    class_name='discreet-text',
+                                    white_space="pre"
+                                ),
+                                spacing='0',
                             ),
                             spacing='0',
                         ),
                     ),
-                    rx.tablet_and_desktop(
-                        rx.text(
-                            post.title,
-                            style=rx.Style(
-                                font_weight='700',
-                                font_size='1.2em',
-                                margin_bottom='0.5em',
-                            ),
-                        ),
-                        rx.box(
-                            post.content,
-                            class_name='desktop-text',
-                            **comment_text_style,
+                    rx.text(
+                        post.title,
+                        style=rx.Style(
+                            font_weight='700',
+                            font_size=['1.1em', '1.2em'],
                         ),
                     ),
-                    rx.mobile_only(
-                        rx.text(
-                            post.title,
-                            style=rx.Style(
-                                font_weight='700',
-                                font_size='1.1em',
-                                margin_bottom='0.3em',
-                            ),
-                        ),
-                        rx.box(
-                            post.content,
-                            class_name='mobile-text',
+                    rx.text(
+                        post.content,
+                        style=rx.Style(
+                            font_weight='400',
+                            font_size=['0.9em', '1em'],
                             **comment_text_style,
                         ),
                     ),
@@ -153,6 +125,7 @@ def post_dialog(**props):
                             class_name='discreet-text',
                         )
                     ),
+                    spacing='3',
                     width='100%',
                     padding=['1em', '1.2em'],
                 ),

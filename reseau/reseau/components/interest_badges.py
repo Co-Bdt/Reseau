@@ -66,7 +66,7 @@ def interest_badges(
             ),
             wrap='wrap',
             spacing='2',
-            justify_content='start',
+            justify='start',
         ),
         rx.divider(),
 

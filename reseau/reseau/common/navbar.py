@@ -17,13 +17,7 @@ item_style = rx.Style(
     },
 )
 
-
-class NavbarState(rx.State):
-    default_tab: str = "home_page"
-    current_tab: str = ""
-
-    def on_tab_change(self, value):
-        self.current_tab = value
+default_tab: str = "home_page"
 
 
 def navbar(
@@ -134,15 +128,8 @@ def navbar(
                     rx.spacer(),
                     value="members_page",
                 ),
-                default_value=NavbarState.default_tab,
-                value=rx.cond(
-                    NavbarState.current_tab,
-                    NavbarState.current_tab,
-                    current_page,
-                ),
-                on_change=lambda value: NavbarState.on_tab_change(
-                    value
-                ),
+                default_value=default_tab,
+                value=current_page,
                 width="100%",
             ),
             rx.vstack(

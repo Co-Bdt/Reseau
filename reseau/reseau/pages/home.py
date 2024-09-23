@@ -14,7 +14,7 @@ from ..reseau import DEFAULT_POSTCATEGORY, HOME_ROUTE
 from ..scripts.load_profile_pictures import load_profile_pictures
 
 
-class HomeState(BaseState):
+class HomeState(rx.State):
     last_users: list[UserAccount] = []  # 2 last users created
 
     # posts to display
@@ -56,6 +56,7 @@ class HomeState(BaseState):
                     sa.orm.selectinload(Post.useraccount)
                     .selectinload(UserAccount.city),
                     sa.orm.selectinload(Post.comment_list),
+                    sa.orm.selectinload(Post.postcategory),
                 )
                 .where(
                     Post.is_published
@@ -113,10 +114,11 @@ class HomeState(BaseState):
         self.current_postcategory = postcategory['id']
         return HomeState.load_posts(postcategory['id'])
 
-    def publish_post(self, form_data: dict):
+    async def publish_post(self, form_data: dict):
         title = form_data['title']
         content = form_data['content']
         category = form_data['category']
+        base_state = await self.get_state(BaseState)
 
         if not content:
             return rx.toast.warning("Ton post doit avoir un contenu.")
@@ -132,7 +134,7 @@ class HomeState(BaseState):
         post = Post(
             title=title,
             content=content,
-            author_id=self.authenticated_user.id,
+            author_id=base_state.authenticated_user.id,
             category_id=postcategory.id,
             published_at=datetime.now(),
         )
@@ -174,10 +176,10 @@ def home_page() -> rx.Component:
     return rx.cond(
         HomeState.is_hydrated,
         rx.cond(
-            HomeState.is_authenticated,
+            BaseState.is_authenticated,
             rx.vstack(
                 write_post_dialog(
-                    user=HomeState.authenticated_user,
+                    user=BaseState.authenticated_user,
                     postcategories=HomeState.postcategories,
                     publish_post=HomeState.publish_post
                 ),
