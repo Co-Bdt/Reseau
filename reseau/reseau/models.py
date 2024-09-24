@@ -44,6 +44,9 @@ class UserAccount(
     interest_list: Optional[list["UserInterest"]] = Relationship(
         back_populates="useraccount"
     )
+    preference_list: Optional[list["UserPreference"]] = Relationship(
+        back_populates="useraccount"
+    )
     post_list: Optional[list["Post"]] = Relationship(
         back_populates="useraccount"
     )
@@ -185,6 +188,59 @@ class UserInterest(
         back_populates="interest_list"
     )
     interest: "Interest" = Relationship(
+        back_populates="useraccount_list"
+    )
+
+
+class Preference(
+    rx.Model,
+    table=True
+):
+    """A Preference model."""
+
+    name: str = Field(nullable=False)
+
+    # Relationships
+    useraccount_list: Optional[list["UserPreference"]] = Relationship(
+        back_populates="preference"
+    )
+
+
+class UserPreference(
+    rx.Model,
+    table=True
+):
+    """A model to join User and his Preferences."""
+
+    # Foreign keys
+    useraccount_id: int = Field(
+        sa_column=Column(
+            Integer,
+            ForeignKey(
+                "useraccount.id",
+                name="fk_userinterest_useraccount_id_useraccount",
+            ),
+            index=True,
+            nullable=False,
+        ),
+    )
+    preference_id: int = Field(
+        sa_column=Column(
+            Integer,
+            ForeignKey(
+                "preference.id",
+                name="fk_userinterest_preference_id_preference",
+            ),
+            index=True,
+            nullable=False,
+        ),
+    )
+
+    # Relationships
+    useraccount: "UserAccount" = Relationship(
+        back_populates="preference_list"
+    )
+    preference: "Preference" = Relationship(
         back_populates="useraccount_list"
     )
 

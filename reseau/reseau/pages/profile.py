@@ -1,3 +1,4 @@
+from typing import Dict
 import boto3
 from pathlib import Path
 from random import shuffle
@@ -8,7 +9,13 @@ from ..common.base_state import BaseState
 from ..common.template import template
 from ..components.profile_text import profile_text
 from ..components.interest_badges import interest_badges
-from ..models import Interest, UserAccount, UserInterest
+from ..models import (
+    Interest,
+    Preference,
+    UserAccount,
+    UserInterest,
+    UserPreference,
+)
 from ..reseau import PROFILE_ROUTE
 from rxconfig import S3_BUCKET_NAME
 
@@ -19,6 +26,20 @@ class ProfileState(BaseState):
     interests_names: list[str] = []  # all interests names
     # the user's selected interests names
     selected_interests_names: list[str] = []
+    notif_checked: bool = False
+    # user_pref: list[tuple[str, bool]] = [
+    #     ('post_notif_enabled', False),
+    #     ('pm_notif_enabled', False),
+    # ]
+    user_pref: Dict[str, bool] = {
+        "post_notif_enabled": False,
+        "pm_notif_enabled": False,
+    }
+    # post_notif_checked: bool = False
+    # pm_notif_checked: bool = False
+
+    def set_user_pref(self, key: str, value: bool):
+        self.user_pref[key] = value
 
     def init(self):
         self.profile_text = self.authenticated_user.profile_text
@@ -52,6 +73,33 @@ class ProfileState(BaseState):
             self.selected_interests_names = [
                 interest.interest.name for interest in user_interests
             ]
+
+        # Load the user's preferences
+        with rx.session() as session:
+            user = session.exec(
+                UserAccount.select()
+                .options(
+                    sa.orm.selectinload(UserAccount.preference_list)
+                    .selectinload(UserPreference.preference)
+                )
+                .where(
+                    UserInterest.useraccount_id == self.authenticated_user.id
+                )
+            ).first()
+
+        if user.preference_list:
+            self.notif_checked = True
+            # self.set_user_pref(user)
+        # TODO: make this code more robust, less repetitive
+        for pref in user.preference_list:
+            print("pref", pref)
+            self.user_pref[pref.preference.name] = True
+            # if pref.preference_id == 1:
+            #     self.post_notif_checked = True
+            # if pref.preference_id == 2:
+            #     self.pm_notif_checked = True
+
+        print("user_pref", self.user_pref)
 
     async def handle_upload(self, files: list[rx.UploadFile]):
         '''Handle the upload of file(s).
@@ -166,6 +214,36 @@ class ProfileState(BaseState):
                 session.add(user_interest)
             session.commit()
 
+    def update_preferences(self):
+        # prefs_to_update: list[Preference] = [
+        #     'post_notif_enabled', 'pm_notif_enabled'
+        # ]
+        with rx.session() as session:
+            preferences = session.exec(
+                Preference.select()
+            ).all()
+
+        print("all preferences", preferences)
+
+        with rx.session() as session:
+            for pref in preferences:
+                if self.user_pref[pref.name]:
+                    print("add pref:", pref.name)
+                    user_pref = UserPreference(
+                        useraccount_id=self.authenticated_user.id,
+                        preference_id=pref.id
+                    )
+                    session.add(user_pref)
+                else:
+                    print("remove pref:", pref.name)
+                    user_pref = session.exec(
+                        UserPreference.select()
+                        .where(UserPreference.useraccount_id == self.authenticated_user.id)
+                        .where(UserPreference.preference_id == pref.id)
+                    )
+                    session.delete(user_pref)
+            session.commit()
+
     def save_profile(self) -> rx.event.EventSpec:
         # Update the profile picture
         self.update_profile_picture()
@@ -190,6 +268,9 @@ class ProfileState(BaseState):
 
         # Update the user's interests
         self.update_interests()
+
+        # Update the user's preferences
+        self.update_preferences()
 
         return rx.toast.success("Profil mis à jour.")
 
@@ -334,6 +415,45 @@ def profile_page() -> rx.Component:
                     add_selected=ProfileState.add_selected,
                     remove_selected=ProfileState.remove_selected,
                     badge_size='2',
+                ),
+            ),
+
+            rx.vstack(
+                rx.flex(
+                    rx.switch(
+                        default_checked=False,
+                        checked=ProfileState.notif_checked,
+                        on_change=ProfileState.set_notif_checked
+                    ),
+                    rx.text("Notifications par mail"),
+                    spacing='2',
+                ),
+                rx.vstack(
+                    rx.flex(
+                        rx.switch(
+                            checked=ProfileState.user_pref[
+                                'post_notif_enabled'
+                            ],
+                            disabled=~ProfileState.notif_checked,
+                            on_change=lambda v: ProfileState.set_user_pref(
+                                'post_notif_enabled', v
+                            )
+                        ),
+                        rx.text("Posts"),
+                        spacing='2',
+                    ),
+                    rx.flex(
+                        rx.switch(
+                            checked=ProfileState.user_pref['pm_notif_enabled'],
+                            disabled=~ProfileState.notif_checked,
+                            on_change=lambda v: ProfileState.set_user_pref(
+                                'pm_notif_enabled', v
+                            )
+                        ),
+                        rx.text("Messages privés"),
+                        spacing='2',
+                    ),
+                    margin_left='2em'
                 ),
             ),
 
