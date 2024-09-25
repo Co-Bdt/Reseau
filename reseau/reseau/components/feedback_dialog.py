@@ -1,9 +1,7 @@
-from email.mime.text import MIMEText
 import reflex as rx
-import smtplib
 
 from ..models import UserAccount
-from rxconfig import GMAIL_APP_PASSWORD
+from ..common import email
 
 
 icon_button_style = {
@@ -25,42 +23,21 @@ class FeedbackDialogState(rx.State):
     def on_submit(self, form_data: dict):
         user = form_data['user'].split('-')
 
-        # Open a plain text file for writing.
-        # This will create the file if it doesn't exist
-        # and truncate (erase) its content if it does.
-        with open(
+        msg = email.write_email_file(
             f"./feedbacks/{user[0]}_mail_files.txt",
-                'w') as fp:
-            fp.write(f"{user[1]} "
-                     f"{user[2]}\n"
-                     f"{self.message}")
+            f"{user[1]} {user[2]}\n{self.message}"
+        )
 
-        # Reopen the file in read mode to read its content
-        with open(
-            f"./feedbacks/{user[0]}_mail_files.txt",
-                'r') as fp:
-            fp.seek(0)  # Move the file pointer to the beginning of the file
-            msg = MIMEText(fp.read())
-
-        sender = "contact.reseaudevperso@gmail.com"
-        recipient = "contact.reseaudevperso@gmail.com"
-
-        msg['Subject'] = 'Feedback Reseau'
-        msg['From'] = sender
-        msg['To'] = recipient
-
-        # Connect to Gmail's SMTP server
-        s = smtplib.SMTP('smtp.gmail.com', 587)
-        # Upgrade the connection to a secure encrypted SSL/TLS connection
-        s.starttls()
-        # Log in to the SMTP server using your email and password
-        s.login(sender, GMAIL_APP_PASSWORD)
-        s.sendmail(sender, [recipient], msg.as_string())
-        s.quit()
+        email.send_email(
+            msg,
+            'Feedback Reseau',
+            'contact.reseaudevperso@gmail.com'
+        )
 
         self.set_message('')
-        return rx.toast.success(f"Merci {user[1]}\
-                                 pour ton feedback.")
+        return rx.toast.success(
+            f"Merci {user[1]} pour ton feedback."
+        )
 
 
 def feedback_dialog(

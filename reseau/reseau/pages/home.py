@@ -9,7 +9,7 @@ from ..components.landing.landing import landing_page
 from ..components.postcategory_badges import postcategory_badges
 from ..components.post_dialog import post_dialog
 from ..components.write_post_dialog import write_post_dialog
-from ..models import Comment, Post, PostCategory, UserAccount
+from ..models import Comment, Post, PostCategory, Preference, UserAccount, UserPreference
 from ..reseau import DEFAULT_POSTCATEGORY, HOME_ROUTE
 from ..scripts.load_profile_pictures import load_profile_pictures
 
@@ -121,7 +121,8 @@ class HomeState(rx.State):
         base_state = await self.get_state(BaseState)
 
         if not content:
-            return rx.toast.warning("Ton post doit avoir un contenu.")
+            rx.toast.warning("Ton post doit avoir un contenu.")
+            return
 
         # Fetch the postcategory from the database.
         with rx.session() as session:
@@ -139,11 +140,29 @@ class HomeState(rx.State):
             published_at=datetime.now(),
         )
         with rx.session() as session:
-            session.add(post)
+            # session.add(post)
             session.commit()
 
         self.load_posts(self.current_postcategory)
-        return rx.toast.success("Post publié.")
+        yield rx.toast.success("Post publié.")
+
+        # Notify users of the new post
+        # that have enabled notifications for posts
+        with rx.session() as session:
+            users = session.exec(
+                UserAccount.select()
+                .options(
+                    sa.orm.selectinload(UserAccount.preference_list)
+                    .selectinload(UserPreference.preference)
+                )
+                .where(
+                    (UserAccount.id != base_state.authenticated_user.id)
+                    # (UserAccount.preference_list.any(
+                    #     UserPreference.preference_id == 1
+                    # ))
+                )
+            ).all()
+            print("users", users)
 
     def publish_comment(self, form_data: dict):
         if not form_data['content']:

@@ -1,16 +1,14 @@
-from email.mime.text import MIMEText
 from re import match
 from collections.abc import AsyncGenerator
 import reflex as rx
-import smtplib
 
+from ...common import email
 from ...models import UserAccount
 from ..profile_picture import profile_picture
 from ...reseau import REGISTER_ROUTE
 from ...components.landing.footer import footer
 from ...components.landing.navbar import navbar
 from ...components.landing.step_by_step import step_by_step
-from rxconfig import GMAIL_APP_PASSWORD
 
 
 class LandingState(rx.State):
@@ -40,7 +38,6 @@ class LandingState(rx.State):
         None
     ]:
         email = form_data['email']
-        print("email", email)
         if not email:
             yield rx.set_focus('email')
             yield rx.toast.error("Ton e-mail est requis.")
@@ -65,39 +62,18 @@ class LandingState(rx.State):
         yield rx.toast.success("Merci pour ta confiance.")
 
     async def send_email(
-        self, email
+        self, recipient
     ):
-        # Open a plain text file for writing.
-        # This will create the file if it doesn't exist
-        # and truncate (erase) its content if it does.
-        with open(
-            f"./mail_list/{email}_to_list.txt",
-                'w') as fp:
-            fp.write(email)
+        msg = email.write_email_file(
+            f"./mail_list/{recipient}_to_list.txt",
+            recipient
+        )
 
-        # Reopen the file in read mode to read its content
-        with open(
-            f"./mail_list/{email}_to_list.txt",
-                'r') as fp:
-            fp.seek(0)  # Move the file pointer
-            # to the beginning of the file
-            msg = MIMEText(fp.read())
-
-        sender = "contact.reseaudevperso@gmail.com"
-        recipient = "contact.reseaudevperso@gmail.com"
-
-        msg['Subject'] = 'Request mail list Reseau'
-        msg['From'] = sender
-        msg['To'] = recipient
-
-        # Connect to Gmail's SMTP server
-        s = smtplib.SMTP('smtp.gmail.com', 587)
-        # Upgrade the connection to a secure encrypted SSL/TLS connection
-        s.starttls()
-        # Log in to the SMTP server using your email and password
-        s.login(sender, GMAIL_APP_PASSWORD)
-        s.sendmail(sender, [recipient], msg.as_string())
-        s.quit()
+        email.send_email(
+            msg,
+            'Request mail list Reseau',
+            'contact.reseaudevperso@gmail.com'
+        )
 
 
 def landing_page(

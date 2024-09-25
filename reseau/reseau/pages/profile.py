@@ -26,17 +26,10 @@ class ProfileState(BaseState):
     interests_names: list[str] = []  # all interests names
     # the user's selected interests names
     selected_interests_names: list[str] = []
-    notif_checked: bool = False
-    # user_pref: list[tuple[str, bool]] = [
-    #     ('post_notif_enabled', False),
-    #     ('pm_notif_enabled', False),
-    # ]
-    user_pref: Dict[str, bool] = {
+    user_pref: Dict[str, bool] = {  # the user's enabled preferences
         "post_notif_enabled": False,
         "pm_notif_enabled": False,
     }
-    # post_notif_checked: bool = False
-    # pm_notif_checked: bool = False
 
     def set_user_pref(self, key: str, value: bool):
         self.user_pref[key] = value
@@ -83,23 +76,12 @@ class ProfileState(BaseState):
                     .selectinload(UserPreference.preference)
                 )
                 .where(
-                    UserInterest.useraccount_id == self.authenticated_user.id
+                    UserAccount.id == self.authenticated_user.id
                 )
             ).first()
 
-        if user.preference_list:
-            self.notif_checked = True
-            # self.set_user_pref(user)
-        # TODO: make this code more robust, less repetitive
         for pref in user.preference_list:
-            print("pref", pref)
             self.user_pref[pref.preference.name] = True
-            # if pref.preference_id == 1:
-            #     self.post_notif_checked = True
-            # if pref.preference_id == 2:
-            #     self.pm_notif_checked = True
-
-        print("user_pref", self.user_pref)
 
     async def handle_upload(self, files: list[rx.UploadFile]):
         '''Handle the upload of file(s).
@@ -215,33 +197,33 @@ class ProfileState(BaseState):
             session.commit()
 
     def update_preferences(self):
-        # prefs_to_update: list[Preference] = [
-        #     'post_notif_enabled', 'pm_notif_enabled'
-        # ]
+        # Retrieve all preferences
         with rx.session() as session:
             preferences = session.exec(
                 Preference.select()
             ).all()
 
-        print("all preferences", preferences)
-
+        # If the pref is enabled, add a UserPreference record
+        # else try to remove
         with rx.session() as session:
             for pref in preferences:
                 if self.user_pref[pref.name]:
-                    print("add pref:", pref.name)
                     user_pref = UserPreference(
                         useraccount_id=self.authenticated_user.id,
                         preference_id=pref.id
                     )
                     session.add(user_pref)
                 else:
-                    print("remove pref:", pref.name)
                     user_pref = session.exec(
                         UserPreference.select()
-                        .where(UserPreference.useraccount_id == self.authenticated_user.id)
-                        .where(UserPreference.preference_id == pref.id)
-                    )
-                    session.delete(user_pref)
+                        .where(
+                            (UserPreference.useraccount_id ==
+                                self.authenticated_user.id) &
+                            (UserPreference.preference_id == pref.id)
+                        )
+                    ).first()
+                    if user_pref:
+                        session.delete(user_pref)
             session.commit()
 
     def save_profile(self) -> rx.event.EventSpec:
@@ -419,22 +401,21 @@ def profile_page() -> rx.Component:
             ),
 
             rx.vstack(
-                rx.flex(
-                    rx.switch(
-                        default_checked=False,
-                        checked=ProfileState.notif_checked,
-                        on_change=ProfileState.set_notif_checked
-                    ),
-                    rx.text("Notifications par mail"),
-                    spacing='2',
-                ),
+                # rx.flex(
+                #     rx.switch(
+                #         default_checked=False,
+                #         checked=ProfileState.notif_checked,
+                #         on_change=ProfileState.set_notif_checked
+                #     ),
+                rx.text("Notifications par mail"),
+                #     spacing='2',
+                # ),
                 rx.vstack(
                     rx.flex(
                         rx.switch(
                             checked=ProfileState.user_pref[
                                 'post_notif_enabled'
                             ],
-                            disabled=~ProfileState.notif_checked,
                             on_change=lambda v: ProfileState.set_user_pref(
                                 'post_notif_enabled', v
                             )
@@ -445,7 +426,6 @@ def profile_page() -> rx.Component:
                     rx.flex(
                         rx.switch(
                             checked=ProfileState.user_pref['pm_notif_enabled'],
-                            disabled=~ProfileState.notif_checked,
                             on_change=lambda v: ProfileState.set_user_pref(
                                 'pm_notif_enabled', v
                             )
@@ -453,7 +433,7 @@ def profile_page() -> rx.Component:
                         rx.text("Messages privés"),
                         spacing='2',
                     ),
-                    margin_left='2em'
+                    # margin_left='2em'
                 ),
             ),
 
