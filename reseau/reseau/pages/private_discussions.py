@@ -6,8 +6,14 @@ import sqlalchemy as sa
 import time
 
 from ..common.base_state import BaseState
+from ..common import email
 from ..common.translate import format_to_date
-from ..models import PrivateMessage, UserAccount, UserPrivateMessage
+from ..models import (
+    PrivateMessage,
+    UserAccount,
+    UserPreference,
+    UserPrivateMessage,
+)
 
 
 class PrivateDiscussionsState(BaseState):
@@ -192,6 +198,7 @@ class PrivateDiscussionsState(BaseState):
         """
         Send a message to a discussion.
         """
+        recipient_id = form_data["recipient_id"]
         with rx.session() as session:
             new_message = PrivateMessage(
                 content=form_data["message"],
@@ -203,10 +210,39 @@ class PrivateDiscussionsState(BaseState):
 
             user_private_message = UserPrivateMessage(
                 sender_id=self.authenticated_user.id,
-                recipient_id=form_data["recipient_id"],
+                recipient_id=recipient_id,
                 private_message_id=new_message.id,
             )
             session.add(user_private_message)
             session.commit()
 
-            self.load_private_messages(form_data["recipient_id"])
+        self.load_private_messages(recipient_id)
+
+        # Notify the recipient of the new message
+        # if he has enabled notifications for private messages
+        with rx.session() as session:
+            recipient = session.exec(
+                UserAccount.select()
+                .options(
+                    sa.orm.selectinload(UserAccount.preference_list)
+                )
+                .where(
+                    (UserAccount.id == recipient_id) &
+                    (UserPreference.useraccount_id == UserAccount.id) &
+                    (UserPreference.preference_id == '2')
+                )
+            ).first()
+            if recipient:
+                print("recipient has activated notifs for mp", recipient)
+                msg = email.write_email_file(
+                    f"./other_mails/{recipient.id}_mail_file.txt",
+                    email.pm_notification_template(
+                        recipient,
+                        self.authenticated_user
+                    )
+                )
+                email.send_email(
+                    msg,
+                    'Nouveau message sur Reseau',
+                    recipient.email
+                )

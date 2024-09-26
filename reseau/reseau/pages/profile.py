@@ -80,6 +80,11 @@ class ProfileState(BaseState):
                 )
             ).first()
 
+        # Default all preferences to False
+        # to avoid concurrent display between users
+        for key in self.user_pref:
+            self.user_pref[key] = False
+
         for pref in user.preference_list:
             self.user_pref[pref.preference.name] = True
 
@@ -401,15 +406,7 @@ def profile_page() -> rx.Component:
             ),
 
             rx.vstack(
-                # rx.flex(
-                #     rx.switch(
-                #         default_checked=False,
-                #         checked=ProfileState.notif_checked,
-                #         on_change=ProfileState.set_notif_checked
-                #     ),
-                rx.text("Notifications par mail"),
-                #     spacing='2',
-                # ),
+                rx.text("Notifications par mail", font_weight='600'),
                 rx.vstack(
                     rx.flex(
                         rx.switch(
@@ -420,7 +417,7 @@ def profile_page() -> rx.Component:
                                 'post_notif_enabled', v
                             )
                         ),
-                        rx.text("Posts"),
+                        rx.text("Posts", font_size=['0.9em', '1em']),
                         spacing='2',
                     ),
                     rx.flex(
@@ -430,11 +427,11 @@ def profile_page() -> rx.Component:
                                 'pm_notif_enabled', v
                             )
                         ),
-                        rx.text("Messages privés"),
+                        rx.text("Messages privés", font_size=['0.9em', '1em']),
                         spacing='2',
                     ),
-                    # margin_left='2em'
                 ),
+                margin_top='1em',
             ),
 
             rx.hstack(

@@ -1,7 +1,45 @@
 from email.mime.text import MIMEText
 import smtplib
 
+from ..models import Post, UserAccount
 from rxconfig import GMAIL_APP_PASSWORD
+
+
+def post_notification_template(
+    user: UserAccount,
+    post: Post
+):
+    """
+    Returns a string template for a post notification email.
+    """
+    return f"""Salut {user.first_name},
+
+Ce post vient d'être publié : "{post.title}".
+
+Jette-y un œil sur https://reseau-devperso.fr,
+ et n'hésite pas à laisser un commentaire !
+
+Tu peux à tout moment désactiver ces notifications dans ton profil.
+
+À bientôt gars."""
+
+
+def pm_notification_template(
+    user: UserAccount,
+    sender: UserAccount = None
+):
+    """
+    Returns a string template for a private message notification email.
+    """
+    return f"""Salut {user.first_name},
+
+Tu as reçu un nouveau message de {sender.first_name} {sender.last_name}.
+
+Connecte-toi sur https://reseau-devperso.fr pour le lire et y répondre.
+
+Tu peux à tout moment désactiver ces notifications dans ton profil.
+
+À bientôt gars."""
 
 
 def write_email_file(
@@ -27,22 +65,25 @@ def write_email_file(
     return message
 
 
-def send_email(message: MIMEText, subject: str, recipient: str):
+def send_email(content: MIMEText, subject: str, recipient: str):
     """
     Send an email using the SMTP protocol.
     """
 
     sender = 'contact.reseaudevperso@gmail.com'
 
-    message['Subject'] = subject
-    message['From'] = sender
-    message['To'] = recipient
+    content['Subject'] = subject
+    content['From'] = sender
+    content['To'] = recipient
 
-    # Connect to Gmail's SMTP server
-    s = smtplib.SMTP('smtp.gmail.com', 587)
-    # Upgrade the connection to a secure encrypted SSL/TLS connection
-    s.starttls()
-    # Log in to the SMTP server using your email and password
-    s.login(sender, GMAIL_APP_PASSWORD)
-    s.sendmail(sender, [recipient], message.as_string())
-    s.quit()
+    try:
+        # Connect to Gmail's SMTP server
+        s = smtplib.SMTP('smtp.gmail.com', 587)
+        # Upgrade the connection to a secure encrypted SSL/TLS connection
+        s.starttls()
+        # Log in to the SMTP server using your email and password
+        s.login(sender, GMAIL_APP_PASSWORD)
+        s.sendmail(sender, [recipient], content.as_string())
+        s.quit()
+    except Exception:
+        ...

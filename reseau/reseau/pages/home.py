@@ -3,13 +3,14 @@ import reflex as rx
 import sqlalchemy as sa
 
 from ..common.base_state import BaseState
+from ..common import email
 from ..common.template import template
 from ..common.translate import from_now
 from ..components.landing.landing import landing_page
 from ..components.postcategory_badges import postcategory_badges
 from ..components.post_dialog import post_dialog
 from ..components.write_post_dialog import write_post_dialog
-from ..models import Comment, Post, PostCategory, Preference, UserAccount, UserPreference
+from ..models import Comment, Post, PostCategory, UserAccount, UserPreference
 from ..reseau import DEFAULT_POSTCATEGORY, HOME_ROUTE
 from ..scripts.load_profile_pictures import load_profile_pictures
 
@@ -140,11 +141,12 @@ class HomeState(rx.State):
             published_at=datetime.now(),
         )
         with rx.session() as session:
-            # session.add(post)
+            session.add(post)
             session.commit()
+            session.refresh(post)
 
-        self.load_posts(self.current_postcategory)
         yield rx.toast.success("Post publié.")
+        self.load_posts(self.current_postcategory)
 
         # Notify users of the new post
         # that have enabled notifications for posts
@@ -153,16 +155,24 @@ class HomeState(rx.State):
                 UserAccount.select()
                 .options(
                     sa.orm.selectinload(UserAccount.preference_list)
-                    .selectinload(UserPreference.preference)
                 )
                 .where(
-                    (UserAccount.id != base_state.authenticated_user.id)
-                    # (UserAccount.preference_list.any(
-                    #     UserPreference.preference_id == 1
-                    # ))
+                    (UserAccount.id != base_state.authenticated_user.id) &
+                    (UserPreference.useraccount_id == UserAccount.id) &
+                    (UserPreference.preference_id == '1')  # Post notifications
                 )
             ).all()
-            print("users", users)
+
+        for user in users:
+            msg = email.write_email_file(
+                f"./other_mails/{user.id}_mail_file.txt",
+                email.post_notification_template(user, post)
+            )
+            email.send_email(
+                msg,
+                'Nouveau post sur Reseau',
+                user.email
+            )
 
     def publish_comment(self, form_data: dict):
         if not form_data['content']:

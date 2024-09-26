@@ -7,8 +7,8 @@ __pycache__/
 alembic.ini
 alembic/
 assets/external/
-feedbacks/*.txt
 mail_list/*.txt
+other_mails/*.txt
 uploaded_files/**/*.jpeg
 uploaded_files/**/*.jpg
 uploaded_files/**/*.png

@@ -24,7 +24,7 @@ class FeedbackDialogState(rx.State):
         user = form_data['user'].split('-')
 
         msg = email.write_email_file(
-            f"./feedbacks/{user[0]}_mail_files.txt",
+            f"./other_mails/{user[0]}_mail_file.txt",
             f"{user[1]} {user[2]}\n{self.message}"
         )
 
