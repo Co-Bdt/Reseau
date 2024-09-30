@@ -162,6 +162,7 @@ class RegistrationAccountStepState(rx.State):
             last_name=user_data['family_name'].title(),
             email=user_data['email'],
             enabled=True,
+            is_google_account=True
         )
         registration.is_google_auth = True
         registration.google_credentials = user_data

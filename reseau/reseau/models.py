@@ -23,6 +23,7 @@ class UserAccount(
     profile_text: str = Field(nullable=True)
     profile_picture: str = Field(nullable=True)
     enabled: bool = Field(default=True)
+    is_google_account: bool = Field(default=False)
 
     # Foreign Keys
     city_id: int = Field(

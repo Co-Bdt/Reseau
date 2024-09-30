@@ -19,11 +19,16 @@ class PasswordResetState(rx.State):
 
     def is_password_reset_valid(self, user: UserAccount) -> bool:
         '''
-        Check if there are others password reset issued for this user
+        Check :
+        - if the user has been created with a google account
+        - if there are others password reset issued for this user
         in the last 24 hours.
         Returns:
             True if the password reset is valid, False otherwise.
         '''
+        if user.is_google_account:
+            return False
+
         with rx.session() as session:
             password_resets = session.exec(
                 PasswordReset.select()
