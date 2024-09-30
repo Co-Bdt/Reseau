@@ -96,7 +96,6 @@ def log_in_page() -> rx.Component:
                 "Se connecter à Reseau",
                 font_weight='700',
                 font_size='1.75em',
-                font_family='Inter, sans-serif',
                 style=rx.Style(
                     margin_bottom='0.75em',
                 ),
@@ -119,8 +118,9 @@ def log_in_page() -> rx.Component:
                     "Mot de passe oublié ?",
                     href='/password-reset',
                     style=rx.Style(
-                        font_size='0.9em',
                         margin_top='-0.5em',
+                        font_size='0.9em',
+                        font_family='Satoshi Variable, sans-serif',
                     ),
                 ),
                 direction='column',
@@ -140,6 +140,7 @@ def log_in_page() -> rx.Component:
                     href=REGISTER_ROUTE,
                     style=rx.Style(
                         font_size='0.9em',
+                        font_family='Satoshi Variable, sans-serif',
                     ),
                 ),
                 direction='column',
@@ -155,9 +156,8 @@ def log_in_page() -> rx.Component:
                     rx.text(
                         "ou",
                         style=rx.Style(
-                            color='#64748B',
+                            color='#767574',
                             font_size='0.9em',
-                            font_family='Inter, sans-serif',
                         ),
                     ),
                     rx.divider(
@@ -185,6 +185,7 @@ def log_in_page() -> rx.Component:
         ),
         on_submit=LogInState.on_submit,
         style=rx.Style(
+            max_width='434px',
             padding_x='3.5em',
             padding_y='3em',
             border='1px solid #E3E4EB',
@@ -225,10 +226,12 @@ def log_in_page() -> rx.Component:
                     ),
                 ),
             ),
-            position='absolute',
-            top='50%',
-            left='50%',
-            transform='translateX(-50%) translateY(-50%)',
+            style=rx.Style(
+                position='absolute',
+                top='50%',
+                left='50%',
+                transform='translateX(-50%) translateY(-50%)',
+            ),
         ),
     )
 

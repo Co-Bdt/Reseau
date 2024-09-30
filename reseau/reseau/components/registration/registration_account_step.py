@@ -21,7 +21,6 @@ def first_name():
         style=rx.Style(
             width='100%',
             font_size='0.9em',
-            font_family='Satoshi Variable, sans-serif',
         ),
     ),
 
@@ -35,7 +34,6 @@ def last_name():
         style=rx.Style(
             width='100%',
             font_size='0.9em',
-            font_family='Satoshi Variable, sans-serif',
         ),
     ),
 
@@ -49,7 +47,6 @@ def email():
         style=rx.Style(
             width='100%',
             font_size='0.9em',
-            font_family='Satoshi Variable, sans-serif',
         ),
     ),
 
@@ -89,7 +86,6 @@ def password():
             width='100%',
             align_items='center',
             font_size='0.9em',
-            font_family='Satoshi Variable, sans-serif',
         ),
     ),
 
@@ -109,8 +105,7 @@ class RegistrationAccountStepState(rx.State):
     def init(self):
         '''
         Initialize the state.
-        Make sure the password and confirm password fields
-        are hidden by default.
+        Make sure the password is hidden by default.
         '''
         self.password_type = 'password'
 
@@ -271,7 +266,6 @@ def account_step():
                         "Rejoins une communauté de gars ambitieux",
                         font_weight='700',
                         font_size='1.75em',
-                        font_family='Inter, sans-serif',
                         text_align='center',
                     ),
                     align_items='center',
@@ -298,9 +292,8 @@ def account_step():
                     rx.text(
                         "ou",
                         style=rx.Style(
-                            color='#64748B',
+                            color='#767574',
                             font_size='0.9em',
-                            font_family='Inter, sans-serif',
                         ),
                     ),
                     rx.divider(
@@ -356,7 +349,6 @@ def account_step():
                 style=rx.Style(
                     margin_top='1em',
                     width='225px',
-                    font_family='Satoshi Variable, sans-serif',
                 ),
             ),
             rx.center(
@@ -364,6 +356,7 @@ def account_step():
                     rx.text("Déjà un compte ?"),
                     href=LOGIN_ROUTE,
                     style=rx.Style(
+                        font_size='0.9em',
                         font_family='Satoshi Variable, sans-serif',
                     ),
                 ),

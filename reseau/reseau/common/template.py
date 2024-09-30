@@ -7,6 +7,13 @@ from ..common.navbar import navbar
 from ..components.feedback_dialog import feedback_dialog
 
 
+banner_text = (
+    "La prochaine grosse nouveauté sera un système de groupes basés sur ",
+    "un intérêt ou un business commun : les Fratries. ",
+    "Dis nous ce que tu en penses !",
+)
+
+
 def template(
     page: Callable[[], rx.Component],
 ) -> rx.Component:
@@ -47,11 +54,7 @@ def template(
                             rx.box(
                                 rx.container(
                                     rx.text(
-                                        "Plusieurs canaux de discussions sont "
-                                        "maintenant disponibles ! N'hésite "
-                                        "pas à faire un retour sur la "
-                                        "prochaine fonctionnalité que tu "
-                                        "aimerais avoir",
+                                        banner_text,
                                         class_name='mobile-text',
                                         style=rx.Style(
                                             font_color='gray',

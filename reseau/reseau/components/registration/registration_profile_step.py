@@ -127,7 +127,6 @@ def profile_step():
                         "Rejoins une communauté de gars ambitieux",
                         font_weight='700',
                         font_size='1.75em',
-                        font_family='Inter, sans-serif',
                         text_align='center',
                     ),
                     align_items='center',
@@ -164,7 +163,6 @@ def profile_step():
                         style=rx.Style(
                             color='gray',
                             font_size='0.75em',
-                            font_family='Inter, sans-serif',
                         ),
                     ),
                     rx.select(
@@ -212,7 +210,6 @@ def profile_step():
                 style=rx.Style(
                     width='225px',
                     margin_top='1em',
-                    font_family='Inter, sans-serif',
                 ),
             ),
             align_items='center',

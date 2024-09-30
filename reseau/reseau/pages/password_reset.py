@@ -7,7 +7,7 @@ from secrets import token_urlsafe
 
 from ..common import email
 from ..models import PasswordReset, UserAccount
-from ..reseau import PASSWORD_RESET_ROUTE
+from ..reseau import LOGIN_ROUTE, PASSWORD_RESET_ROUTE
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -15,7 +15,30 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 class PasswordResetState(rx.State):
     email: str = ''
     new_password: str = ''
+    password_type: str = ''
     confirm_new_password: str = ''
+    confirm_password_type: str = ''
+
+    def init(self):
+        '''
+        Initialize the state.
+        Make sure the password and confirm password fields
+        are hidden by default.
+        '''
+        self.password_type = 'password'
+        self.confirm_password_type = 'password'
+
+    def toggle_password_type(self):
+        '''Toggle password visibility.'''
+        self.password_type = (
+            'text' if self.password_type == 'password' else 'password'
+        )
+
+    def toggle_confirm_password_type(self):
+        '''Toggle confirm password visibility.'''
+        self.confirm_password_type = (
+            'text' if self.confirm_password_type == 'password' else 'password'
+        )
 
     def is_password_reset_valid(self, user: UserAccount) -> bool:
         '''
@@ -34,13 +57,12 @@ class PasswordResetState(rx.State):
                 PasswordReset.select()
                 .where(PasswordReset.useraccount_id == user.id)
             ).all()
-        # TODO: test and remove comments before going preprod
-        # for pwd_reset in password_resets:
-        #     if (
-        #         pwd_reset.created_at + timedelta(days=1)
-        #         > datetime.now(tz=pytz.UTC)
-        #     ):
-        #         return False
+        for pwd_reset in password_resets:
+            if (
+                pwd_reset.created_at + timedelta(days=1)
+                > datetime.now(tz=pytz.UTC)
+            ):
+                return False
         return True
 
     def send_reset_email(self, form_data) -> rx.event.EventSpec:
@@ -89,9 +111,9 @@ class PasswordResetState(rx.State):
             "Un email de réinitialisation de mot de passe a été envoyé."
         )
 
-    def reset_password(self, form_data) -> rx.event.EventSpec:
+    def change_password(self, form_data) -> rx.event.EventSpec:
         '''
-        Reset the user's password if the token is valid,
+        Change the user's password if the token is valid,
         and the new password is valid.
         '''
         token = self.router.page.raw_path.split('/')[2]
@@ -109,24 +131,16 @@ class PasswordResetState(rx.State):
                         .where(UserAccount.id == password_reset.useraccount_id)
                     ).first()
                     break
-
-            # if password_reset:
-            #     user = session.exec(
-            #         UserAccount.select()
-            #         .where(UserAccount.id == password_reset.useraccount_id)
-            #     ).first()
             if (
                 not user or
                 password_reset.is_reset
             ):
                 return rx.toast.error("Demande de réinitialisation invalide.")
 
-        # TODO: test and remove comments before going preprod
-        # print("datetime.now()", datetime.now())
-        # if password_reset.created_at < (
-        #     datetime.now(tz=pytz.UTC) - timedelta(hours=3)
-        # ):
-        #     return rx.toast.error("Demande de réinitialisation expirée.")
+        if password_reset.created_at < (
+            datetime.now(tz=pytz.UTC) - timedelta(hours=3)
+        ):
+            return rx.toast.error("Demande de réinitialisation expirée.")
 
         new_password = form_data['new_password']
         if not new_password:
@@ -159,7 +173,6 @@ class PasswordResetState(rx.State):
                 "Le nouveau mot de passe doit être différent."
             )
 
-        print("new hash:", UserAccount.hash_secret(new_password))
         with rx.session() as session:
             user: UserAccount = session.exec(
                 UserAccount.select()
@@ -172,10 +185,13 @@ class PasswordResetState(rx.State):
             password_reset.is_reset = True
             session.add(password_reset)
             session.commit()
-        return rx.toast.success("Mot de passe réinitialisé avec succès.")
+        return rx.redirect(LOGIN_ROUTE)
 
 
-@rx.page(f"{PASSWORD_RESET_ROUTE}/[[...token]]", 'password_reset')
+@rx.page(
+    f"{PASSWORD_RESET_ROUTE}/[[...token]]",
+    on_load=PasswordResetState.init
+)
 def password_reset():
     '''
     Page for resetting a user's password.
@@ -183,61 +199,150 @@ def password_reset():
     Returns:
         A reflex component.
     '''
-    return rx.cond(
-        PasswordResetState.is_hydrated,
-        rx.cond(
-            rx.State.token,
-            rx.form(
-                rx.vstack(
-                    # rx.input(
-                    #     name='token',
-                    #     type='hidden',
-                    #     value=rx.State.token,
-                    # ),
-                    rx.input(
-                        name='new_password',
-                        placeholder='Nouveau mot de passe',
-                        type='password',
-                        value=PasswordResetState.new_password,
-                        on_change=PasswordResetState.set_new_password,
-                    ),
-                    rx.input(
-                        name='confirm_new_password',
-                        placeholder='Confirmer le nouveau mot de passe',
-                        type='password',
-                        value=PasswordResetState.confirm_new_password,
-                        on_change=PasswordResetState.set_confirm_new_password,
-                    ),
-                    rx.button(
-                        'Réinitialiser le mot de passe',
-                        type='submit',
-                    ),
-                ),
-                on_submit=PasswordResetState.reset_password,
-                reset_on_submit=True,
-            ),
+    def send_email_step():
+        return rx.form(
             rx.vstack(
                 rx.text(
                     "Saisis l'adresse email associée à ton compte pour "
-                    "recevoir un lien de réinitialisation de mot de passe."
+                    "recevoir un lien de réinitialisation."
                 ),
-                rx.form(
-                    rx.vstack(
-                        rx.input(
-                            name='email',
-                            type='email',
-                            placeholder='Adresse email',
-                            value=PasswordResetState.email,
-                            on_change=PasswordResetState.set_email,
+                rx.input(
+                    name='email',
+                    type='email',
+                    placeholder="Adresse email",
+                    size='3',
+                    width='100%',
+                    value=PasswordResetState.email,
+                    on_change=PasswordResetState.set_email,
+                ),
+                rx.button(
+                    "Recevoir le lien de réinitialisation",
+                    type='submit',
+                    size='3',
+                    width='100%',
+                    margin_top='1em',
+                ),
+            ),
+            on_submit=PasswordResetState.send_reset_email,
+            reset_on_submit=True,
+        )
+
+    def change_password_step():
+        return rx.form(
+            rx.vstack(
+                rx.input(
+                    rx.cond(
+                        PasswordResetState.password_type ==
+                        'password',
+                        rx.icon(
+                            'eye',
+                            size=20,
+                            style=rx.Style(
+                                margin_right='0.4em',
+                                padding='0.1em',
+                                cursor='pointer',
+                            ),
+                            on_click=PasswordResetState.toggle_password_type,
                         ),
-                        rx.button(
-                            "Réinitialiser le mot de passe",
-                            type='submit',
+                        rx.icon(
+                            'eye-off',
+                            size=20,
+                            style=rx.Style(
+                                margin_right='0.4em',
+                                padding='0.1em',
+                                cursor='pointer',
+                            ),
+                            on_click=PasswordResetState.toggle_password_type,
                         ),
                     ),
-                    on_submit=PasswordResetState.send_reset_email,
-                    reset_on_submit=True,
+                    name='new_password',
+                    placeholder="Nouveau mot de passe",
+                    type=PasswordResetState.password_type,
+                    size='3',
+                    value=PasswordResetState.new_password,
+                    on_change=PasswordResetState.set_new_password,
+                    style=rx.Style(
+                        width='100%',
+                        align_items='center',
+                    ),
                 ),
+                rx.input(
+                    rx.cond(
+                        PasswordResetState.confirm_password_type ==
+                        'password',
+                        rx.icon(
+                            'eye',
+                            size=20,
+                            style=rx.Style(
+                                margin_right='0.4em',
+                                padding='0.1em',
+                                cursor='pointer',
+                            ),
+                            on_click=PasswordResetState.toggle_confirm_password_type,  # noqa: E501
+                        ),
+                        rx.icon(
+                            'eye-off',
+                            size=20,
+                            style=rx.Style(
+                                margin_right='0.4em',
+                                padding='0.1em',
+                                cursor='pointer',
+                            ),
+                            on_click=PasswordResetState.toggle_confirm_password_type,  # noqa: E501
+                        ),
+                    ),
+                    name='confirm_new_password',
+                    placeholder="Confirmer le nouveau mot de passe",
+                    type=PasswordResetState.confirm_password_type,
+                    size='3',
+                    value=PasswordResetState.confirm_new_password,
+                    on_change=PasswordResetState.set_confirm_new_password,
+                    style=rx.Style(
+                        width='100%',
+                        align_items='center',
+                    ),
+                ),
+                rx.button(
+                    "Changer le mot de passe",
+                    type='submit',
+                    size='3',
+                    width='100%',
+                    margin_top='1em',
+                ),
+            ),
+            on_submit=PasswordResetState.change_password,
+            reset_on_submit=True,
+        )
+
+    return rx.cond(
+        PasswordResetState.is_hydrated,
+        rx.vstack(
+            rx.text(
+                "Mot de passe oublié ?",
+                font_weight='700',
+                font_size='1.75em',
+                style=rx.Style(
+                    margin_bottom='0.75em',
+                ),
+            ),
+
+            rx.cond(
+                rx.State.token,
+                change_password_step(),
+                send_email_step(),
+            ),
+
+            style=rx.Style(
+                position='absolute',
+                top='50%',
+                left='50%',
+                transform='translateX(-50%) translateY(-50%)',
+                width='450px',
+                padding_x='3.5em',
+                padding_y='3em',
+                border='1px solid #E3E4EB',
+                border_radius='0.75em',
+                box_shadow='0px 3px 4px 1px rgba(0, 0, 0, 0.05)',
             ),
         ),
     )
