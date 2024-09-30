@@ -7,7 +7,8 @@ from .pages import (
     profile,
     members,
     private_discussions,
-    privacy_policy
+    privacy_policy,
+    password_reset
 )
 
 
@@ -20,5 +21,6 @@ __all__ = [
     "profile",
     "members",
     "private_discussions",
-    "privacy_policy"
+    "privacy_policy",
+    "password_reset"
 ]

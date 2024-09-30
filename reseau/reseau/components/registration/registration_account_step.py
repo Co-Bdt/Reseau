@@ -241,7 +241,7 @@ class RegistrationAccountStepState(rx.State):
                 rx.set_focus('password'),
             ]
             yield rx.toast.error(
-                "Le mot de passe doit contenir 1 chiffre, \
+                "Le mot de passe doit contenir au moins 1 chiffre, \
                     1 lettre majuscule, 1 lettre minuscule, \
                     1 caractère spécial et comporter au moins \
                     10 caractères."
@@ -255,7 +255,7 @@ class RegistrationAccountStepState(rx.State):
             first_name=first_name,
             last_name=last_name,
             email=email,
-            password_hash=UserAccount.hash_password(password),
+            password_hash=UserAccount.hash_secret(password),
             enabled=True,
         )
         registration.account_success = True

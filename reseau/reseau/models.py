@@ -72,6 +72,9 @@ class UserAccount(
     auth_session: "AuthSession" = Relationship(
         back_populates="useraccount"
     )
+    password_reset: "PasswordReset" = Relationship(
+        back_populates="useraccount"
+    )
 
     @staticmethod
     def format_last_name(last_name: str) -> str:
@@ -85,7 +88,7 @@ class UserAccount(
         )
 
     @staticmethod
-    def hash_password(secret: str) -> str:
+    def hash_secret(secret: str) -> str:
         """Hash the secret using bcrypt.
 
         Args:
@@ -456,4 +459,36 @@ class AuthSession(
     # Relationships
     useraccount: UserAccount = Relationship(
         back_populates="auth_session",
+    )
+
+
+class PasswordReset(
+    rx.Model,
+    table=True,
+):
+    """
+    A PasswordReset model.
+    The token is hashed.
+    """
+
+    hash_token: str = Field(nullable=False)
+    created_at: datetime = Field(default=func.now(), nullable=False)
+    is_reset: bool = Field(default=False)
+
+    # Foreign keys
+    useraccount_id: int = Field(
+        sa_column=Column(
+            Integer,
+            ForeignKey(
+                "useraccount.id",
+                name="fk_passwordreset_useraccount_id_useraccount",
+            ),
+            index=True,
+            nullable=False,
+        ),
+    )
+
+    # Relationships
+    useraccount: UserAccount = Relationship(
+        back_populates="password_reset",
     )

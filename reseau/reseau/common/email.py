@@ -5,6 +5,25 @@ from ..models import Post, UserAccount
 from rxconfig import GMAIL_APP_PASSWORD
 
 
+def password_reset_template(
+    user: UserAccount,
+    token: str
+):
+    """
+    Returns a string template for a password reset email.
+    """
+    return f"""Salut {user.first_name},
+
+Tu as demandé une réinitialisation de mot de passe.
+
+Pour changer ton mot de passe, clique sur ce lien :
+https://reseau-devperso.fr/password-reset/{token}
+
+Attention, ce lien n'est valable que 24 heures.
+
+À bientôt gars"""
+
+
 def post_notification_template(
     user: UserAccount,
     post: Post
@@ -21,7 +40,7 @@ Jette-y un œil sur https://reseau-devperso.fr,
 
 Tu peux à tout moment désactiver ces notifications dans ton profil.
 
-À bientôt gars."""
+À bientôt gars"""
 
 
 def pm_notification_template(
@@ -39,7 +58,7 @@ Connecte-toi sur https://reseau-devperso.fr pour le lire et y répondre.
 
 Tu peux à tout moment désactiver ces notifications dans ton profil.
 
-À bientôt gars."""
+À bientôt gars"""
 
 
 def write_email_file(

@@ -114,6 +114,18 @@ def log_in_page() -> rx.Component:
                 size='3',
                 width='20em',
             ),
+            rx.center(
+                rx.link(
+                    "Mot de passe oublié ?",
+                    href='/password-reset',
+                    style=rx.Style(
+                        font_size='0.9em',
+                        margin_top='-0.5em',
+                    ),
+                ),
+                direction='column',
+                width='100%',
+            ),
 
             rx.button(
                 "Se connecter",
@@ -126,9 +138,11 @@ def log_in_page() -> rx.Component:
                 rx.link(
                     "Pas encore de compte ?",
                     href=REGISTER_ROUTE,
+                    style=rx.Style(
+                        font_size='0.9em',
+                    ),
                 ),
                 direction='column',
-                spacing='5',
                 width='100%',
             ),
 
@@ -170,51 +184,51 @@ def log_in_page() -> rx.Component:
             justify='center',
         ),
         on_submit=LogInState.on_submit,
-        padding_x='3.5em',
-        padding_y='3em',
-        border='1px solid #E3E4EB',
-        border_radius='0.75em',
-        box_shadow='0px 3px 4px 1px rgba(0, 0, 0, 0.05)',
+        style=rx.Style(
+            padding_x='3.5em',
+            padding_y='3em',
+            border='1px solid #E3E4EB',
+            border_radius='0.75em',
+            box_shadow='0px 3px 4px 1px rgba(0, 0, 0, 0.05)',
+        )
     )
 
     return rx.cond(
         LogInState.is_hydrated,
-        rx.box(
-            rx.vstack(
-                login_form,
-                rx.cond(  # Conditionally show success messages
-                    LogInState.success,
-                    rx.center(
-                        rx.vstack(
-                            rx.spinner(),
-                            rx.text(
-                                "Connexion réussie",
-                                size='3',
-                                weight='medium',
-                            ),
-                            align='center',
-                        ),
-                        width='100%',
-                    ),
-                    # This is a placeholder for the success message
-                    # to always takes the space.
+        rx.vstack(
+            login_form,
+            rx.cond(  # Conditionally show success messages
+                LogInState.success,
+                rx.center(
                     rx.vstack(
-                        rx.spinner(
-                            visibility='hidden',
-                        ),
+                        rx.spinner(),
                         rx.text(
                             "Connexion réussie",
                             size='3',
                             weight='medium',
-                            visibility='hidden',
                         ),
+                        align='center',
+                    ),
+                    width='100%',
+                ),
+                # This is a placeholder for the success message
+                # to always takes the space.
+                rx.vstack(
+                    rx.spinner(
+                        visibility='hidden',
+                    ),
+                    rx.text(
+                        "Connexion réussie",
+                        size='3',
+                        weight='medium',
+                        visibility='hidden',
                     ),
                 ),
-                position='absolute',
-                top='50%',
-                left='50%',
-                transform='translateX(-50%) translateY(-50%)',
             ),
+            position='absolute',
+            top='50%',
+            left='50%',
+            transform='translateX(-50%) translateY(-50%)',
         ),
     )
 
