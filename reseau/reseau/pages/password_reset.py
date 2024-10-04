@@ -25,7 +25,10 @@ class PasswordResetState(rx.State):
         Make sure the password and confirm password fields
         are hidden by default.
         '''
+        self.email: str = ''
+        self.new_password: str = ''
         self.password_type = 'password'
+        self.confirm_new_password: str = ''
         self.confirm_password_type = 'password'
 
     def toggle_password_type(self):
@@ -57,10 +60,13 @@ class PasswordResetState(rx.State):
                 PasswordReset.select()
                 .where(PasswordReset.useraccount_id == user.id)
             ).all()
+
+        local = pytz.timezone('UTC')
         for pwd_reset in password_resets:
+            utc_created_at = local.localize(pwd_reset.created_at, is_dst=None)
             if (
-                pwd_reset.created_at + timedelta(days=1)
-                > datetime.now(tz=pytz.UTC)
+                utc_created_at + timedelta(days=1)
+                > datetime.now(pytz.utc)
             ):
                 return False
         return True
@@ -91,7 +97,7 @@ class PasswordResetState(rx.State):
         # Save the token
         password_reset = PasswordReset(
             hash_token=UserAccount.hash_secret(token),
-            created_at=datetime.now(tz=pytz.UTC),
+            created_at=datetime.now(pytz.utc),
             useraccount_id=user.id,
         )
         with rx.session() as session:
@@ -137,8 +143,11 @@ class PasswordResetState(rx.State):
             ):
                 return rx.toast.error("Demande de réinitialisation invalide.")
 
-        if password_reset.created_at < (
-            datetime.now(tz=pytz.UTC) - timedelta(hours=3)
+        local = pytz.timezone('UTC')
+        utc_created_at = local.localize(password_reset.created_at, is_dst=None)
+        if (
+            utc_created_at + timedelta(hours=1)
+            < datetime.now(pytz.utc)
         ):
             return rx.toast.error("Demande de réinitialisation expirée.")
 
@@ -190,6 +199,7 @@ class PasswordResetState(rx.State):
 
 @rx.page(
     f"{PASSWORD_RESET_ROUTE}/[[...token]]",
+    "Reseau | Réinitialisation mot de passe",
     on_load=PasswordResetState.init
 )
 def password_reset():
