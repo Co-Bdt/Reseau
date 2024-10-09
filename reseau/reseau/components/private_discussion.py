@@ -23,10 +23,8 @@ def private_discussion(
     A component to display a private discussion with another user.
 
     Args:
-        authenticated_user: The UserAccount of the authenticated user.
         other_user: The UserAccount of the other user in the conversation.
         messages: A list of PrivateMessage objects.
-        send_message: A function to send a message to the other user.
     '''
     return rx.vstack(
         rx.separator(

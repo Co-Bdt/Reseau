@@ -174,15 +174,17 @@ class HomeState(rx.State):
                 user.email
             )
 
-    def publish_comment(self, form_data: dict):
+    async def publish_comment(self, form_data: dict):
         if not form_data['content']:
             return rx.toast.warning("Ton commentaire est vide.")
+
+        base_state = await self.get_state(BaseState)
 
         post_id = form_data['post_id']
         comment = Comment(
             content=form_data['content'],
             post_id=post_id,
-            author_id=self.authenticated_user.id,
+            author_id=base_state.authenticated_user.id,
             published_at=datetime.now(),
         )
         with rx.session() as session:
