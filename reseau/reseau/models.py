@@ -14,7 +14,7 @@ class UserAccount(
     rx.Model,
     table=True
 ):
-    """A local UserAccount model with bcrypt password hashing."""
+    """A UserAccount model with bcrypt password hashing."""
 
     first_name: str = Field(nullable=True)
     last_name: str = Field(nullable=True)
@@ -54,11 +54,11 @@ class UserAccount(
     comment_list: Optional[list["Comment"]] = Relationship(
         back_populates="useraccount"
     )
-    user_private_message_sent_list: Optional[list["UserPrivateMessage"]] = (
+    user_private_message_sent_list: Optional[list["Message"]] = (
         Relationship(
             back_populates="sender",
             sa_relationship_kwargs={
-                "foreign_keys": "UserPrivateMessage.sender_id"
+                "foreign_keys": "Message.sender_id"
             }
         )
     )
@@ -74,6 +74,9 @@ class UserAccount(
         back_populates="useraccount"
     )
     password_reset: "PasswordReset" = Relationship(
+        back_populates="useraccount"
+    )
+    user_group_list: Optional[list["UserGroup"]] = Relationship(
         back_populates="useraccount"
     )
 
@@ -132,7 +135,7 @@ class City(
     rx.Model,
     table=True,
 ):
-    """A local City model."""
+    """A City model."""
 
     name: str = Field(nullable=False)
     postal_code: str = Field(nullable=False)
@@ -153,6 +156,9 @@ class Interest(
 
     # Relationships
     useraccount_list: Optional[list["UserInterest"]] = Relationship(
+        back_populates="interest"
+    )
+    group: Optional["Group"] = Relationship(
         back_populates="interest"
     )
 
@@ -354,26 +360,14 @@ class Comment(
     )
 
 
-class PrivateMessage(
+class Message(
     rx.Model,
     table=True
 ):
-    """A PrivateMessage model."""
+    """A Message model."""
 
     content: str = Field(nullable=False)
     published_at: datetime = Field(nullable=False)
-
-    # Relationships
-    user_private_message_list: Optional[list["UserPrivateMessage"]] = (
-        Relationship(back_populates="private_message")
-    )
-
-
-class UserPrivateMessage(
-    rx.Model,
-    table=True
-):
-    """A UserPrivateMessage model to associate Users with PrivateMessages."""
 
     # Foreign keys
     sender_id: int = Field(
@@ -381,12 +375,35 @@ class UserPrivateMessage(
             Integer,
             ForeignKey(
                 "useraccount.id",
-                name="fk_userprivatemessage_sender_id_useraccount",
+                name="fk_message_sender_id_useraccount",
             ),
             index=True,
             nullable=False,
         ),
     )
+
+    # Relationships
+    sender: "UserAccount" = Relationship(
+        back_populates="user_private_message_sent_list",
+        sa_relationship_kwargs={
+            "foreign_keys": "Message.sender_id"
+        }
+    )
+    user_private_message_list: Optional[list["UserPrivateMessage"]] = (
+        Relationship(back_populates="private_message")
+    )
+    group_message_list: Optional[list["GroupMessage"]] = (
+        Relationship(back_populates="message")
+    )
+
+
+class UserPrivateMessage(
+    rx.Model,
+    table=True
+):
+    """A UserPrivateMessage model to associate Users with Messages."""
+
+    # Foreign keys
     recipient_id: int = Field(
         sa_column=Column(
             Integer,
@@ -402,8 +419,8 @@ class UserPrivateMessage(
         sa_column=Column(
             Integer,
             ForeignKey(
-                "privatemessage.id",
-                name="fk_userprivatemessage_private_message_id_privatemessage",
+                "message.id",
+                name="fk_userprivatemessage_private_message_id_message",
             ),
             index=True,
             nullable=False,
@@ -412,19 +429,13 @@ class UserPrivateMessage(
     is_read: bool = Field(nullable=False, default=False)
 
     # Relationships
-    sender: "UserAccount" = Relationship(
-        back_populates="user_private_message_sent_list",
-        sa_relationship_kwargs={
-            "foreign_keys": "UserPrivateMessage.sender_id"
-        }
-    )
     recipient: "UserAccount" = Relationship(
         back_populates="user_private_message_received_list",
         sa_relationship_kwargs={
             "foreign_keys": "UserPrivateMessage.recipient_id"
         }
     )
-    private_message: "PrivateMessage" = Relationship(
+    private_message: "Message" = Relationship(
         back_populates="user_private_message_list"
     )
 
@@ -492,4 +503,132 @@ class PasswordReset(
     # Relationships
     useraccount: UserAccount = Relationship(
         back_populates="password_reset",
+    )
+
+
+class Group(
+    rx.Model,
+    table=True
+):
+    """A Group model."""
+
+    name: str = Field(nullable=True)
+    image: str = Field(nullable=True)
+    max_members: int = Field(nullable=False, default=5)
+
+    # Foreign Keys
+    interest_id: int = Field(
+        sa_column=Column(
+            Integer,
+            ForeignKey(
+                "interest.id",
+                name="fk_useraccount_interest_id_interest",
+            ),
+            index=True,
+            nullable=False,
+        ),
+    )
+
+    # Relationships
+    interest: "Interest" = Relationship(
+        back_populates="group"
+    )
+    user_group_list: Optional[list["UserGroup"]] = Relationship(
+        back_populates="group"
+    )
+    group_message_list: Optional[list["GroupMessage"]] = (
+        Relationship(
+            back_populates="group",
+            # sa_relationship_kwargs={
+            #     "foreign_keys": "Message.sender_id"
+            # }
+        )
+    )
+
+    # Methods
+    def url_name(name: str) -> str:
+        """Format the group name for a URL."""
+        return name.lower().replace(" ", "-")
+
+
+class UserGroup(
+    rx.Model,
+    table=True
+):
+    """A model to join a User and his Group(s)."""
+
+    is_owner: bool = Field(nullable=False, default=False)
+
+    # Foreign keys
+    useraccount_id: int = Field(
+        sa_column=Column(
+            Integer,
+            ForeignKey(
+                "useraccount.id",
+                name="fk_usergroup_useraccount_id_useraccount",
+            ),
+            index=True,
+            nullable=False,
+        ),
+    )
+    group_id: int = Field(
+        sa_column=Column(
+            Integer,
+            ForeignKey(
+                "group.id",
+                name="fk_usergroup_group_id_group",
+            ),
+            index=True,
+            nullable=False,
+        ),
+    )
+
+    # Relationships
+    useraccount: "UserAccount" = Relationship(
+        back_populates="user_group_list"
+    )
+    group: "Group" = Relationship(
+        back_populates="user_group_list"
+    )
+
+
+class GroupMessage(
+    rx.Model,
+    table=True
+):
+    """A GroupMessage model to associate Groups with Messages."""
+
+    # Foreign keys
+    group_id: int = Field(
+        sa_column=Column(
+            Integer,
+            ForeignKey(
+                "group.id",
+                name="fk_groupmessage_group_id_group",
+            ),
+            index=True,
+            nullable=False,
+        ),
+    )
+    message_id: int = Field(
+        sa_column=Column(
+            Integer,
+            ForeignKey(
+                "message.id",
+                name="fk_groupmessage_message_id_message",
+            ),
+            index=True,
+            nullable=False,
+        ),
+    )
+
+    # Relationships
+    group: "Group" = Relationship(
+        back_populates="group_message_list",
+        # sa_relationship_kwargs={
+        #     "foreign_keys": "GroupMessage.group_id"
+        # }
+    )
+    message: "Message" = Relationship(
+        back_populates="group_message_list"
     )

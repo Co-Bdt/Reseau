@@ -163,8 +163,9 @@ class MembersState(rx.State):
 @template
 def members_page() -> rx.Component:
     """
-    Render the members page which allow users \
-        to search for other users by city.
+    Render the members page which allow users to \
+        - search for other users by city or first name
+        - start a private discussion with a user
 
     Returns:
         A reflex component.

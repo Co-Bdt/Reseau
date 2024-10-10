@@ -9,7 +9,7 @@ from ..common.base_state import BaseState
 from ..common import email
 from ..common.translate import format_to_date
 from ..models import (
-    PrivateMessage,
+    Message,
     UserAccount,
     UserPreference,
     UserPrivateMessage,
@@ -41,13 +41,16 @@ class PrivateDiscussionsState(BaseState):
         with rx.session() as session:
             user_messages = session.exec(
                 UserPrivateMessage.select()
+                .join(Message)
                 .options(
-                    sa.orm.selectinload(UserPrivateMessage.sender),
+                    # sa.orm.selectinload(UserPrivateMessage.sender),
+                    sa.orm.selectinload(
+                        UserPrivateMessage.private_message
+                    ).selectinload(Message.sender),
                     sa.orm.selectinload(UserPrivateMessage.recipient),
-                    sa.orm.selectinload(UserPrivateMessage.private_message),
                 )
                 .where(
-                    (UserPrivateMessage.sender_id ==
+                    (Message.sender_id ==
                      self.authenticated_user.id) |
                     (UserPrivateMessage.recipient_id ==
                      self.authenticated_user.id)
@@ -66,7 +69,7 @@ class PrivateDiscussionsState(BaseState):
             # (not the current user) to the private discussions if
             # they are not already in the list
             for message in user_messages:
-                sender = message.sender
+                sender = message.private_message.sender
                 recipient = message.recipient
 
                 if (sender.id != self.authenticated_user.id
@@ -101,8 +104,9 @@ class PrivateDiscussionsState(BaseState):
         with rx.session() as session:
             messages = session.exec(
                 UserPrivateMessage.select()
+                .join(Message)
                 .where(
-                    (UserPrivateMessage.sender_id == discussion_id) &
+                    (Message.sender_id == discussion_id) &
                     (UserPrivateMessage.recipient_id ==
                      self.authenticated_user.id)
                 )
@@ -133,17 +137,19 @@ class PrivateDiscussionsState(BaseState):
         with rx.session() as session:
             messages = session.exec(
                 UserPrivateMessage.select()
+                .join(Message)
                 .options(
-                    sa.orm.selectinload(UserPrivateMessage.private_message),
-                    sa.orm.selectinload(UserPrivateMessage.sender),
+                    sa.orm.selectinload(
+                        UserPrivateMessage.private_message
+                    ).selectinload(Message.sender),
                     sa.orm.selectinload(UserPrivateMessage.recipient),
                 ).where(
-                    ((UserPrivateMessage.sender_id ==
+                    ((Message.sender_id ==
                       self.authenticated_user.id) &
                      (UserPrivateMessage.recipient_id == discussion_id)) |
                     ((UserPrivateMessage.recipient_id ==
                       self.authenticated_user.id) &
-                     (UserPrivateMessage.sender_id == discussion_id))
+                     (Message.sender_id == discussion_id))
                 )
             ).all()
             # Convert all published_at to Paris time
@@ -182,10 +188,11 @@ class PrivateDiscussionsState(BaseState):
         with rx.session() as session:
             messages = session.exec(
                 UserPrivateMessage.select()
+                .join(Message)
                 .where(
                     ((UserPrivateMessage.recipient_id ==
                       self.authenticated_user.id) &
-                     (UserPrivateMessage.sender_id == discussion_id))
+                     (Message.sender_id == discussion_id))
                 )
             ).all()
             for message in messages:
@@ -200,18 +207,18 @@ class PrivateDiscussionsState(BaseState):
         """
         recipient_id = form_data["recipient_id"]
         with rx.session() as session:
-            new_message = PrivateMessage(
+            new_message = Message(
                 content=form_data["message"],
                 published_at=datetime.now(timezone.utc),
+                sender_id=self.authenticated_user.id
             )
             session.add(new_message)
             session.commit()
             session.refresh(new_message)
 
             user_private_message = UserPrivateMessage(
-                sender_id=self.authenticated_user.id,
                 recipient_id=recipient_id,
-                private_message_id=new_message.id,
+                message_id=new_message.id,
             )
             session.add(user_private_message)
             session.commit()

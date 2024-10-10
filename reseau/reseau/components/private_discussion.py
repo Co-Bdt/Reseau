@@ -132,7 +132,7 @@ def message_bubble(
         message: A PrivateMessage object.
     '''
     return rx.cond(
-        message.sender_id == BaseState.authenticated_user.id,
+        message.private_message.sender_id == BaseState.authenticated_user.id,
         rx.hstack(
             rx.box(
                 rx.hstack(
@@ -165,7 +165,7 @@ def message_bubble(
                     width=['2.5em', '2.5em', '2.5em', '2.7em'],  # noqa
                     height=['2.5em', '2.5em', '2.5em', '2.7em'],  # noqa
                 ),
-                profile_picture=message.sender.profile_picture
+                profile_picture=message.private_message.sender.profile_picture
             ),
             width='100%',
             justify='end',
@@ -177,7 +177,7 @@ def message_bubble(
                     width=['2.5em', '2.5em', '2.5em', '2.7em'],  # noqa
                     height=['2.5em', '2.5em', '2.5em', '2.7em'],  # noqa
                 ),
-                profile_picture=message.sender.profile_picture
+                profile_picture=message.private_message.sender.profile_picture
             ),
             rx.box(
                 rx.hstack(
