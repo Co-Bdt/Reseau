@@ -9,8 +9,8 @@ from ..reseau import GROUPS_ROUTE
 
 
 class GroupsState(rx.State):
-    public_groups_displayed: list[Group] = []
-    user_groups_displayed: list[tuple[Group, str]] = []
+    public_groups_displayed: list[tuple[Group, str, int]] = []
+    user_groups_displayed: list[tuple[Group, str, int]] = []
 
     async def init(self):
         await self.load_groups()
@@ -19,13 +19,22 @@ class GroupsState(rx.State):
         # Public groups
         self.public_groups_displayed = []
         with rx.session() as session:
-            groups = session.exec(
+            public_groups = session.exec(
                 Group.select()
                 .options(
-                    sa.orm.selectinload(Group.interest)
+                    sa.orm.selectinload(Group.interest),
+                    sa.orm.selectinload(Group.user_group_list)
+                    .selectinload(UserGroup.useraccount)
                 )
             ).all()
-        self.public_groups_displayed = groups
+        # self.public_groups_displayed = public_groups
+
+        for group in public_groups:
+            self.public_groups_displayed.append(
+                (group,
+                 Group.from_url_name(group.name),
+                 len(group.user_group_list))
+            )
         # Display public groups in random order.
         shuffle(self.public_groups_displayed)
 
@@ -33,21 +42,25 @@ class GroupsState(rx.State):
         self.user_groups_displayed = []
         base_state = await self.get_state(BaseState)
         with rx.session() as session:
-            usergroups = session.exec(
+            user_groups = session.exec(
                 Group.select()
                 .join(UserGroup)
                 .options(
-                    sa.orm.selectinload(Group.interest)
+                    sa.orm.selectinload(Group.interest),
+                    sa.orm.selectinload(Group.user_group_list)
+                    .selectinload(UserGroup.useraccount)
                 )
                 .where(
                     UserGroup.useraccount_id ==
                     base_state.authenticated_user.id
                 )
             ).all()
-        self.user_groups_displayed = usergroups
-        for group in usergroups:
+
+        for group in user_groups:
             self.user_groups_displayed.append(
-                (group, Group.url_name(group.name))
+                (group,
+                 Group.from_url_name(group.name),
+                 len(group.user_group_list))
             )
 
     async def join_group(self, group: Group):
@@ -60,6 +73,7 @@ class GroupsState(rx.State):
         with rx.session() as session:
             session.add(usergroup)
             session.commit()
+        return rx.redirect(f"{GROUPS_ROUTE}/{group['name']}")
 
 
 @rx.page(title="Fratries", route=GROUPS_ROUTE, on_load=GroupsState.init)
@@ -79,7 +93,7 @@ def groups_page() -> rx.Component:
             rx.vstack(
                 rx.hstack(
                     rx.text("Barre de recherche", width='100%'),
-                    rx.text("Créer", width='100px')
+                    rx.button("Créer", width='100px')
                 ),
                 rx.desktop_only(
                     rx.grid(
@@ -88,15 +102,17 @@ def groups_page() -> rx.Component:
                             lambda group: rx.card(
                                 rx.box(
                                     rx.vstack(
-                                        rx.text(group.name),
+                                        rx.text(group[1]),
                                         rx.hstack(
-                                            rx.text("X/5 membres"),
-                                            rx.text(group.interest.name),
+                                            rx.text(
+                                                f"{group[2]}/{group[0].max_members} membres"
+                                            ),
+                                            rx.text(group[0].interest.name),
                                         ),
                                         rx.button(
                                             "Rejoindre",
                                             on_click=GroupsState.join_group(
-                                                group
+                                                group[0]
                                             ),
                                         ),
                                     ),
@@ -119,15 +135,17 @@ def groups_page() -> rx.Component:
                         GroupsState.user_groups_displayed,
                         lambda group: rx.card(
                             rx.box(
-                                rx.text(group[0].name),
+                                rx.text(group[1]),
                                 rx.hstack(
-                                    rx.text("X/5 membres"),
+                                    rx.text(
+                                        f"{group[2]}/{group[0].max_members} membres"
+                                    ),
                                     rx.text(group[0].interest.name),
                                 ),
                             ),
                             cursor='pointer',
                             on_click=rx.redirect(
-                                f"{GROUPS_ROUTE}/{group[1]}"
+                                f"{GROUPS_ROUTE}/{group[0].name}"
                             ),
                         ),
                     ),

@@ -6,6 +6,7 @@ from .pages import (
     registration,
     profile,
     groups,
+    group,
     members,
     private_discussions,
     privacy_policy,
@@ -21,6 +22,7 @@ __all__ = [
     "registration",
     "profile",
     "groups",
+    "group"
     "members",
     "private_discussions",
     "privacy_policy",
