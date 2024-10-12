@@ -552,7 +552,7 @@ class Group(
 
     def from_url_name(url_name: str) -> str:
         """Format the URL name to a group name."""
-        return url_name.replace("-", " ").capitalize()
+        return url_name.replace("-", " ").title()
 
 
 class UserGroup(
