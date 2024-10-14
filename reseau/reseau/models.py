@@ -389,7 +389,7 @@ class Message(
             "foreign_keys": "Message.sender_id"
         }
     )
-    user_private_message_list: Optional[list["UserPrivateMessage"]] = (
+    user_private_message: Optional["UserPrivateMessage"] = (
         Relationship(back_populates="private_message")
     )
     group_message_list: Optional[list["GroupMessage"]] = (
@@ -436,7 +436,7 @@ class UserPrivateMessage(
         }
     )
     private_message: "Message" = Relationship(
-        back_populates="user_private_message_list"
+        back_populates="user_private_message"
     )
 
 

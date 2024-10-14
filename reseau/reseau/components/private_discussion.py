@@ -2,8 +2,7 @@ import reflex as rx
 
 from ..common.base_state import BaseState
 from ..components.profile_picture import profile_picture
-from ..models import UserPrivateMessage, UserAccount
-from ..pages.private_discussions import PrivateDiscussionsState
+from ..models import Message
 
 
 common_style = rx.Style(
@@ -16,8 +15,7 @@ common_style = rx.Style(
 
 
 def private_discussion(
-    other_user: UserAccount,
-    messages: list[tuple[list[UserPrivateMessage], str]],
+    messages: list[tuple[list[Message], str]],
 ):
     '''
     A component to display a private discussion with another user.
@@ -55,43 +53,21 @@ def private_discussion(
                     justify='center',
                 ),
             ),
-            rx.separator(
-                margin_y='0.5em',
-            ),
-            rx.form(
-                rx.hstack(
-                    rx.input(
-                        name='recipient_id',
-                        value=other_user.id,
-                        style=rx.Style(display='none'),
-                    ),
-                    rx.input(
-                        name='message',
-                        placeholder=f"Écris à {other_user.first_name}",
-                        size='3',
-                        style=rx.Style(
-                            font_family='Inter, sans-serif',
-                            width='100%',
-                        ),
-                    ),
-                    rx.button(
-                        rx.text("Envoyer", font_family='Inter, sans-serif'),
-                        type='submit', size='3'
-                    ),
-                    width='100%',
-                ),
-                on_submit=PrivateDiscussionsState.send_message,
-                reset_on_submit=True,
+            rx.spacer(
+                margin_bottom='0.75em',
             ),
             width='100%',
         ),
-        width='100%',
-        justify='between',
+        style=rx.Style(
+            height='60dvh',
+            overflow_y='auto',
+            width='100%',
+        ),
     )
 
 
 def message_group(
-    messages: tuple[list[UserPrivateMessage], str]
+    messages: tuple[list[Message], str]
 ):
     '''
     A component to display a group of messages.
@@ -123,7 +99,8 @@ def message_group(
 
 
 def message_bubble(
-    message: UserPrivateMessage
+    # message: UserPrivateMessage
+    message: Message
 ):
     '''
     A component to display a single message in a bubble.
@@ -132,12 +109,12 @@ def message_bubble(
         message: A PrivateMessage object.
     '''
     return rx.cond(
-        message.private_message.sender_id == BaseState.authenticated_user.id,
+        message.sender_id == BaseState.authenticated_user.id,
         rx.hstack(
             rx.box(
                 rx.hstack(
                     rx.text(
-                        message.private_message.content,
+                        message.content,
                         style=rx.Style(
                             font_family='Inter, sans-serif',
                             font_size=['0.9em', '0.9em', '0.9em', '1em'],
@@ -145,7 +122,7 @@ def message_bubble(
                     ),
                     rx.text(
                         rx.moment(
-                            message.private_message.published_at,
+                            message.published_at,
                             format='HH:mm'
                         ),
                         style=rx.Style(
@@ -165,7 +142,7 @@ def message_bubble(
                     width=['2.5em', '2.5em', '2.5em', '2.7em'],  # noqa
                     height=['2.5em', '2.5em', '2.5em', '2.7em'],  # noqa
                 ),
-                profile_picture=message.private_message.sender.profile_picture
+                profile_picture=message.sender.profile_picture
             ),
             width='100%',
             justify='end',
@@ -177,12 +154,12 @@ def message_bubble(
                     width=['2.5em', '2.5em', '2.5em', '2.7em'],  # noqa
                     height=['2.5em', '2.5em', '2.5em', '2.7em'],  # noqa
                 ),
-                profile_picture=message.private_message.sender.profile_picture
+                profile_picture=message.sender.profile_picture
             ),
             rx.box(
                 rx.hstack(
                     rx.text(
-                        message.private_message.content,
+                        message.content,
                         style=rx.Style(
                             font_family='Inter, sans-serif',
                             font_size=['0.9em', '0.9em', '0.9em', '1em'],
@@ -190,7 +167,7 @@ def message_bubble(
                     ),
                     rx.text(
                         rx.moment(
-                            message.private_message.published_at,
+                            message.published_at,
                             format="HH:mm"
                         ),
                         style=rx.Style(

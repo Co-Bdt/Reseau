@@ -25,7 +25,8 @@ class PrivateDiscussionsState(BaseState):
     # and all the private messages between them
     private_discussions: list[tuple[UserAccount, bool]] = []
     # Messages of the current discussion
-    discussion_messages: list[tuple[list[UserPrivateMessage], str]] = []
+    # discussion_messages: list[tuple[list[UserPrivateMessage], str]] = []
+    discussion_messages: list[tuple[list[Message], str]] = []
 
     def load_private_discussions(self, event: bool = True):
         """
@@ -43,7 +44,6 @@ class PrivateDiscussionsState(BaseState):
                 UserPrivateMessage.select()
                 .join(Message)
                 .options(
-                    # sa.orm.selectinload(UserPrivateMessage.sender),
                     sa.orm.selectinload(
                         UserPrivateMessage.private_message
                     ).selectinload(Message.sender),
@@ -135,14 +135,30 @@ class PrivateDiscussionsState(BaseState):
         self.discussion_messages = []
 
         with rx.session() as session:
+            # messages = session.exec(
+            #     UserPrivateMessage.select()
+            #     .join(Message)
+            #     .options(
+            #         sa.orm.selectinload(
+            #             UserPrivateMessage.private_message
+            #         ).selectinload(Message.sender),
+            #         sa.orm.selectinload(UserPrivateMessage.recipient),
+            #     ).where(
+            #         ((Message.sender_id ==
+            #           self.authenticated_user.id) &
+            #          (UserPrivateMessage.recipient_id == discussion_id)) |
+            #         ((UserPrivateMessage.recipient_id ==
+            #           self.authenticated_user.id) &
+            #          (Message.sender_id == discussion_id))
+            #     )
+            # ).all()
             messages = session.exec(
-                UserPrivateMessage.select()
-                .join(Message)
+                Message.select()
+                .join(UserPrivateMessage)
                 .options(
-                    sa.orm.selectinload(
-                        UserPrivateMessage.private_message
-                    ).selectinload(Message.sender),
-                    sa.orm.selectinload(UserPrivateMessage.recipient),
+                    sa.orm.selectinload(Message.sender),
+                    sa.orm.selectinload(Message.user_private_message)
+                    .selectinload(UserPrivateMessage.recipient),
                 ).where(
                     ((Message.sender_id ==
                       self.authenticated_user.id) &
@@ -159,18 +175,18 @@ class PrivateDiscussionsState(BaseState):
                 paris_now = datetime.now().timestamp()
                 offset = (datetime.fromtimestamp(paris_now) -
                           datetime.utcfromtimestamp(paris_now))
-                message.private_message.published_at = (
-                    message.private_message.published_at + offset
+                message.published_at = (
+                    message.published_at + offset
                 )
 
             messages = sorted(
                 messages,
-                key=lambda x: x.private_message.published_at
+                key=lambda x: x.published_at
             )
 
             # Function with which we group the messages by date
-            def get_date(message: UserPrivateMessage):
-                return message.private_message.published_at.date()
+            def get_date(message: Message):
+                return message.published_at.date()
 
             self.discussion_messages = [
                 (list(group), format_to_date(date))
@@ -218,7 +234,7 @@ class PrivateDiscussionsState(BaseState):
 
             user_private_message = UserPrivateMessage(
                 recipient_id=recipient_id,
-                message_id=new_message.id,
+                private_message_id=new_message.id,
             )
             session.add(user_private_message)
             session.commit()
@@ -240,7 +256,6 @@ class PrivateDiscussionsState(BaseState):
                 )
             ).first()
             if recipient:
-                print("recipient has activated notifs for mp", recipient)
                 msg = email.write_email_file(
                     f"./other_mails/{recipient.id}_mail_file.txt",
                     email.pm_notification_template(

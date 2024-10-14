@@ -14,7 +14,9 @@ from rxconfig import S3_BUCKET_NAME
 
 
 class GroupsState(rx.State):
-    public_groups_displayed: list[tuple[Group, str, int]] = []
+    # Var containing a list of public groups and their group name, number of members, is user in group  # noqa: E501
+    public_groups_displayed: list[tuple[Group, str, int, bool]] = []
+    # Var containing a list of user's group and their group, group name, number of members  # noqa: E501
     user_groups_displayed: list[tuple[Group, str, int]] = []
     interests_names: list[str] = []
 
@@ -29,28 +31,6 @@ class GroupsState(rx.State):
         self.new_group_interest_name: list[str] = []
 
     async def load_groups(self):
-        # Public groups
-        self.public_groups_displayed = []
-        with rx.session() as session:
-            public_groups = session.exec(
-                Group.select()
-                .options(
-                    sa.orm.selectinload(Group.interest),
-                    sa.orm.selectinload(Group.user_group_list)
-                    .selectinload(UserGroup.useraccount)
-                )
-            ).all()
-        # self.public_groups_displayed = public_groups
-
-        for group in public_groups:
-            self.public_groups_displayed.append(
-                (group,
-                 Group.from_url_name(group.name),
-                 len(group.user_group_list))
-            )
-        # Display public groups in random order.
-        shuffle(self.public_groups_displayed)
-
         # Groups the user is part of
         self.user_groups_displayed = []
         base_state = await self.get_state(BaseState)
@@ -75,6 +55,27 @@ class GroupsState(rx.State):
                  Group.from_url_name(group.name),
                  len(group.user_group_list))
             )
+
+        # Public groups
+        self.public_groups_displayed = []
+        with rx.session() as session:
+            public_groups = session.exec(
+                Group.select()
+                .options(
+                    sa.orm.selectinload(Group.interest),
+                    sa.orm.selectinload(Group.user_group_list)
+                    .selectinload(UserGroup.useraccount)
+                )
+            ).all()
+        for group in public_groups:
+            self.public_groups_displayed.append(
+                (group,
+                 Group.from_url_name(group.name),
+                 len(group.user_group_list),
+                 (group.id in [group.id for group in user_groups]))  # Check if the current group is in the user's groups  # noqa: E501
+            )
+        # Display public groups in random order.
+        shuffle(self.public_groups_displayed)
 
     async def join_group(self, group: Group):
         base_state = await self.get_state(BaseState)
@@ -340,10 +341,13 @@ def groups_page() -> rx.Component:
                                                 ),
                                             ),
                                         ),
-                                        rx.button(
-                                            "Rejoindre",
-                                            on_click=GroupsState.join_group(
-                                                group[0]
+                                        rx.cond(
+                                            ~group[3],
+                                            rx.button(
+                                                "Rejoindre",
+                                                on_click=GroupsState.join_group(
+                                                    group[0]
+                                                ),
                                             ),
                                         ),
                                     ),

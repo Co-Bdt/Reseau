@@ -141,8 +141,36 @@ def private_discussions_popover():
                                 margin_top='0.5em',
                             ),
                             private_discussion(
-                                other_user=discussion[0],
                                 messages=PrivateDiscussionsState.discussion_messages,  # noqa
+                                # recipient=discussion[0],
+                            ),
+                            rx.form(
+                                rx.hstack(
+                                    rx.input(
+                                        name='recipient_id',
+                                        value=discussion[0].id,
+                                        style=rx.Style(display='none'),
+                                    ),
+                                    rx.input(
+                                        name='message',
+                                        placeholder=f"Écris à {discussion[0].first_name}",
+                                        size='3',
+                                        style=rx.Style(
+                                            font_family='Inter, sans-serif',
+                                            width='100%',
+                                        ),
+                                    ),
+                                    rx.button(
+                                        rx.text(
+                                            "Envoyer",
+                                            font_family='Inter, sans-serif'
+                                        ),
+                                        type='submit', size='3'
+                                    ),
+                                    width='100%',
+                                ),
+                                on_submit=PrivateDiscussionsState.send_message,
+                                reset_on_submit=True,
                             ),
                             max_height='75vh',
                             padding='1em',

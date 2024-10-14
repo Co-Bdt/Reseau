@@ -1,7 +1,13 @@
 from datetime import datetime, timezone
+from itertools import groupby
+import os
+import time
 import boto3
 import reflex as rx
 import sqlalchemy as sa
+
+from reseau.common.translate import format_to_date
+from reseau.components.private_discussion import private_discussion
 
 from ..common.base_state import BaseState
 from ..common.template import template
@@ -17,7 +23,8 @@ class GroupState(rx.State):
 
     is_current_user_owner: bool = False
     user_groups: list[UserGroup] = []
-    group_messages: list[GroupMessage] = []
+    # group_messages: list[GroupMessage] = []
+    group_messages: list[tuple[list[Message], str]] = []
 
     members_before_rm: list[UserGroup] = []
 
@@ -42,19 +49,53 @@ class GroupState(rx.State):
             self.image = self.group.image
         else:
             self.image = "blank_group_image"
-        yield
+
         self.group_details = (
             Group.from_url_name(self.name),
             len(group.user_group_list)
         )
         self.user_groups = group.user_group_list
+
         # Check if the current user is the owner of the group
         self.is_current_user_owner = any(
             user_group.is_owner
             for user_group in self.user_groups
             if user_group.useraccount_id == base_state.authenticated_user.id
         )
-        self.group_messages = group.group_message_list
+
+        # Load the group messages
+        self.load_discussion(group.group_message_list)
+
+    def load_discussion(self, group_messages: list[GroupMessage]):
+        messages = [
+            group_message.message
+            for group_message in group_messages
+        ]
+
+        # Convert all published_at to Paris time
+        os.environ['TZ'] = 'Europe/Paris'
+        time.tzset()
+        for message in messages:
+            paris_now = datetime.now().timestamp()
+            offset = (datetime.fromtimestamp(paris_now) -
+                      datetime.utcfromtimestamp(paris_now))
+            message.published_at = (
+                message.published_at + offset
+            )
+
+        messages = sorted(
+            messages,
+            key=lambda x: x.published_at
+        )
+
+        # Function with which we group the messages by date
+        def get_date(message: Message):
+            return message.published_at.date()
+
+        self.group_messages = [
+            (list(group), format_to_date(date))
+            for date, group in groupby(messages, key=get_date)
+        ]
 
     def handle_dialog_open(self):
         self.members_before_rm = self.user_groups.copy()
@@ -371,25 +412,18 @@ def group_page():
                         justify='space-between'
                     ),
                     # Messages
-                    rx.flex(
-                        rx.foreach(
-                            GroupState.group_messages,
-                            lambda msg: rx.card(
-                                rx.text(
-                                    f"{msg.message.sender.first_name} ",
-                                    f"{msg.message.sender.last_name}"
-                                ),
-                                rx.text(msg.message.content)
-                            )
-                        ),
-                        direction='column',
+                    private_discussion(
+                        messages=GroupState.group_messages,
                     ),
                     # Text input
                     rx.form(
                         rx.hstack(
                             rx.input(
+                                auto_complete=False,
                                 name='message',
-                                placeholder=f"Écris dans {GroupState.group_details[0]}",
+                                placeholder=(
+                                    f"Écris dans {GroupState.group_details[0]}"
+                                ),
                                 size='3',
                                 style=rx.Style(
                                     font_family='Inter, sans-serif',
@@ -398,14 +432,20 @@ def group_page():
                             ),
                             rx.icon_button(
                                 rx.icon('send-horizontal'),
-                                type='submit', size='3'
+                                size='3', type='submit', variant='soft',
                             ),
                             width='100%',
                         ),
+                        auto_complete='off',
                         on_submit=GroupState.send_message,
                         reset_on_submit=True,
                     ),
-                    width='85%',
+                    style=rx.Style(
+                        background_color='white',
+                        height='100%',
+                        padding='1em 2em 2em',
+                        width='85%',
+                    ),
                 ),
                 rx.vstack(
                     rx.text("Membres"),
@@ -415,7 +455,7 @@ def group_page():
                             lambda user_group: rx.card(
                                 rx.hstack(
                                     rx.text(
-                                        f"{user_group.useraccount.first_name} ",
+                                        f"{user_group.useraccount.first_name} "
                                         f"{user_group.useraccount.last_name}"
                                     ),
                                     rx.cond(
@@ -429,6 +469,8 @@ def group_page():
                     ),
                     width='15%'
                 ),
+                align_items='start',
+                height='100%',
             ),
             rx.text("Fratrie non trouvée")
         )

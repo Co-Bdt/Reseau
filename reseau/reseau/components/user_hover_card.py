@@ -63,8 +63,36 @@ def user_hover_card(user: UserAccount, city: City) -> rx.Component:
                             ),
                         ),
                         private_discussion(
-                            other_user=user,
                             messages=PrivateDiscussionsState.discussion_messages,  # noqa: E501
+                            # recipient=user,
+                        ),
+                        rx.form(
+                            rx.hstack(
+                                rx.input(
+                                    name='recipient_id',
+                                    value=user.id,
+                                    style=rx.Style(display='none'),
+                                ),
+                                rx.input(
+                                    name='message',
+                                    placeholder=f"Écris à {user.first_name}",
+                                    size='3',
+                                    style=rx.Style(
+                                        font_family='Inter, sans-serif',
+                                        width='100%',
+                                    ),
+                                ),
+                                rx.button(
+                                    rx.text(
+                                        "Envoyer",
+                                        font_family='Inter, sans-serif'
+                                    ),
+                                    type='submit', size='3'
+                                ),
+                                width='100%',
+                            ),
+                            on_submit=PrivateDiscussionsState.send_message,
+                            reset_on_submit=True,
                         ),
                         max_height='75vh',
                         padding='1em',

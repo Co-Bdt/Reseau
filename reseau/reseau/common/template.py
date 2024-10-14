@@ -25,7 +25,10 @@ def template(
                     rx.container(
                         navbar(
                             current_page=page.__name__,
-                            are_tabs_visible=page.__name__ != 'profile_page',
+                            are_tabs_visible=(
+                                page.__name__ != 'profile_page' and
+                                page.__name__ != 'group_page'
+                            ),
                         ),
                         size='4',
                         padding='0',
@@ -85,6 +88,7 @@ def template(
                     padding_x=['1em', '1em', '1em', '1em', '0'],
                     padding_top=['1em', '1em', '1em', '0', '0'],
                     padding_bottom=['1em', '1em', '1em', '4em'],
+                    height='100%',
                 ),
                 feedback_dialog(
                     BaseState.authenticated_user,
@@ -97,5 +101,6 @@ def template(
                 page(),
             ),
         ),
+        height='100%',
         width='100%',
     )
