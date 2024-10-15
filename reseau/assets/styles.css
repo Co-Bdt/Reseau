@@ -56,3 +56,26 @@
     font-size: 16px;
     line-height: 1.5;
 }
+
+.autosize-group-message {
+    resize: none;
+    overflow: hidden;
+    min-height: 1.5em;
+    padding: 10px;
+    border: 0.5px solid #ccc;
+    border-radius: 7px;
+    font-size: 16px;
+    line-height: 1.5;
+    width: 100%;
+}
+
+.autosize-group-message:focus {
+    /* resize: none;
+    overflow: hidden;
+    min-height: 1.5em;
+    padding: 10px; */
+    border: 0.5px solid #ccc;
+    /* border-radius: 7px;
+    font-size: 16px;
+    line-height: 1.5; */
+}

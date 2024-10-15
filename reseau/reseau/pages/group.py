@@ -6,12 +6,16 @@ import boto3
 import reflex as rx
 import sqlalchemy as sa
 
-from reseau.common.translate import format_to_date
-from reseau.components.private_discussion import private_discussion
+from reseau.components.profile_picture import profile_picture
+from reseau.components.user_hover_card import user_hover_card
 
 from ..common.base_state import BaseState
 from ..common.template import template
-from ..models import Group, GroupMessage, Message, UserGroup
+from ..common.translate import format_to_date
+from ..components.custom.autosize import autosize_textarea
+from ..components.group.dropdown_menu import dropdown_menu
+from ..components.private_discussion import private_discussion
+from ..models import Group, GroupMessage, Message, UserAccount, UserGroup
 from ..reseau import GROUPS_ROUTE
 from rxconfig import S3_BUCKET_NAME
 
@@ -23,10 +27,11 @@ class GroupState(rx.State):
 
     is_current_user_owner: bool = False
     user_groups: list[UserGroup] = []
-    # group_messages: list[GroupMessage] = []
     group_messages: list[tuple[list[Message], str]] = []
 
     members_before_rm: list[UserGroup] = []
+
+    message_content: str = ''
 
     async def init(self):
         base_state = await self.get_state(BaseState)
@@ -37,7 +42,8 @@ class GroupState(rx.State):
                 .options(
                     sa.orm.selectinload(Group.interest),
                     sa.orm.selectinload(Group.user_group_list)
-                    .selectinload(UserGroup.useraccount),
+                    .selectinload(UserGroup.useraccount)
+                    .selectinload(UserAccount.city),
                     sa.orm.selectinload(Group.group_message_list)
                     .selectinload(GroupMessage.message)
                     .selectinload(Message.sender),
@@ -219,6 +225,9 @@ class GroupState(rx.State):
     async def send_message(self, form_data: dict):
         base_state = await self.get_state(BaseState)
 
+        if not form_data['message']:
+            return
+
         with rx.session() as session:
             new_message = Message(
                 content=form_data['message'],
@@ -255,161 +264,47 @@ def group_page():
             rx.hstack(
                 rx.vstack(
                     rx.hstack(
-                        rx.image(
-                            src=rx.get_upload_url(
-                                GroupState.image
-                            ),
-                            width=['5em'],
-                            height=['5em'],
-                            border_radius='50%',
-                            object_fit="cover",
-                        ),
-                        rx.vstack(
-                            rx.text(GroupState.group_details[0]),
-                            rx.text(f"{GroupState.group_details[1]}/{GroupState.group.max_members} membres"),
-                        ),
-                        rx.menu.root(
-                            rx.menu.trigger(
-                                rx.icon_button(
-                                    rx.icon('ellipsis'),
-                                )
-                            ),
-                            rx.cond(
-                                GroupState.is_current_user_owner,
-                                rx.menu.content(
-                                    rx.dialog.root(
-                                        rx.dialog.trigger(
-                                            rx.button(
-                                                "Gérer les membres",
-                                                on_click=GroupState.handle_dialog_open,
-                                            )
-                                        ),
-                                        rx.dialog.content(
-                                            rx.dialog.title("Gérer les membres"),
-                                            rx.foreach(
-                                                GroupState.members_before_rm,
-                                                lambda member: rx.cond(
-                                                    ~member.is_owner,
-                                                    rx.card(
-                                                        rx.text(
-                                                            f"{member.useraccount.first_name} ",
-                                                            f"{member.useraccount.last_name}"
-                                                        ),
-                                                        rx.icon_button(
-                                                            rx.icon('x'),
-                                                            on_click=GroupState.mark_member_to_remove(
-                                                                member
-                                                            ),
-                                                        ),
-                                                    ),
-                                                ),
-                                            ),
-                                            rx.flex(
-                                                rx.dialog.close(
-                                                    rx.button(
-                                                        "Annuler",
-                                                        color_scheme="gray",
-                                                        variant="soft",
-                                                    ),
-                                                ),
-                                                rx.dialog.close(
-                                                    rx.button(
-                                                        "Valider",
-                                                        on_click=GroupState.remove_members,
-                                                    ),
-                                                ),
-                                                justify="end",
-                                                spacing="3",
-                                                margin_top="16px",
-                                            ),
-                                        ),
-                                    ),
-                                    rx.menu.separator(),
-                                    rx.dialog.root(
-                                        rx.dialog.trigger(
-                                            rx.button("Modifier la Fratrie",)
-                                        ),
-                                        rx.dialog.content(
-                                            rx.dialog.title("Modifier la Fratrie"),
-                                            rx.upload(
-                                                rx.image(
-                                                    src=rx.get_upload_url(
-                                                        GroupState.image
-                                                    ),
-                                                    width=['5em'],
-                                                    height=['5em'],
-                                                    border_radius='50%',
-                                                    object_fit="cover",
-                                                ),
-                                                id='profile_img',
-                                                multiple=False,
-                                                accept={
-                                                    'image/png': ['.png'],
-                                                    'image/jpeg': ['.jpg', '.jpeg'],
-                                                },
-                                                on_drop=GroupState.handle_upload(
-                                                    rx.upload_files(upload_id='group_img')
-                                                ),
-                                                padding='0',
-                                                width='6em',
-                                                height='5em',
-                                                border='none',
-                                            ),
-                                            rx.flex(
-                                                rx.dialog.close(
-                                                    rx.button(
-                                                        "Annuler",
-                                                        color_scheme="gray",
-                                                        variant="soft",
-                                                    ),
-                                                ),
-                                                rx.dialog.close(
-                                                    rx.button(
-                                                        "Valider",
-                                                        on_click=GroupState.edit_group,
-                                                    ),
-                                                ),
-                                                justify="end",
-                                                spacing="3",
-                                                margin_top="16px",
-                                            ),
-                                        ),
-                                    ),
-                                    rx.alert_dialog.root(
-                                        rx.alert_dialog.trigger(
-                                            rx.button("Dissoudre la Fratrie"),
-                                        ),
-                                        rx.alert_dialog.content(
-                                            rx.alert_dialog.title("Dissoudre la Fratrie"),
-                                            rx.alert_dialog.description(
-                                                "Veux-tu vraiment dissoudre cette Fratrie ?\n"
-                                                "Toutes les données seront perdues."
-                                            ),
-                                            rx.flex(
-                                                rx.alert_dialog.cancel(
-                                                    rx.button("Annuler"),
-                                                ),
-                                                rx.alert_dialog.action(
-                                                    rx.button(
-                                                        "Dissoudre",
-                                                        on_click=GroupState.delete_group
-                                                    ),
-                                                ),
-                                                justify='end',
-                                                spacing='3',
-                                            ),
-                                        ),
-                                    ),
+                        # rx.image(
+                        #     src=rx.get_upload_url(
+                        #         GroupState.image
+                        #     ),
+                        #     width=['5em'],
+                        #     height=['5em'],
+                        #     border_radius='50%',
+                        #     object_fit="cover",
+                        # ),
+                        rx.hstack(
+                            profile_picture(
+                                style=rx.Style(
+                                    width='5em',
+                                    height='5em',
                                 ),
-                                rx.menu.content(
-                                    rx.menu.item(
-                                        "Quitter la Fratrie",
-                                        on_click=GroupState.quit_group,
-                                    ),
-                                ),
+                                profile_picture=GroupState.image,
                             ),
+                            rx.vstack(
+                                rx.text(
+                                    GroupState.group_details[0],
+                                    style=rx.Style(
+                                        font_size='1.75em',
+                                        font_weight='600'
+                                    )
+                                ),
+                                rx.text(
+                                    f"{GroupState.group_details[1]}/"
+                                    f"{GroupState.group.max_members} membres",
+                                    style=rx.Style(
+                                        color='gray',
+                                        font_size='0.8em',
+                                    )
+                                ),
+                                spacing='1'
+                            ),
+                            align='start'
                         ),
-                        justify='space-between'
+                        # Dropdown menu with group actions
+                        dropdown_menu(),
+                        justify='between',
+                        width='100%'
                     ),
                     # Messages
                     private_discussion(
@@ -419,20 +314,39 @@ def group_page():
                     rx.form(
                         rx.hstack(
                             rx.input(
-                                auto_complete=False,
-                                name='message',
-                                placeholder=(
-                                    f"Écris dans {GroupState.group_details[0]}"
-                                ),
-                                size='3',
-                                style=rx.Style(
-                                    font_family='Inter, sans-serif',
-                                    width='100%',
-                                ),
+                            #     auto_complete=False,
+                            #     name='message',
+                                on_change=GroupState.set_message_content,
+                                display='none',
+                            #     placeholder=(
+                            #         f"Écris dans {GroupState.group_details[0]}"
+                            #     ),
+                            #     size='2',
+                            #     value=GroupState.message_content,
+                            #     style=rx.Style(
+                            #         font_family='Inter, sans-serif',
+                            #         width='100%',
+                            #     ),
+                            ),
+                            autosize_textarea(
+                                class_name='autosize-group-message',
+                                id='message',
+                                value=GroupState.message_content,
                             ),
                             rx.icon_button(
-                                rx.icon('send-horizontal'),
+                                rx.icon('send-horizontal', size=24),
                                 size='3', type='submit', variant='soft',
+                                # disabled=~GroupState.message_content,
+                                style=rx.Style(
+                                    background='transparent',
+                                    _hover={
+                                        'bg': rx.color('gray', 4),
+                                    },
+                                    # color='white',
+                                    # height='100%',
+                                    # width='3em',
+                                    cursor='pointer',
+                                ),
                             ),
                             width='100%',
                         ),
@@ -444,32 +358,64 @@ def group_page():
                         background_color='white',
                         height='100%',
                         padding='1em 2em 2em',
-                        width='85%',
+                        border_radius='1.5em',  # solid #e5e5e5
+                        width='76%',
                     ),
                 ),
                 rx.vstack(
-                    rx.text("Membres"),
+                    rx.text(
+                        "Membres",
+                        style=rx.Style(
+                            font_size='1.5em',
+                            font_weight='600'
+                        )
+                    ),
                     rx.grid(
                         rx.foreach(
                             GroupState.user_groups,
                             lambda user_group: rx.card(
                                 rx.hstack(
-                                    rx.text(
-                                        f"{user_group.useraccount.first_name} "
-                                        f"{user_group.useraccount.last_name}"
+                                    rx.hover_card.root(
+                                        rx.hover_card.trigger(
+                                            rx.link(
+                                                rx.text(
+                                                    f"{user_group.useraccount.first_name} "  # noqa: E501
+                                                    f"{user_group.useraccount.last_name}",  # noqa: E501
+                                                ),
+                                                color='inherit',
+                                                cursor='default',
+                                            ),
+                                        ),
+                                        rx.hover_card.content(
+                                            user_hover_card(
+                                                user_group.useraccount,
+                                                user_group.useraccount.city,
+                                            ),
+                                        ),
                                     ),
                                     rx.cond(
                                         user_group.is_owner,
                                         rx.icon('crown'),
                                     ),
+                                    justify='between',
+                                    width='100%'
                                 ),
+                                width='100%'
                             ),
                         ),
-                        columns='1'
+                        columns='1',
+                        spacing='2',
+                        width='100%'
                     ),
-                    width='15%'
+                    style=rx.Style(
+                        background_color='white',
+                        padding='1em 2em 1.5em',
+                        border_radius='1.5em',  # solid #e5e5e5
+                        width='24%',
+                    ),
                 ),
                 align_items='start',
+                spacing='7',
                 height='100%',
             ),
             rx.text("Fratrie non trouvée")

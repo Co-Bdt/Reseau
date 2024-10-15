@@ -117,7 +117,7 @@ def message_bubble(
                         message.content,
                         style=rx.Style(
                             font_family='Inter, sans-serif',
-                            font_size=['0.9em', '0.9em', '0.9em', '1em'],
+                            font_size=['0.9em'],
                         ),
                     ),
                     rx.text(
@@ -162,7 +162,7 @@ def message_bubble(
                         message.content,
                         style=rx.Style(
                             font_family='Inter, sans-serif',
-                            font_size=['0.9em', '0.9em', '0.9em', '1em'],
+                            font_size=['0.9em'],
                         ),
                     ),
                     rx.text(
