@@ -5,6 +5,8 @@ import boto3
 import reflex as rx
 import sqlalchemy as sa
 
+from reseau.components.common.interest_chip import interest_chip
+
 from ..common.base_state import BaseState
 from ..common.template import template
 from ..components.interest_badges import interest_badges
@@ -246,7 +248,13 @@ def groups_page() -> rx.Component:
         rx.hstack(
             rx.vstack(
                 rx.hstack(
-                    rx.text("Fratries", width='100%'),
+                    rx.text(
+                        "Fratries",
+                        style=rx.Style(
+                            font_size='1.5em',
+                            font_weight='600'
+                        )
+                    ),
                     rx.dialog.root(
                         rx.dialog.trigger(
                             rx.button(
@@ -313,6 +321,7 @@ def groups_page() -> rx.Component:
                             ),
                         ),
                     ),
+                    justify='between'
                 ),
                 rx.desktop_only(
                     rx.grid(
@@ -320,74 +329,129 @@ def groups_page() -> rx.Component:
                             GroupsState.public_groups_displayed,
                             lambda group: rx.card(
                                 rx.box(
+                                    rx.image(
+                                        src=rx.get_upload_url(
+                                            group[0].image
+                                        ),
+                                        # width=['5em'],
+                                        # height=['5em'],
+                                        # border_radius='50%',
+                                        object_fit="cover",
+                                    ),
                                     rx.vstack(
                                         rx.hstack(
-                                            rx.image(
-                                                src=rx.get_upload_url(
-                                                    group[0].image
-                                                ),
-                                                width=['5em'],
-                                                height=['5em'],
-                                                border_radius='50%',
-                                                object_fit="cover",
-                                            ),
                                             rx.vstack(
-                                                rx.text(group[1]),
                                                 rx.hstack(
                                                     rx.text(
-                                                        f"{group[2]}/{group[0].max_members} membres"
+                                                        group[1],
+                                                        style=rx.Style(
+                                                            font_size='1.1em',
+                                                            font_weight='600'
+                                                        ),
                                                     ),
-                                                    rx.text(group[0].interest.name),
+                                                    interest_chip(
+                                                        group[0].interest
+                                                    ),
+                                                    justify='between',
+                                                    width='100%',
                                                 ),
+                                                rx.text(
+                                                    f"{group[2]}/"
+                                                    f"{group[0].max_members} membres",  # noqa
+                                                    style=rx.Style(
+                                                        color='gray',
+                                                        font_size='0.8em',
+                                                    )
+                                                ),
+                                                width='100%',
                                             ),
+                                            width='100%',
                                         ),
                                         rx.cond(
                                             ~group[3],
                                             rx.button(
                                                 "Rejoindre",
-                                                on_click=GroupsState.join_group(
+                                                on_click=GroupsState.join_group(  # noqa
                                                     group[0]
                                                 ),
                                             ),
                                         ),
+                                        width='100%',
                                     ),
                                 ),
                             ),
                         ),
-                        columns='3',
+                        columns='2',
                     )
                 ),
                 # rx.tablet_only(
                 # ),
                 # rx.mobile_only(
                 # ),
-                width='85%',
+                style=rx.Style(
+                    background_color='white',
+                    height='100%',
+                    padding='1em 2em 2em',
+                    border_radius='1.5em',  # solid #e5e5e5
+                    width='76%',
+                ),
             ),
             rx.vstack(
-                rx.text("Mes Fratries"),
+                rx.text(
+                    "Mes Fratries",
+                    style=rx.Style(
+                        font_size='1.5em',
+                        font_weight='600'
+                    ),
+                ),
                 rx.grid(
                     rx.foreach(
                         GroupsState.user_groups_displayed,
                         lambda group: rx.card(
                             rx.box(
-                                rx.text(group[1]),
                                 rx.hstack(
                                     rx.text(
-                                        f"{group[2]}/{group[0].max_members} membres"
+                                        group[1],
+                                        style=rx.Style(
+                                            font_size='1.1em',
+                                            font_weight='600'
+                                        ),
                                     ),
-                                    rx.text(group[0].interest.name),
+                                    interest_chip(group[0].interest),
+                                    justify='between',
+                                    width='100%',
                                 ),
+                                rx.text(
+                                    f"{group[2]}/"
+                                    f"{group[0].max_members} membres",
+                                    style=rx.Style(
+                                        color='gray',
+                                        font_size='0.8em',
+                                        margin_top='0.5em'
+                                    )
+                                ),
+                                width='100%'
                             ),
                             cursor='pointer',
                             on_click=rx.redirect(
                                 f"{GROUPS_ROUTE}/{group[0].name}"
                             ),
+                            width='100%',
                         ),
                     ),
                     columns='1',
+                    spacing='2',
+                    width='100%'
                 ),
                 justify='start',
-                width='15%',
-            )
+                style=rx.Style(
+                    background_color='white',
+                    padding='1em 2em 1.5em',
+                    border_radius='1.5em',  # solid #e5e5e5
+                    width='24%',
+                ),
+            ),
+            align_items='start',
+            spacing='7',
         )
     )

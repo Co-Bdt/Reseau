@@ -1,6 +1,6 @@
 import reflex as rx
 
-from reseau.components.private_discussion import private_discussion
+from reseau.components.common.private_discussion import private_discussion
 
 from ..pages.private_discussions import PrivateDiscussionsState
 from .profile_picture import profile_picture
@@ -142,7 +142,6 @@ def private_discussions_popover():
                             ),
                             private_discussion(
                                 messages=PrivateDiscussionsState.discussion_messages,  # noqa
-                                # recipient=discussion[0],
                             ),
                             rx.form(
                                 rx.hstack(
@@ -153,7 +152,10 @@ def private_discussions_popover():
                                     ),
                                     rx.input(
                                         name='message',
-                                        placeholder=f"Écris à {discussion[0].first_name}",
+                                        placeholder=(
+                                            f"Écris à "
+                                            f"{discussion[0].first_name}"
+                                        ),
                                         size='3',
                                         style=rx.Style(
                                             font_family='Inter, sans-serif',

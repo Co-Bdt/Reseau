@@ -14,7 +14,7 @@ from ..common.template import template
 from ..common.translate import format_to_date
 from ..components.custom.autosize import autosize_textarea
 from ..components.group.dropdown_menu import dropdown_menu
-from ..components.private_discussion import private_discussion
+from ..components.common.private_discussion import private_discussion
 from ..models import Group, GroupMessage, Message, UserAccount, UserGroup
 from ..reseau import GROUPS_ROUTE
 from rxconfig import S3_BUCKET_NAME
@@ -309,6 +309,7 @@ def group_page():
                     # Messages
                     private_discussion(
                         messages=GroupState.group_messages,
+                        is_group_discussion=True,
                     ),
                     # Text input
                     rx.form(
@@ -395,7 +396,7 @@ def group_page():
                                     ),
                                     rx.cond(
                                         user_group.is_owner,
-                                        rx.icon('crown'),
+                                        rx.icon('crown', size=20),
                                     ),
                                     justify='between',
                                     width='100%'

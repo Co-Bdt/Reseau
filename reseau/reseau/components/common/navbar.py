@@ -1,10 +1,10 @@
 import reflex as rx
 
-from .base_state import BaseState
-from ..components.private_discussions_popover import private_discussions_popover  # noqa
-from ..components.profile_picture import profile_picture
-from ..reseau import GROUPS_ROUTE, HOME_ROUTE, MEMBERS_ROUTE, PROFILE_ROUTE
-from ..components.site_name import site_name
+from ...common.base_state import BaseState
+from ..private_discussions_popover import private_discussions_popover  # noqa
+from ..profile_picture import profile_picture
+from ...reseau import GROUPS_ROUTE, HOME_ROUTE, MEMBERS_ROUTE, PROFILE_ROUTE
+from ..site_name import site_name
 
 
 item_style = rx.Style(

@@ -68,17 +68,10 @@ def dropdown_menu():
                                 rx.card(
                                     rx.hstack(
                                         rx.text(
-                                            f"{member.useraccount.first_name} ",
-                                            f"{member.useraccount.last_name}",
+                                            f"{member.useraccount.first_name}"
+                                            f" {member.useraccount.last_name}",
                                             font_size='1.1em'
                                         ),
-                                        # rx.icon_button(
-                                        #     rx.icon('x'),
-                                        #     on_click=GroupState
-                                        #     .mark_member_to_remove(
-                                        #         member
-                                        #     ),
-                                        # ),
                                         button_item(
                                             rx.icon('x', color='red'),
                                             GroupState.mark_member_to_remove(
@@ -119,30 +112,36 @@ def dropdown_menu():
                         )
                     ),
                     rx.dialog.content(
-                        rx.dialog.title("Modifier la Fratrie"),
-                        rx.upload(
-                            rx.image(
-                                src=rx.get_upload_url(
-                                    GroupState.image
+                        rx.dialog.title(
+                            "Modifier la Fratrie",
+                            margin='0 0 1em'
+                        ),
+                        rx.center(
+                            rx.upload(
+                                rx.image(
+                                    src=rx.get_upload_url(
+                                        GroupState.image
+                                    ),
+                                    width=['7em'],
+                                    height=['7em'],
+                                    border_radius='50%',
+                                    object_fit="cover",
                                 ),
-                                width=['5em'],
-                                height=['5em'],
-                                border_radius='50%',
-                                object_fit="cover",
+                                id='profile_img',
+                                multiple=False,
+                                accept={
+                                    'image/png': ['.png'],
+                                    'image/jpeg': ['.jpg', '.jpeg'],
+                                },
+                                on_drop=GroupState.handle_upload(
+                                    rx.upload_files(upload_id='group_img')
+                                ),
+                                padding='0',
+                                width='7em',
+                                height='7em',
+                                border='none',
                             ),
-                            id='profile_img',
-                            multiple=False,
-                            accept={
-                                'image/png': ['.png'],
-                                'image/jpeg': ['.jpg', '.jpeg'],
-                            },
-                            on_drop=GroupState.handle_upload(
-                                rx.upload_files(upload_id='group_img')
-                            ),
-                            padding='0',
-                            width='6em',
-                            height='5em',
-                            border='none',
+                            width='100%',
                         ),
                         rx.flex(
                             rx.dialog.close(
@@ -160,8 +159,9 @@ def dropdown_menu():
                             ),
                             justify="end",
                             spacing="3",
-                            margin_top="16px",
+                            margin_top="1.5em",
                         ),
+                        max_width='400px'
                     ),
                 ),
                 rx.alert_dialog.root(
@@ -173,12 +173,18 @@ def dropdown_menu():
                     rx.alert_dialog.content(
                         rx.alert_dialog.title("Dissoudre la Fratrie"),
                         rx.alert_dialog.description(
-                            "Veux-tu vraiment dissoudre cette Fratrie ?\n"
-                            "Toutes les données seront perdues."
+                            rx.text(
+                                "Veux-tu vraiment dissoudre cette Fratrie ? ",
+                                "Toutes les données seront perdues."
+                            ),
                         ),
                         rx.flex(
                             rx.alert_dialog.cancel(
-                                rx.button("Annuler"),
+                                rx.button(
+                                    "Annuler",
+                                    color_scheme="gray",
+                                    variant="soft"
+                                ),
                             ),
                             rx.alert_dialog.action(
                                 rx.button(

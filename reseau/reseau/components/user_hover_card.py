@@ -1,6 +1,6 @@
 import reflex as rx
 
-from ..components.private_discussion import private_discussion
+from .common.private_discussion import private_discussion
 from ..components.profile_picture import profile_picture
 from ..models import UserAccount, City
 from ..pages.private_discussions import PrivateDiscussionsState

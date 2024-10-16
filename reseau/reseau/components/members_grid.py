@@ -1,6 +1,7 @@
 from typing import Tuple
 import reflex as rx
 
+from ..components.common.interest_chip import interest_chip
 from ..components.user_hover_card import user_hover_card
 from ..models import (
     City,
@@ -17,15 +18,6 @@ popover_button_style = rx.Style(
     padding='0',
     background_color='transparent',
 )
-
-
-def interest_chip(interest: Interest) -> rx.Component:
-    return rx.badge(
-        interest.name,
-        color_scheme='amber',
-        radius='full',
-        variant='surface',
-    )
 
 
 def members_grid(**props) -> rx.Component:
