@@ -5,11 +5,13 @@ import boto3
 import reflex as rx
 import sqlalchemy as sa
 
-from reseau.components.common.interest_chip import interest_chip
 
 from ..common.base_state import BaseState
 from ..common.template import template
-from ..components.interest_badges import interest_badges
+from ..components.common.interest_chip import interest_chip
+from ..components.groups.group_interest_filter import group_interest_filter
+from ..components.groups.new_group_dialog import new_group_dialog
+from ..components.groups.public_groups_grid import public_groups_grid
 from ..models import Group, Interest, UserGroup
 from ..reseau import GROUPS_ROUTE
 from rxconfig import S3_BUCKET_NAME
@@ -22,20 +24,25 @@ class GroupsState(rx.State):
     user_groups_displayed: list[tuple[Group, str, int]] = []
     interests_names: list[str] = []
 
+    group_interests: list[Interest] = []
+    current_group_interest: int = 0
+
     new_group_image: str = ""
     new_group_name: str = ""
     new_group_interest_name: list[str] = []
 
     async def init(self):
-        await self.load_groups()
         self.new_group_image: str = "blank_group_image"
         self.new_group_name: str = ""
         self.new_group_interest_name: list[str] = []
 
-    async def load_groups(self):
-        # Groups the user is part of
-        self.user_groups_displayed = []
+        await self.load_groups()
+
+    async def load_groups(self, interest_id: int = 0):
+        self.user_groups_displayed = []  # Groups the user is part of
+        self.group_interests = []  # Interests of the groups to filter
         base_state = await self.get_state(BaseState)
+
         with rx.session() as session:
             user_groups = session.exec(
                 Group.select()
@@ -69,13 +76,24 @@ class GroupsState(rx.State):
                     .selectinload(UserGroup.useraccount)
                 )
             ).all()
+
+        for group in public_groups:
+            self.group_interests.append(group.interest)
+
+        # Keep only groups with the selected interest
+        if interest_id != 0:
+            public_groups = [
+                group for group in public_groups if group.interest_id == interest_id  # noqa: E501
+            ]
+
         for group in public_groups:
             self.public_groups_displayed.append(
                 (group,
                  Group.from_url_name(group.name),
-                 len(group.user_group_list),
-                 (group.id in [group.id for group in user_groups]))  # Check if the current group is in the user's groups  # noqa: E501
+                 len(group.user_group_list),                            # Number of members  # noqa: E501
+                 (group.id in [group.id for group in user_groups]))     # Check if the current group is in the user's groups  # noqa: E501
             )
+
         # Display public groups in random order.
         shuffle(self.public_groups_displayed)
 
@@ -106,6 +124,10 @@ class GroupsState(rx.State):
             session.add(usergroup)
             session.commit()
         return rx.redirect(f"{GROUPS_ROUTE}/{group['name']}")
+
+    def set_current_group_interest(self, interest: Interest):
+        self.current_group_interest = interest['id']
+        return GroupsState.load_groups(interest['id'])
 
     def handle_dialog_open(self):
         # Load interests from database for group creation
@@ -248,208 +270,101 @@ def groups_page() -> rx.Component:
         rx.hstack(
             rx.vstack(
                 rx.hstack(
-                    rx.text(
-                        "Fratries",
-                        style=rx.Style(
-                            font_size='1.5em',
-                            font_weight='600'
-                        )
+                    group_interest_filter(
+                        group_interests=GroupsState.group_interests,
+                        current_badge=GroupsState.current_group_interest,
+                        on_change=GroupsState.set_current_group_interest,
                     ),
-                    rx.dialog.root(
-                        rx.dialog.trigger(
-                            rx.button(
-                                "Créer",
-                                width='100px',
-                                on_click=GroupsState.handle_dialog_open,
-                            )
-                        ),
-                        rx.dialog.content(
-                            rx.dialog.title("Nouvelle Fratrie"),
-                            rx.hstack(
-                                rx.upload(
-                                    rx.image(
-                                        src=rx.get_upload_url(
-                                            GroupsState.new_group_image
-                                        ),
-                                        width=['5em'],
-                                        height=['5em'],
-                                        border_radius='50%',
-                                        object_fit="cover",
-                                    ),
-                                    id='profile_img',
-                                    multiple=False,
-                                    accept={
-                                        'image/png': ['.png'],
-                                        'image/jpeg': ['.jpg', '.jpeg'],
-                                    },
-                                    on_drop=GroupsState.handle_upload(
-                                        rx.upload_files(upload_id='group_img')
-                                    ),
-                                    padding='0',
-                                    width='6em',
-                                    height='5em',
-                                    border='none',
-                                ),
-                                rx.input(
-                                    placeholder="Nom de la Fratrie",
-                                    value=GroupsState.new_group_name,
-                                    on_change=GroupsState.set_new_group_name,
-                                ),
-                            ),
-                            interest_badges(
-                                interests_names=GroupsState.interests_names,
-                                selected_interests_names=GroupsState.new_group_interest_name,  # noqa: E501
-                                add_selected=GroupsState.add_selected,
-                                remove_selected=GroupsState.remove_selected,
-                                badge_size='2',
-                            ),
-                            rx.flex(
-                                rx.dialog.close(
-                                    rx.button(
-                                        "Annuler",
-                                        color_scheme="gray",
-                                        variant="soft",
-                                    ),
-                                ),
-                                rx.button(
-                                    "Créer",
-                                    on_click=GroupsState.create_group,
-                                ),
-                                justify="end",
-                                spacing="3",
-                                margin_top="16px",
-                            ),
-                        ),
+
+                    # Dialog to create a new group
+                    new_group_dialog(),
+
+                    justify='between',
+                    style=rx.Style(
+                        align_items='start',
+                        margin_bottom='1em',
+                        width='100%',
                     ),
-                    justify='between'
                 ),
-                rx.desktop_only(
-                    rx.grid(
-                        rx.foreach(
-                            GroupsState.public_groups_displayed,
-                            lambda group: rx.card(
-                                rx.box(
-                                    rx.image(
-                                        src=rx.get_upload_url(
-                                            group[0].image
-                                        ),
-                                        # width=['5em'],
-                                        # height=['5em'],
-                                        # border_radius='50%',
-                                        object_fit="cover",
-                                    ),
-                                    rx.vstack(
-                                        rx.hstack(
-                                            rx.vstack(
-                                                rx.hstack(
-                                                    rx.text(
-                                                        group[1],
-                                                        style=rx.Style(
-                                                            font_size='1.1em',
-                                                            font_weight='600'
-                                                        ),
-                                                    ),
-                                                    interest_chip(
-                                                        group[0].interest
-                                                    ),
-                                                    justify='between',
-                                                    width='100%',
-                                                ),
-                                                rx.text(
-                                                    f"{group[2]}/"
-                                                    f"{group[0].max_members} membres",  # noqa
-                                                    style=rx.Style(
-                                                        color='gray',
-                                                        font_size='0.8em',
-                                                    )
-                                                ),
-                                                width='100%',
-                                            ),
-                                            width='100%',
-                                        ),
-                                        rx.cond(
-                                            ~group[3],
-                                            rx.button(
-                                                "Rejoindre",
-                                                on_click=GroupsState.join_group(  # noqa
-                                                    group[0]
-                                                ),
-                                            ),
-                                        ),
-                                        width='100%',
-                                    ),
-                                ),
-                            ),
-                        ),
-                        columns='2',
-                    )
+                rx.tablet_and_desktop(
+                    public_groups_grid(),
                 ),
-                # rx.tablet_only(
-                # ),
-                # rx.mobile_only(
-                # ),
+                rx.mobile_only(
+                    public_groups_grid(column_nb='1'),
+                ),
                 style=rx.Style(
+                    align_items='center',
                     background_color='white',
                     height='100%',
-                    padding='1em 2em 2em',
-                    border_radius='1.5em',  # solid #e5e5e5
-                    width='76%',
+                    padding='2em',
+                    border_radius='1.5em',
+                    width=['100%', '100%', '100%', '76%'],
                 ),
             ),
-            rx.vstack(
-                rx.text(
-                    "Mes Fratries",
-                    style=rx.Style(
-                        font_size='1.5em',
-                        font_weight='600'
-                    ),
-                ),
-                rx.grid(
-                    rx.foreach(
-                        GroupsState.user_groups_displayed,
-                        lambda group: rx.card(
-                            rx.box(
-                                rx.hstack(
-                                    rx.text(
-                                        group[1],
-                                        style=rx.Style(
-                                            font_size='1.1em',
-                                            font_weight='600'
-                                        ),
-                                    ),
-                                    interest_chip(group[0].interest),
-                                    justify='between',
-                                    width='100%',
-                                ),
-                                rx.text(
-                                    f"{group[2]}/"
-                                    f"{group[0].max_members} membres",
-                                    style=rx.Style(
-                                        color='gray',
-                                        font_size='0.8em',
-                                        margin_top='0.5em'
-                                    )
-                                ),
-                                width='100%'
-                            ),
-                            cursor='pointer',
-                            on_click=rx.redirect(
-                                f"{GROUPS_ROUTE}/{group[0].name}"
-                            ),
-                            width='100%',
+            rx.desktop_only(
+                rx.vstack(
+                    rx.text(
+                        "Mes Fratries",
+                        style=rx.Style(
+                            font_size='1.5em',
+                            font_weight='700'
                         ),
                     ),
-                    columns='1',
-                    spacing='2',
-                    width='100%'
+                    rx.grid(
+                        rx.foreach(
+                            GroupsState.user_groups_displayed,
+                            lambda group: rx.card(
+                                rx.box(
+                                    rx.hstack(
+                                        rx.text(
+                                            group[1],
+                                            style=rx.Style(
+                                                font_size='1em',
+                                                font_weight='600',
+                                                overflow='hidden',
+                                                text_overflow='ellipsis',
+                                                white_space='nowrap',
+                                            ),
+                                        ),
+                                        interest_chip(group[0].interest),
+                                        justify='between',
+                                        width='100%',
+                                    ),
+                                    rx.text(
+                                        f"{group[2]}/"
+                                        f"{group[0].max_members} membres",
+                                        style=rx.Style(
+                                            color='gray',
+                                            font_size='0.8em',
+                                            margin_top='0.5em'
+                                        )
+                                    ),
+                                    width='100%'
+                                ),
+                                cursor='pointer',
+                                on_click=rx.redirect(
+                                    f"{GROUPS_ROUTE}/{group[0].name}"
+                                ),
+                                style=rx.Style(
+                                    width='100%',
+                                    _hover={
+                                        'box_shadow': '0px 1px 2px 1px rgba(0, 0, 0, 0.2)',  # noqa: E501
+                                    }
+                                ),
+                            ),
+                        ),
+                        columns='1',
+                        spacing='2',
+                        width='100%'
+                    ),
+                    justify='start',
+                    style=rx.Style(
+                        background_color='white',
+                        padding='1em 2em 1.5em',
+                        border_radius='1.5em',  # solid #e5e5e5
+                    ),
                 ),
-                justify='start',
-                style=rx.Style(
-                    background_color='white',
-                    padding='1em 2em 1.5em',
-                    border_radius='1.5em',  # solid #e5e5e5
-                    width='24%',
-                ),
+                width='24%',
             ),
             align_items='start',
             spacing='7',

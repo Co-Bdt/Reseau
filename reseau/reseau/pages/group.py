@@ -264,15 +264,6 @@ def group_page():
             rx.hstack(
                 rx.vstack(
                     rx.hstack(
-                        # rx.image(
-                        #     src=rx.get_upload_url(
-                        #         GroupState.image
-                        #     ),
-                        #     width=['5em'],
-                        #     height=['5em'],
-                        #     border_radius='50%',
-                        #     object_fit="cover",
-                        # ),
                         rx.hstack(
                             profile_picture(
                                 style=rx.Style(
@@ -299,7 +290,7 @@ def group_page():
                                 ),
                                 spacing='1'
                             ),
-                            align='start'
+                            spacing='4',
                         ),
                         # Dropdown menu with group actions
                         dropdown_menu(),
@@ -314,21 +305,6 @@ def group_page():
                     # Text input
                     rx.form(
                         rx.hstack(
-                            rx.input(
-                            #     auto_complete=False,
-                            #     name='message',
-                                on_change=GroupState.set_message_content,
-                                display='none',
-                            #     placeholder=(
-                            #         f"Écris dans {GroupState.group_details[0]}"
-                            #     ),
-                            #     size='2',
-                            #     value=GroupState.message_content,
-                            #     style=rx.Style(
-                            #         font_family='Inter, sans-serif',
-                            #         width='100%',
-                            #     ),
-                            ),
                             autosize_textarea(
                                 class_name='autosize-group-message',
                                 id='message',
@@ -337,15 +313,11 @@ def group_page():
                             rx.icon_button(
                                 rx.icon('send-horizontal', size=24),
                                 size='3', type='submit', variant='soft',
-                                # disabled=~GroupState.message_content,
                                 style=rx.Style(
                                     background='transparent',
                                     _hover={
                                         'bg': rx.color('gray', 4),
                                     },
-                                    # color='white',
-                                    # height='100%',
-                                    # width='3em',
                                     cursor='pointer',
                                 ),
                             ),
@@ -359,61 +331,63 @@ def group_page():
                         background_color='white',
                         height='100%',
                         padding='1em 2em 2em',
-                        border_radius='1.5em',  # solid #e5e5e5
-                        width='76%',
+                        border_radius='1.5em',
+                        width=['100%', '100%', '100%', '76%'],
                     ),
                 ),
-                rx.vstack(
-                    rx.text(
-                        "Membres",
-                        style=rx.Style(
-                            font_size='1.5em',
-                            font_weight='600'
-                        )
-                    ),
-                    rx.grid(
-                        rx.foreach(
-                            GroupState.user_groups,
-                            lambda user_group: rx.card(
-                                rx.hstack(
-                                    rx.hover_card.root(
-                                        rx.hover_card.trigger(
-                                            rx.link(
-                                                rx.text(
-                                                    f"{user_group.useraccount.first_name} "  # noqa: E501
-                                                    f"{user_group.useraccount.last_name}",  # noqa: E501
+                rx.desktop_only(
+                    rx.vstack(
+                        rx.text(
+                            "Membres",
+                            style=rx.Style(
+                                font_size='1.5em',
+                                font_weight='600'
+                            )
+                        ),
+                        rx.grid(
+                            rx.foreach(
+                                GroupState.user_groups,
+                                lambda user_group: rx.card(
+                                    rx.hstack(
+                                        rx.hover_card.root(
+                                            rx.hover_card.trigger(
+                                                rx.link(
+                                                    rx.text(
+                                                        f"{user_group.useraccount.first_name} "  # noqa: E501
+                                                        f"{user_group.useraccount.last_name}",  # noqa: E501
+                                                    ),
+                                                    color='inherit',
+                                                    cursor='default',
                                                 ),
-                                                color='inherit',
-                                                cursor='default',
+                                            ),
+                                            rx.hover_card.content(
+                                                user_hover_card(
+                                                    user_group.useraccount,
+                                                    user_group.useraccount.city,  # noqa: E501
+                                                ),
                                             ),
                                         ),
-                                        rx.hover_card.content(
-                                            user_hover_card(
-                                                user_group.useraccount,
-                                                user_group.useraccount.city,
-                                            ),
+                                        rx.cond(
+                                            user_group.is_owner,
+                                            rx.icon('crown', size=20),
                                         ),
+                                        justify='between',
+                                        width='100%'
                                     ),
-                                    rx.cond(
-                                        user_group.is_owner,
-                                        rx.icon('crown', size=20),
-                                    ),
-                                    justify='between',
                                     width='100%'
                                 ),
-                                width='100%'
                             ),
+                            columns='1',
+                            spacing='2',
+                            width='100%'
                         ),
-                        columns='1',
-                        spacing='2',
-                        width='100%'
+                        style=rx.Style(
+                            background_color='white',
+                            padding='1em 2em 1.5em',
+                            border_radius='1.5em',
+                        ),
                     ),
-                    style=rx.Style(
-                        background_color='white',
-                        padding='1em 2em 1.5em',
-                        border_radius='1.5em',  # solid #e5e5e5
-                        width='24%',
-                    ),
+                    width='24%',
                 ),
                 align_items='start',
                 spacing='7',

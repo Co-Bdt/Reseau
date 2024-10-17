@@ -75,8 +75,6 @@ def template(
                         ),
                     ),
                     width='100%',
-                    margin_bottom=['0', '0', '0', '1.75em'],
-                    padding_top=['0', '0', '0', '1.5em'],
                     background_color=rx.color_mode_cond(
                         light='white',
                         dark='#212121',
@@ -86,7 +84,7 @@ def template(
                     page(),
                     size='4',
                     padding_x=['1em', '1em', '1em', '1em', '0'],
-                    padding_top=['1em', '1em', '1em', '0', '0'],
+                    padding_top='1em',
                     padding_bottom=['1em', '1em', '1em', '4em'],
                     height='100%',
                 ),

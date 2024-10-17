@@ -16,19 +16,19 @@ postcategory_all = PostCategory(
 )
 
 
-def postcategory_badges(
+def postcategory_filter(
     postcategories: list[PostCategory],
-    current_postcategory: int,
-    on_change_current_postcategory: callable
+    current_badge: int,
+    on_change: callable
 ) -> rx.Component:
 
     def selected_badge(postcategory: PostCategory) -> rx.Component:
         return rx.badge(
             postcategory.name,
-            **badge_props,
             color='white',
             background='gray',
-            box_shadow='inset 0 0 0 1px gray'
+            box_shadow='inset 0 0 0 1px gray',
+            **badge_props,
         )
 
     def unselected_badge(postcategory: PostCategory) -> rx.Component:
@@ -40,14 +40,14 @@ def postcategory_badges(
                 'color': 'white',
                 'bg': 'gray'
             },
-            on_click=on_change_current_postcategory(
+            on_click=on_change(
                 postcategory
             ),
         )
 
     return rx.flex(
         rx.cond(
-            current_postcategory == postcategory_all.id,
+            current_badge == postcategory_all.id,
             selected_badge(postcategory_all),
             unselected_badge(postcategory_all),
         ),
@@ -55,7 +55,7 @@ def postcategory_badges(
             postcategories,
             lambda postcategory:
                 rx.cond(
-                    current_postcategory == postcategory.id,
+                    current_badge == postcategory.id,
                     selected_badge(postcategory),
                     unselected_badge(postcategory),
                 )

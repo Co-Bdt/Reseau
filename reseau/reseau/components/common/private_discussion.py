@@ -6,7 +6,6 @@ from ...models import Message
 
 
 common_style = rx.Style(
-    max_width='80%',
     padding='0.6em 0.8em',
     border='0.5px solid #eaeaea',
     border_radius='0.5em',
@@ -151,6 +150,7 @@ def message_bubble(
                     style=common_style,
                 ),
                 align_items='end',
+                max_width='75%',
                 spacing='1',
             ),
             profile_picture(
@@ -210,6 +210,7 @@ def message_bubble(
                     background_color='#FFF6E0',
                     style=common_style,
                 ),
+                max_width='75%',
                 spacing='1',
             ),
             align_items='start',

@@ -94,7 +94,8 @@ def navbar(
             width='100%',
             justify='start',
             align='center',
-            padding_y='1em',
+            padding_top=['1em', '1em', '1em', '2em'],
+            padding_bottom='1em',
         ),
         rx.cond(
             are_tabs_visible,
@@ -145,14 +146,18 @@ def navbar(
                 value=current_page,
                 width="100%",
             ),
-            rx.vstack(
-                rx.spacer(),
-                rx.box(
+            rx.tablet_and_desktop(
+                rx.vstack(
+                    rx.spacer(),
+                    rx.box(
+                        width='100%',
+                        height='1px',
+                        style=rx.Style(
+                            background_color='#e2e1de'
+                        )
+                    ),
+                    spacing='0',
                     width='100%',
-                    height='1px',
-                    style=rx.Style(
-                        background_color='#e2e1de'
-                    )
                 ),
                 width='100%',
             ),

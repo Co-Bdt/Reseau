@@ -87,8 +87,8 @@ def dropdown_menu():
                             rx.dialog.close(
                                 rx.button(
                                     "Annuler",
-                                    color_scheme="gray",
-                                    variant="soft",
+                                    color_scheme='gray',
+                                    variant='soft',
                                 ),
                             ),
                             rx.dialog.close(
@@ -97,9 +97,9 @@ def dropdown_menu():
                                     on_click=GroupState.remove_members,
                                 ),
                             ),
-                            justify="end",
-                            spacing="3",
-                            margin_top="1.5em",
+                            justify='end',
+                            margin_top='1.5em',
+                            spacing='3',
                         ),
                         max_width='400px'
                     ),
@@ -125,7 +125,7 @@ def dropdown_menu():
                                     width=['7em'],
                                     height=['7em'],
                                     border_radius='50%',
-                                    object_fit="cover",
+                                    object_fit='cover',
                                 ),
                                 id='profile_img',
                                 multiple=False,
@@ -147,8 +147,8 @@ def dropdown_menu():
                             rx.dialog.close(
                                 rx.button(
                                     "Annuler",
-                                    color_scheme="gray",
-                                    variant="soft",
+                                    color_scheme='gray',
+                                    variant='soft',
                                 ),
                             ),
                             rx.dialog.close(
@@ -157,9 +157,9 @@ def dropdown_menu():
                                     on_click=GroupState.edit_group,
                                 ),
                             ),
-                            justify="end",
-                            spacing="3",
-                            margin_top="1.5em",
+                            justify='end',
+                            margin_top='1.5em',
+                            spacing='3',
                         ),
                         max_width='400px'
                     ),
@@ -174,7 +174,9 @@ def dropdown_menu():
                         rx.alert_dialog.title("Dissoudre la Fratrie"),
                         rx.alert_dialog.description(
                             rx.text(
-                                "Veux-tu vraiment dissoudre cette Fratrie ? ",
+                                "Veux-tu vraiment dissoudre cette Fratrie ? "
+                            ),
+                            rx.text(
                                 "Toutes les données seront perdues."
                             ),
                         ),
@@ -182,8 +184,8 @@ def dropdown_menu():
                             rx.alert_dialog.cancel(
                                 rx.button(
                                     "Annuler",
-                                    color_scheme="gray",
-                                    variant="soft"
+                                    color_scheme='gray',
+                                    variant='soft'
                                 ),
                             ),
                             rx.alert_dialog.action(
@@ -193,6 +195,7 @@ def dropdown_menu():
                                 ),
                             ),
                             justify='end',
+                            margin_top='1.5em',
                             spacing='3',
                         ),
                     ),

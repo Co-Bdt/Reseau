@@ -7,7 +7,7 @@ from ..common import email
 from ..common.template import template
 from ..common.translate import from_now
 from ..components.landing.landing import landing_page
-from ..components.postcategory_badges import postcategory_badges
+from ..components.postcategory_filter import postcategory_filter
 from ..components.post_dialog import post_dialog
 from ..components.write_post_dialog import write_post_dialog
 from ..models import Comment, Post, PostCategory, UserAccount, UserPreference
@@ -214,10 +214,10 @@ def home_page() -> rx.Component:
                     postcategories=HomeState.postcategories,
                     publish_post=HomeState.publish_post
                 ),
-                postcategory_badges(
+                postcategory_filter(
                     postcategories=HomeState.postcategories,
-                    current_postcategory=HomeState.current_postcategory,
-                    on_change_current_postcategory=HomeState.set_current_postcategory  # noqa: E501
+                    current_badge=HomeState.current_postcategory,
+                    on_change=HomeState.set_current_postcategory  # noqa: E501
                 ),
                 rx.grid(
                     rx.foreach(
