@@ -1,0 +1,45 @@
+# This workflow will deploy the latest Reseau image from GHCR to the K3S cluster hosted on Hetzner Cloud when there is a push to the "main" branch.
+
+name: Deploy to Hetzner Prod
+
+on:
+  workflow_dispatch:
+  #push:
+  #  branches: [ "main" ]
+
+#env:
+  #WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+  #PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  #GCP_LOCATION: europe-west1
+  #GKE_ZONE: europe-west1-b
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: 'read'
+      packages: 'write'
+      id-token: 'write'
+    #env:
+    #  GKE_CLUSTER_NAME: ${{ secrets.GKE_CLUSTER_NAME }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        ref: main
+
+    # Connect to the cluster
+    - name: GCloud and GKE setup
+      run: pwd
+
+    #- name: Package Chart
+    #  run: |-
+    #    cd helm
+    #    helm package reseau
+
+    #- name: Deploy Chart
+    #  run: |-
+    #    helm upgrade reseau helm/reseau-*.tgz --install -f helm/reseau/environments/values.prod.yaml --wait --timeout 10m0s
