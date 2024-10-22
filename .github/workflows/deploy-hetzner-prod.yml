@@ -33,7 +33,9 @@ jobs:
 
     # Connect to the cluster
     - name: GCloud and GKE setup
-      run: pwd
+      run: |-
+        pwd
+        ls -la kube-hetzner
 
     #- name: Package Chart
     #  run: |-
