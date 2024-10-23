@@ -26,11 +26,6 @@ jobs:
       with:
         ref: main
 
-    # Connect to the cluster
-    #- name: GCloud and GKE setup
-    #  run: |-
-    #    export KUBECONFIG=/home/runner/work/Reseau/Reseau/kube-hetzner/k3s_kubeconfig.yaml
-
     - name: Package Chart
       run: |-
         cd helm
@@ -39,5 +34,4 @@ jobs:
     - name: Deploy Chart
       run: |-
         export KUBECONFIG=/home/runner/work/Reseau/Reseau/kube-hetzner/k3s_kubeconfig.yaml
-        kubectl get nodes
-        #helm upgrade reseau helm/reseau-*.tgz --install -f helm/reseau/environments/values.prod.yaml --wait --timeout 10m0s
+        helm upgrade reseau helm/reseau-*.tgz --install -f helm/reseau/environments/values.prod.yaml --wait --timeout 10m0s
