@@ -7,11 +7,8 @@ on:
   #push:
   #  branches: [ "main" ]
 
-#env:
-  #WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-  #PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  #GCP_LOCATION: europe-west1
-  #GKE_ZONE: europe-west1-b
+env:
+  KUBECONFIG: /home/runner/work/Reseau/Reseau/kube-hetzner/k3s_kubeconfig.yaml
 
 jobs:
   deploy:
@@ -22,8 +19,6 @@ jobs:
       contents: 'read'
       packages: 'write'
       id-token: 'write'
-    #env:
-    #  GKE_CLUSTER_NAME: ${{ secrets.GKE_CLUSTER_NAME }}
 
     steps:
     - name: Checkout
@@ -32,14 +27,17 @@ jobs:
         ref: main
 
     # Connect to the cluster
-    - name: GCloud and GKE setup
-      run: pwd
-
-    #- name: Package Chart
+    #- name: GCloud and GKE setup
     #  run: |-
-    #    cd helm
-    #    helm package reseau
+    #    export KUBECONFIG=/home/runner/work/Reseau/Reseau/kube-hetzner/k3s_kubeconfig.yaml
 
-    #- name: Deploy Chart
-    #  run: |-
-    #    helm upgrade reseau helm/reseau-*.tgz --install -f helm/reseau/environments/values.prod.yaml --wait --timeout 10m0s
+    - name: Package Chart
+      run: |-
+        cd helm
+        helm package reseau
+
+    - name: Deploy Chart
+      run: |-
+        export KUBECONFIG=/home/runner/work/Reseau/Reseau/kube-hetzner/k3s_kubeconfig.yaml
+        kubectl get nodes
+        #helm upgrade reseau helm/reseau-*.tgz --install -f helm/reseau/environments/values.prod.yaml --wait --timeout 10m0s

@@ -3,8 +3,9 @@
 name: Deploy to GKE Prod
 
 on:
-  push:
-    branches: [ "main" ]
+  workflow_dispatch:
+  #push:
+  #  branches: [ "main" ]
 
 env:
   WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
