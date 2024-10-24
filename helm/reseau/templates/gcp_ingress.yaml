@@ -1,3 +1,4 @@
+{{- if .Values.managedHosting.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -5,7 +6,6 @@ metadata:
   annotations:
     kubernetes.io/ingress.global-static-ip-name: {{ .Values.envPrefix }}{{ include "reseau.fullname" . }}-global-static-ip
     networking.gke.io/managed-certificates: {{ .Values.envPrefix }}{{ include "reseau.fullname" . }}-managed-cert
-    kubernetes.io/ingress.class: "gce"
 spec:
   ingressClassName: gce
   defaultBackend:
@@ -13,3 +13,4 @@ spec:
       name: {{ include "reseau.fullname" . }}-svc
       port:
         name: {{ .Values.service.name }}
+{{- end }}

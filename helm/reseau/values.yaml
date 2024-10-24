@@ -4,7 +4,10 @@
 
 namespace: default
 
-replicaCount: 3
+managedHosting: 
+  enabled: true
+
+replicaCount: 4
 
 image:
   repository: ghcr.io/co-bdt/reseau
@@ -34,9 +37,7 @@ service:
 
 ingress:
   enabled: true
-
-managedCertificate: 
-  enabled: true
+  domainName: reseau-devperso.fr
 
 resources:
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -44,11 +45,11 @@ resources:
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
   limits:
-    cpu: 4
-    memory: 8Gi
+    cpu: 2
+    memory: 4Gi
   requests:
-    cpu: 0.5
-    memory: 2Gi
+    cpu: 2
+    memory: 4Gi
 
 livenessProbe:
   httpGet:
@@ -62,8 +63,8 @@ startupProbe:
 
 autoscaling:
   enabled: true
-  minReplicas: 1
-  maxReplicas: 3
+  minReplicas: 3
+  maxReplicas: 4
   targetCPUUtilizationPercentage: 90
   targetMemoryUtilizationPercentage: 90
 

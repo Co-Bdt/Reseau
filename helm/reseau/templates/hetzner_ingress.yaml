@@ -1,0 +1,25 @@
+{{- if not .Values.managedHosting.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "reseau.fullname" . }}-ingress
+  annotations:
+    cert-manager.io/issuer: letsencrypt-prod
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: {{ .Values.ingress.domainName }}
+    http:
+      paths:
+      - backend:
+          service:
+            name: {{ include "reseau.fullname" . }}-svc
+            port:
+              name: {{ .Values.service.name }}
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - {{ .Values.ingress.domainName }}
+    secretName: reseau-tls
+{{- end }}
