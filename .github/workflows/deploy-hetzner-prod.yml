@@ -35,5 +35,5 @@ jobs:
       run: |-
         helm upgrade reseau helm/reseau-*.tgz --install \
           -f helm/reseau/environments/values.prod.yaml \
-          --set managedCertificate.enabled=false \
+          --set managedHosting.enabled=false \
           --wait --timeout 10m0s
