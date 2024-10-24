@@ -33,5 +33,7 @@ jobs:
 
     - name: Deploy Chart
       run: |-
-        export KUBECONFIG=/home/runner/work/Reseau/Reseau/kube-hetzner/k3s_kubeconfig.yaml
-        helm upgrade reseau helm/reseau-*.tgz --install -f helm/reseau/environments/values.prod.yaml --wait --timeout 10m0s
+        helm upgrade reseau helm/reseau-*.tgz --install \
+          -f helm/reseau/environments/values.prod.yaml \
+          --set managedCertificate.enabled=false \
+          --wait --timeout 10m0s
