@@ -1,5 +1,5 @@
 terraform {
-  required_version = "1.9.2"
+  required_version = "1.9.4"
 
   backend "gcs" {
     bucket = "tf-state-prod-reseau-devperso"
@@ -30,31 +30,31 @@ provider "aws" {
 
 ##### Resources #####
 
-# GKE cluster
-resource "google_container_cluster" "cluster" {
-  name     = "${var.project_name}-auto-cluster"
-  location = var.gcp_region
+# # GKE cluster
+# resource "google_container_cluster" "cluster" {
+#   name     = "${var.project_name}-auto-cluster"
+#   location = var.gcp_region
 
-  # Enabling Autopilot for this cluster
-  enable_autopilot = true
+#   # Enabling Autopilot for this cluster
+#   enable_autopilot = true
 
-  network    = "default"
-  subnetwork = "default"
+#   network    = "default"
+#   subnetwork = "default"
 
-  deletion_protection = false
+#   deletion_protection = false
 
-  # to avoid cluster replacement every time a state is applied
-  dns_config {
-    cluster_dns        = "CLOUD_DNS"
-    cluster_dns_domain = "cluster.local"
-    cluster_dns_scope  = "CLUSTER_SCOPE"
-  }
-}
+#   # to avoid cluster replacement every time a state is applied
+#   dns_config {
+#     cluster_dns        = "CLOUD_DNS"
+#     cluster_dns_domain = "cluster.local"
+#     cluster_dns_scope  = "CLUSTER_SCOPE"
+#   }
+# }
 
-# GCP Global static IP for the web application
-resource "google_compute_global_address" "global_static_ip" {
-  name = "${var.project_name}-global-static-ip"
-}
+# # GCP Global static IP for the web application
+# resource "google_compute_global_address" "global_static_ip" {
+#   name = "${var.project_name}-global-static-ip"
+# }
 
 # AWS RDS latest snapshot
 data "aws_db_snapshot" "latest_snapshot" {
@@ -78,22 +78,22 @@ resource "aws_db_instance" "db_instance" {
   }
 }
 
-# Amazon Machine Image (AMI)
-data "aws_ami" "linux-2023-ami" {
-  most_recent = true
-  owners      = ["amazon"]
+# # Amazon Machine Image (AMI)
+# data "aws_ami" "linux-2023-ami" {
+#   most_recent = true
+#   owners      = ["amazon"]
 
-  filter {
-    name   = "name"
-    values = ["al2023-ami-2023.*-x86_64"]
-  }
-}
+#   filter {
+#     name   = "name"
+#     values = ["al2023-ami-2023.*-x86_64"]
+#   }
+# }
 
-# AWS EC2 instance
-resource "aws_instance" "vm" {
-  ami           = data.aws_ami.linux-2023-ami.id
-  instance_type = "t2.micro"
-  tags = {
-    Name = "${var.project_name}-compute-instance"
-  }
-}
+# # AWS EC2 instance
+# resource "aws_instance" "vm" {
+#   ami           = data.aws_ami.linux-2023-ami.id
+#   instance_type = "t2.micro"
+#   tags = {
+#     Name = "${var.project_name}-compute-instance"
+#   }
+# }
