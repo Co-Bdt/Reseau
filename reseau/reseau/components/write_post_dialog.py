@@ -1,62 +1,59 @@
 import reflex as rx
 from typing import Callable
 
-from ..common.base_state import BaseState
-from ..components.autosize import autosize_textarea
+from .custom.autosize import autosize_textarea
 from ..components.profile_picture import profile_picture
-from ..models import UserAccount
+from ..models import PostCategory, UserAccount
 
 
 dialog_button_style = {
-    "width": "100%",
-    "size": "3",
-    "variant": "outline",
-    "color_scheme": "gray",
-    "radius": "large",
-    "style": rx.Style(
-        justify_content="start",
-        background_color=rx.color_mode_cond(
-            light="white",
-            dark="#191918",
-        ),
-        font_size=["0.9em", "1em"],
-        cursor="pointer",
+    'width': '100%',
+    'size': '3',
+    'variant': 'outline',
+    'color_scheme': 'gray',
+    'radius': 'large',
+    'style': rx.Style(
+        justify_content='start',
+        background_color='white',
+        font_family='Inter, sans-serif',
+        font_size=['0.9em', '1em'],
+        cursor='pointer',
     )
 }
 
 title_input_style = {
-    "width": "100%",
-    "size": "3",
-    "variant": "soft",
-    "color_scheme": "gray",
-    "background_color": rx.color_mode_cond(
-        light="white",
-        dark="#121212",
-    ),
-    "color": rx.color_mode_cond(
-        light="black",
-        dark="white",
-    ),
-    "style": rx.Style(
-        border="0.5px solid #ccc",
-        font_size=["0.9em", "1em"],
+    'width': '100%',
+    'size': '3',
+    'variant': 'soft',
+    'color_scheme': 'gray',
+    'background_color': 'white',
+    'color': 'black',
+    'style': rx.Style(
+        border='0.5px solid #ccc',
+        font_family='Inter, sans-serif',
+        font_size=['0.9em', '1em'],
     ),
 }
 
 
-class WritePostDialogState(BaseState):
-    title: str = ""
-    content: str = ""
+class WritePostDialogState(rx.State):
+    title: str = ''
+    content: str = ''
+    selected_category: str = ''
+
+    def on_change_selected_category(self, category: str):
+        self.selected_category = category
 
     def clear_fields(self):
-        self.title = ""
-        self.content = ""
+        self.title = ''
+        self.content = ''
 
 
-def write_post_dialog(**props):
-    user: UserAccount = props.pop("user")
-    publish_post: Callable = props.pop("publish_post")
-
+def write_post_dialog(
+    user: UserAccount,
+    postcategories: list[PostCategory],
+    publish_post: Callable
+):
     return rx.dialog.root(
         rx.dialog.trigger(
             rx.button(
@@ -70,87 +67,142 @@ def write_post_dialog(**props):
                     rx.hstack(
                         profile_picture(
                             style=rx.Style(
-                                width="2.7em",
-                                height="2.7em",
-                                border="0.5px solid #ccc",
+                                width='2.7em',
+                                height='2.7em',
                             ),
                             profile_picture=user.profile_picture,
                         ),
                         rx.text(
                             user.first_name,
-                            style={
-                                "font_weight": "500",
-                                "margin_left": "0.5em",
-                            },
+                            style=rx.Style(
+                                font_family='Inter, sans-serif',
+                                font_weight='600',
+                                margin_left='0.5em',
+                            ),
                         ),
                         rx.text(
                             user.last_name,
-                            style={
-                                "font_weight": "500",
-                            },
+                            style=rx.Style(
+                                font_family='Inter, sans-serif',
+                                font_weight='600',
+                            ),
                         ),
-                        spacing="1",
-                        margin_bottom="0.5em",
+                        spacing='1',
+                        margin_bottom='0.5em',
                     ),
                     rx.text(
                         "Titre",
-                        style={
-                            "font_size": "0.9em",
-                        },
-                        margin_top="1em",
+                        style=rx.Style(
+                            color='#64748B',
+                            font_family='Inter, sans-serif',
+                            font_size='0.8em',
+                            margin_top='1em',
+                        ),
                     ),
                     rx.input(
-                        name="title",
+                        name='title',
                         value=WritePostDialogState.title,
                         on_change=WritePostDialogState.set_title,
                         **title_input_style,
                     ),
                     rx.text(
                         "Contenu",
-                        style={
-                            "font_size": "0.9em",
-                        },
-                        margin_top="1em",
+                        style=rx.Style(
+                            color='#64748B',
+                            font_family='Inter, sans-serif',
+                            font_size='0.8em',
+                            margin_top='1em',
+                        ),
                     ),
                     autosize_textarea(
-                        id="content",
-                        class_name="autosize-textarea",
-                        font_size=["0.9em", "1em"],
+                        id='content',
+                        class_name='autosize-textarea-post',
+                        font_family='Inter, sans-serif',
+                        font_size=['0.9em', '1em'],
                     ),
-                    direction="column",
-                    spacing="2",
+                    direction='column',
+                    spacing='2',
                 ),
                 rx.flex(
-                    rx.dialog.close(
-                        rx.button(
-                            "Annuler",
-                            color_scheme="gray",
-                            variant="soft",
+                    rx.select.root(
+                        rx.select.trigger(
+                            placeholder="Choisis un canal",
+                            radius='full',
+                            style=rx.Style(
+                                padding='1em',
+                                box_shadow='none',
+                                font_weight='500',
+                                font_family='Inter, sans-serif',
+                                _hover={
+                                    'bg': '#f1f0ef',
+                                },
+                            )
                         ),
-                    ),
-                    rx.cond(
-                        WritePostDialogState.title,
-                        rx.dialog.close(
-                            rx.form.submit(
-                                rx.button(
-                                    "Publier",
-                                    type="submit",
-                                    on_click=WritePostDialogState.clear_fields,
+                        rx.select.content(
+                            rx.foreach(
+                                postcategories,
+                                lambda postcategory: rx.select.item(
+                                    rx.text(
+                                        postcategory.name,
+                                        style=rx.Style(
+                                            font_family='Inter, sans-serif',
+                                            font_weight='500',
+                                            font_size='1.1em',
+                                        ),
+                                    ),
+                                    value=postcategory.name,
                                 ),
                             ),
+                            position='popper',
+                            side='bottom',
+                            align='start',
                         ),
-                        rx.button(
-                            "Publier",
-                            disabled=True,
-                        ),
+                        name='category',
+                        value=WritePostDialogState.selected_category,
+                        on_change=WritePostDialogState.on_change_selected_category,  # noqa: E501
                     ),
-                    spacing="3",
-                    margin_top="16px",
-                    justify="end",
+                    rx.hstack(
+                        rx.dialog.close(
+                            rx.button(
+                                rx.text(
+                                    "Annuler",
+                                    font_family='Inter, sans-serif'
+                                ),
+                                color_scheme='gray',
+                                variant='soft',
+                            ),
+                        ),
+                        rx.cond(
+                            WritePostDialogState.title &
+                            WritePostDialogState.selected_category,
+                            rx.dialog.close(
+                                rx.form.submit(
+                                    rx.button(
+                                        rx.text(
+                                            "Publier",
+                                            font_family='Inter, sans-serif',
+                                        ),
+                                        type='submit',
+                                        on_click=WritePostDialogState.clear_fields,  # noqa: E501
+                                    ),
+                                ),
+                            ),
+                            rx.button(
+                                rx.text(
+                                    "Publier",
+                                    font_family='Inter, sans-serif'
+                                ),
+                                disabled=True,
+                            ),
+                        ),
+                        spacing='3',
+                    ),
+                    margin_top='16px',
+                    justify_content='space-between',
                 ),
                 on_submit=publish_post,
                 reset_on_submit=True,
             ),
-            padding=["1em 0.5em", "1.5em"],
+            padding=['1em', '1.5em'],
         ),
     )

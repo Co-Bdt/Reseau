@@ -1,13 +1,21 @@
+from typing import Dict
 import boto3
 from pathlib import Path
+from random import shuffle
 import reflex as rx
 import sqlalchemy as sa
 
 from ..common.base_state import BaseState
 from ..common.template import template
 from ..components.profile_text import profile_text
-from ..components.profile_chips import profile_chips
-from ..models import Interest, UserAccount, UserInterest
+from ..components.interest_badges import interest_badges
+from ..models import (
+    Interest,
+    Preference,
+    UserAccount,
+    UserInterest,
+    UserPreference,
+)
 from ..reseau import PROFILE_ROUTE
 from rxconfig import S3_BUCKET_NAME
 
@@ -15,8 +23,16 @@ from rxconfig import S3_BUCKET_NAME
 class ProfileState(BaseState):
     profile_text: str = ''  # the user's profile text
     profile_pic: str = ''  # the user's profile image name
+    interests_names: list[str] = []  # all interests names
     # the user's selected interests names
     selected_interests_names: list[str] = []
+    user_pref: Dict[str, bool] = {  # the user's enabled preferences
+        "post_notif_enabled": False,
+        "pm_notif_enabled": False,
+    }
+
+    def set_user_pref(self, key: str, value: bool):
+        self.user_pref[key] = value
 
     def init(self):
         self.profile_text = self.authenticated_user.profile_text
@@ -27,6 +43,14 @@ class ProfileState(BaseState):
         else:
             self.profile_pic = "blank_profile_picture"
         yield
+
+        # Load interests from database
+        with rx.session() as session:
+            interests = session.exec(
+                Interest.select().order_by(Interest.name)
+            ).all()
+        self.interests_names = [interest.name for interest in interests]
+        shuffle(self.interests_names)
 
         # Load the user's interests
         with rx.session() as session:
@@ -42,6 +66,27 @@ class ProfileState(BaseState):
             self.selected_interests_names = [
                 interest.interest.name for interest in user_interests
             ]
+
+        # Load the user's preferences
+        with rx.session() as session:
+            user = session.exec(
+                UserAccount.select()
+                .options(
+                    sa.orm.selectinload(UserAccount.preference_list)
+                    .selectinload(UserPreference.preference)
+                )
+                .where(
+                    UserAccount.id == self.authenticated_user.id
+                )
+            ).first()
+
+        # Default all preferences to False
+        # to avoid concurrent display between users
+        for key in self.user_pref:
+            self.user_pref[key] = False
+
+        for pref in user.preference_list:
+            self.user_pref[pref.preference.name] = True
 
     async def handle_upload(self, files: list[rx.UploadFile]):
         '''Handle the upload of file(s).
@@ -75,14 +120,19 @@ class ProfileState(BaseState):
             )
 
     def add_selected(self, item: str):
-        # limit selected items to 2
-        if len(self.selected_interests_names) < 2:
+        # limit selected items to 4
+        if len(self.selected_interests_names) < 4:
             self.selected_interests_names.append(item)
         else:
-            return rx.toast.warning("Tu ne peux sélectionner que 2 intérêts.")
+            return rx.toast.warning("Tu ne peux sélectionner que 4 intérêts.")
 
     def remove_selected(self, item: str):
-        self.selected_interests_names.remove(item)
+        if len(self.selected_interests_names) > 2:
+            self.selected_interests_names.remove(item)
+        else:
+            return rx.toast.warning(
+                "Tu dois sélectionner au moins 2 intérêts."
+            )
 
     def update_profile_picture(self):
         s3 = boto3.resource('s3')
@@ -142,7 +192,6 @@ class ProfileState(BaseState):
             ).all()
             for user_interest in user_interests:
                 session.delete(user_interest)
-            # session.commit()
 
             for interest_id in selected_interests_ids:
                 user_interest = UserInterest(
@@ -150,6 +199,36 @@ class ProfileState(BaseState):
                     interest_id=interest_id
                 )
                 session.add(user_interest)
+            session.commit()
+
+    def update_preferences(self):
+        # Retrieve all preferences
+        with rx.session() as session:
+            preferences = session.exec(
+                Preference.select()
+            ).all()
+
+        # If the pref is enabled, add a UserPreference record
+        # else try to remove
+        with rx.session() as session:
+            for pref in preferences:
+                if self.user_pref[pref.name]:
+                    user_pref = UserPreference(
+                        useraccount_id=self.authenticated_user.id,
+                        preference_id=pref.id
+                    )
+                    session.add(user_pref)
+                else:
+                    user_pref = session.exec(
+                        UserPreference.select()
+                        .where(
+                            (UserPreference.useraccount_id ==
+                                self.authenticated_user.id) &
+                            (UserPreference.preference_id == pref.id)
+                        )
+                    ).first()
+                    if user_pref:
+                        session.delete(user_pref)
             session.commit()
 
     def save_profile(self) -> rx.event.EventSpec:
@@ -177,6 +256,9 @@ class ProfileState(BaseState):
         # Update the user's interests
         self.update_interests()
 
+        # Update the user's preferences
+        self.update_preferences()
+
         return rx.toast.success("Profil mis à jour.")
 
 
@@ -192,18 +274,6 @@ def profile_page() -> rx.Component:
     return rx.cond(
         ProfileState.is_hydrated,
         rx.vstack(
-            rx.hstack(
-                rx.heading(
-                    "Ton profil",
-                ),
-                rx.tablet_and_desktop(
-                    rx.color_mode.button(
-                        padding_top='0',
-                    ),
-                ),
-                width='100%',
-                justify='between',
-            ),
             rx.tablet_and_desktop(
                 rx.hstack(
                     rx.upload(
@@ -211,10 +281,10 @@ def profile_page() -> rx.Component:
                             src=rx.get_upload_url(
                                 ProfileState.profile_pic
                             ),
-                            width=['6.5em'],
-                            height=['6.5em'],
-                            border='1px solid #ccc',
+                            width=['7.75em'],
+                            height=['7.75em'],
                             border_radius='50%',
+                            object_fit="cover",
                         ),
                         id='profile_img',
                         multiple=False,
@@ -226,21 +296,25 @@ def profile_page() -> rx.Component:
                             rx.upload_files(upload_id='profile_img')
                         ),
                         padding='0',
-                        width=['8em'],
-                        height=['6.5em'],
+                        width=['9em'],
+                        height=['7.75em'],
                         border='none',
                     ),
                     rx.vstack(
                         rx.hstack(
                             rx.text(
                                 ProfileState.authenticated_user.first_name,
-                                class_name='desktop-medium-text',
-                                style={'font_size': '1.1em'},
+                                style=rx.Style(
+                                    font_weight='600',
+                                    font_size='1.2em',
+                                ),
                             ),
                             rx.text(
                                 ProfileState.authenticated_user.last_name,
-                                class_name='desktop-medium-text',
-                                style={'font_size': '1.1em'},
+                                style=rx.Style(
+                                    font_weight='600',
+                                    font_size='1.2em',
+                                ),
                             ),
                             spacing='1',
                         ),
@@ -259,44 +333,45 @@ def profile_page() -> rx.Component:
             rx.mobile_only(
                 rx.vstack(
                     rx.hstack(
-                        rx.hstack(
-                            rx.upload(
-                                rx.image(
-                                    src=rx.get_upload_url(
-                                        ProfileState.profile_pic
-                                    ),
-                                    width=['4em'],
-                                    height=['4em'],
-                                    border='1px solid #ccc',
-                                    border_radius='50%',
+                        rx.upload(
+                            rx.image(
+                                src=rx.get_upload_url(
+                                    ProfileState.profile_pic
                                 ),
-                                id='profile_img',
-                                multiple=False,
-                                accept={
-                                    'image/png': ['.png'],
-                                    'image/jpeg': ['.jpg', '.jpeg'],
-                                },
-                                on_drop=ProfileState.handle_upload(
-                                    rx.upload_files(upload_id='profile_img')
-                                ),
-                                margin_right='0.5em',
-                                padding='0',
+                                width=['4em'],
                                 height=['4em'],
-                                border='none',
+                                border_radius='50%',
+                                object_fit="cover",
                             ),
-                            rx.text(
-                                ProfileState.authenticated_user.first_name,
-                                class_name='desktop-medium-text'
+                            id='profile_img',
+                            multiple=False,
+                            accept={
+                                'image/png': ['.png'],
+                                'image/jpeg': ['.jpg', '.jpeg'],
+                            },
+                            on_drop=ProfileState.handle_upload(
+                                rx.upload_files(upload_id='profile_img')
                             ),
-                            rx.text(
-                                ProfileState.authenticated_user.last_name,
-                                class_name='desktop-medium-text'
-                            ),
-                            spacing='1',
+                            margin_right='0.5em',
+                            padding='0',
+                            height=['4em'],
+                            border='none',
                         ),
-                        rx.color_mode.button(),
-                        width='100%',
-                        justify='between',
+                        rx.text(
+                            ProfileState.authenticated_user.first_name,
+                            style=rx.Style(
+                                font_weight='600',
+                                font_size='1.1em',
+                            ),
+                        ),
+                        rx.text(
+                            ProfileState.authenticated_user.last_name,
+                            style=rx.Style(
+                                font_weight='600',
+                                font_size='1.1em',
+                            ),
+                        ),
+                        spacing='1',
                     ),
                     profile_text(
                         ProfileState.profile_text,
@@ -306,11 +381,59 @@ def profile_page() -> rx.Component:
                 width='100%',
                 margin_bottom='1em',
             ),
-            profile_chips(
-                selected_interests=ProfileState.selected_interests_names,
-                add_selected=ProfileState.add_selected,
-                remove_selected=ProfileState.remove_selected,
+
+            rx.heading(
+                "Intérêts",
+                margin='0 0 0.5em 0',
             ),
+            rx.desktop_only(
+                interest_badges(
+                    interests_names=ProfileState.interests_names,
+                    selected_interests_names=ProfileState.selected_interests_names,  # noqa: E501
+                    add_selected=ProfileState.add_selected,
+                    remove_selected=ProfileState.remove_selected,
+                    badge_size='3',
+                ),
+            ),
+            rx.mobile_and_tablet(
+                interest_badges(
+                    interests_names=ProfileState.interests_names,
+                    selected_interests_names=ProfileState.selected_interests_names,  # noqa: E501
+                    add_selected=ProfileState.add_selected,
+                    remove_selected=ProfileState.remove_selected,
+                    badge_size='2',
+                ),
+            ),
+
+            rx.vstack(
+                rx.text("Notifications par mail", font_weight='600'),
+                rx.vstack(
+                    rx.flex(
+                        rx.switch(
+                            checked=ProfileState.user_pref[
+                                'post_notif_enabled'
+                            ],
+                            on_change=lambda v: ProfileState.set_user_pref(
+                                'post_notif_enabled', v
+                            )
+                        ),
+                        rx.text("Posts", font_size=['0.9em', '1em']),
+                        spacing='2',
+                    ),
+                    rx.flex(
+                        rx.switch(
+                            checked=ProfileState.user_pref['pm_notif_enabled'],
+                            on_change=lambda v: ProfileState.set_user_pref(
+                                'pm_notif_enabled', v
+                            )
+                        ),
+                        rx.text("Messages privés", font_size=['0.9em', '1em']),
+                        spacing='2',
+                    ),
+                ),
+                margin_top='1em',
+            ),
+
             rx.hstack(
                 rx.button(
                     "Valider",

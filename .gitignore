@@ -1,1 +1,5 @@
 .vscode
+
+kube-hetzner/.terraform
+kube-hetzner/terraform.tfstate
+kube-hetzner/terraform.tfstate.backup

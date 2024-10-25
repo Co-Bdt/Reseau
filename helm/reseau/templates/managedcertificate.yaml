@@ -1,7 +1,9 @@
+{{- if .Values.managedHosting.enabled }}
 apiVersion: networking.gke.io/v1
 kind: ManagedCertificate
 metadata:
-  name: {{ include "reseau.fullname" . }}-managed-cert
+  name: {{ .Values.envPrefix }}{{ include "reseau.fullname" . }}-managed-cert
 spec:
   domains:
     - {{ .Values.managedCertificate.domain }}
+{{- end }}

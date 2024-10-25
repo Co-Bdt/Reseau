@@ -1,9 +1,7 @@
-from email.mime.text import MIMEText
 import reflex as rx
-import smtplib
 
-from ..common.base_state import BaseState
-from rxconfig import GMAIL_APP_PASSWORD
+from ..models import UserAccount
+from ..common import email
 
 
 icon_button_style = {
@@ -19,110 +17,123 @@ icon_button_style = {
 }
 
 
-class FeedbackDialogState(BaseState):
-    message: str = ""
+class FeedbackDialogState(rx.State):
+    message: str = ''
 
     def on_submit(self, form_data: dict):
-        # Open a plain text file for writing.
-        # This will create the file if it doesn't exist
-        # and truncate (erase) its content if it does.
-        with open(
-            f"./feedbacks/{self.authenticated_user.id}_mail_files.txt",
-                'w') as fp:
-            fp.write(self.message)
+        user = form_data['user'].split('-')
 
-        # Reopen the file in read mode to read its content
-        with open(
-            f"./feedbacks/{self.authenticated_user.id}_mail_files.txt",
-                'r') as fp:
-            fp.seek(0)  # Move the file pointer to the beginning of the file
-            msg = MIMEText(fp.read())
+        msg = email.write_email_file(
+            f"./other_mails/{user[0]}_mail_file.txt",
+            f"{user[1]} {user[2]}\n{self.message}"
+        )
 
-        sender = "contact.reseaudevperso@gmail.com"
-        recipient = "contact.reseaudevperso@gmail.com"
+        email.send_email(
+            msg,
+            'Feedback Reseau',
+            'contact.reseaudevperso@gmail.com'
+        )
 
-        msg['Subject'] = 'Feedback Reseau'
-        msg['From'] = sender
-        msg['To'] = recipient
-
-        # Connect to Gmail's SMTP server
-        s = smtplib.SMTP('smtp.gmail.com', 587)
-        # Upgrade the connection to a secure encrypted SSL/TLS connection
-        s.starttls()
-        # Log in to the SMTP server using your email and password
-        s.login(sender, GMAIL_APP_PASSWORD)
-        s.sendmail(sender, [recipient], msg.as_string())
-        s.quit()
-
-        self.set_message("")
-        return rx.toast.success(f"Merci {self.authenticated_user.first_name}\
-                                 pour ton feedback.")
+        self.set_message('')
+        return rx.toast.success(
+            f"Merci {user[1]} pour ton feedback."
+        )
 
 
-def feedback_dialog() -> rx.Component:
-    """
+def feedback_dialog(
+    authenticated_user: UserAccount,
+) -> rx.Component:
+    '''
     Render a dialog to collect feedback from users.
 
     Returns:
         A reflex component.
-    """
+    '''
     return rx.dialog.root(
         rx.dialog.trigger(
             rx.button(
-                rx.icon("mic-vocal"),
+                rx.icon('mic-vocal'),
                 **icon_button_style,
             ),
         ),
         rx.dialog.content(
-            rx.dialog.title("Feedback"),
+            rx.dialog.title(
+                "Feedback",
+                font_family='Inter, sans-serif',
+                font_size='1.4em',
+            ),
             rx.flex(
-                rx.text("Qu'est-ce qu'il manque ou pourraît"
-                        " être mieux sur la plateforme selon toi ?"),
+                rx.text(
+                    "Qu'est-ce qu'il manque ou pourraît"
+                    " être mieux sur la plateforme selon toi ?",
+                    font_family='Inter, sans-serif',
+                ),
                 rx.form.root(
+                    rx.input(
+                        id='user',
+                        value=(
+                            f"{authenticated_user.id}-"
+                            f"{authenticated_user.first_name}-"
+                            f"{authenticated_user.last_name}"
+                        ),
+                        display='none',
+                    ),
                     rx.debounce_input(
                         rx.text_area(
-                            name="feedback",
+                            name='feedback',
                             placeholder="Ton message ici...",
                             value=FeedbackDialogState.message,
                             on_change=FeedbackDialogState.set_message,
                             multiline=True,
-                            rows="5",
-                            width="100%",
+                            rows='5',
+                            style=rx.Style(
+                                font_family='Inter, sans-serif',
+                                width='100%',
+                            ),
                         ),
                         debounce_timeout=1000,
                     ),
                     rx.flex(
                         rx.dialog.close(
                             rx.button(
-                                "Annuler",
-                                color_scheme="gray",
-                                variant="soft",
+                                rx.text(
+                                    "Annuler",
+                                    font_family='Inter, sans-serif'
+                                ),
+                                color_scheme='gray',
+                                variant='soft',
                             ),
                         ),
                         rx.cond(
                             FeedbackDialogState.message,
                             rx.dialog.close(
                                 rx.button(
-                                    "Envoyer",
-                                    type="submit"
+                                    rx.text(
+                                        "Envoyer",
+                                        font_family='Inter, sans-serif'
+                                    ),
+                                    type='submit'
                                 ),
                             ),
                             rx.dialog.close(
                                 rx.button(
-                                    "Envoyer",
-                                    type="submit",
+                                    rx.text(
+                                        "Envoyer",
+                                        font_family='Inter, sans-serif'
+                                    ),
+                                    type='submit',
                                     disabled=True
                                 ),
                             ),
                         ),
-                        spacing="3",
-                        margin_top="16px",
-                        justify="end",
+                        spacing='3',
+                        margin_top='16px',
+                        justify='end',
                     ),
                     on_submit=FeedbackDialogState.on_submit,
                 ),
-                direction="column",
-                spacing="4",
+                direction='column',
+                spacing='4',
             ),
         ),
     )

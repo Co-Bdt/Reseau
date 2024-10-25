@@ -3,17 +3,17 @@ from collections.abc import AsyncGenerator
 import reflex as rx
 
 from ..common.base_state import BaseState
-from ..reseau import LOGIN_ROUTE, REGISTER_ROUTE
-from ..models import UserAccount
 from ..common.template import template
+from ..components.custom.react_oauth_google import GoogleLogin
+from ..components.custom.react_oauth_google import GoogleOAuthProvider
+from ..components.registration.registration_account_step import RegistrationAccountStepState  # noqa: E501
+from ..models import UserAccount
+from ..reseau import LOGIN_ROUTE, REGISTER_ROUTE, GOOGLE_AUTH_CLIENT_ID
 
 
-class LogInState(BaseState):
+class LogInState(rx.State):
     """Handle login form submission and
     redirect to proper routes after authentication."""
-
-    email: str = ""
-    password: str = ""
 
     success: bool = False
     redirect_to: str = ""
@@ -28,12 +28,12 @@ class LogInState(BaseState):
         Args:
             form_data: A dict of form fields and values.
         """
-        email = self.email
+        email = form_data["email"]
         if not email:
             yield rx.set_focus("email")
             yield rx.toast.error("Ton email est requis.")
             return
-        password = self.password
+        password = form_data["password"]
         if not password:
             yield rx.set_focus("password")
             yield rx.toast.error("Ton mot de passe est requis.")
@@ -59,18 +59,23 @@ class LogInState(BaseState):
             # Set success and mark the user as logged in
             self.success = True
             yield
-            self._login(user.id)
+            base_state = await self.get_state(BaseState)
+            base_state._login(user.id)
+
         await asyncio.sleep(0.5)
         yield [LogInState.redir(), LogInState.set_success(False)]
 
-    def redir(self) -> rx.event.EventSpec | None:
+    async def redir(self) -> rx.event.EventSpec | None:
         """Redirect to the redirect_to route if logged in,
         or to the login page if not."""
         if not self.is_hydrated:
             # wait until after hydration to ensure auth_token is known
             return LogInState.redir()  # type: ignore
+
         page = LOGIN_ROUTE
-        if not self.is_authenticated and page != LOGIN_ROUTE:
+        base_state = await self.get_state(BaseState)
+
+        if not base_state.is_authenticated and page != LOGIN_ROUTE:
             self.redirect_to = page
             return rx.redirect(LOGIN_ROUTE)
         elif page == LOGIN_ROUTE:
@@ -87,117 +92,145 @@ def log_in_page() -> rx.Component:
     """
     login_form = rx.form(
         rx.vstack(
-            rx.vstack(
-                rx.tablet_and_desktop(
-                    rx.text(
-                        "Email",
-                        class_name='desktop-text',
+            rx.text(
+                "Se connecter à Reseau",
+                font_weight='700',
+                font_size='1.75em',
+                style=rx.Style(
+                    margin_bottom='0.75em',
+                ),
+            ),
+            rx.input(
+                id='email',
+                placeholder='Email',
+                size='3',
+                width='20em',
+            ),
+            rx.input(
+                id='password',
+                placeholder='Mot de passe',
+                type='password',
+                size='3',
+                width='20em',
+            ),
+            rx.center(
+                rx.link(
+                    "Mot de passe oublié ?",
+                    href='/password-reset',
+                    style=rx.Style(
+                        margin_top='-0.5em',
+                        font_size='0.9em',
+                        font_family='Satoshi Variable, sans-serif',
                     ),
                 ),
-                rx.mobile_only(
-                    rx.text(
-                        "Email",
-                        class_name='mobile-text',
-                    ),
-                ),
-                rx.input(
-                    id='email',
-                    size='3',
-                    value=LogInState.email,
-                    on_change=LogInState.set_email,
-                    width='100%',
-                ),
-                justify='start',
-                spacing='2',
+                direction='column',
                 width='100%',
             ),
-            rx.vstack(
-                rx.tablet_and_desktop(
-                    rx.text(
-                        "Mot de passe",
-                        class_name='desktop-text',
-                    ),
-                ),
-                rx.mobile_only(
-                    rx.text(
-                        "Mot de passe",
-                        class_name='mobile-text',
-                    ),
-                ),
-                rx.input(
-                    id='password',
-                    type='password',
-                    size='3',
-                    value=LogInState.password,
-                    on_change=LogInState.set_password,
-                    width='100%',
-                ),
-                justify='start',
-                spacing='2',
-                width='100%',
-            ),
+
             rx.button(
                 "Se connecter",
                 type='submit',
                 size='3',
-                width='100%',
+                width='20em',
                 margin_top='1em',
             ),
             rx.center(
                 rx.link(
                     "Pas encore de compte ?",
                     href=REGISTER_ROUTE,
-                    width='100%',
-                    text_align='center',
+                    style=rx.Style(
+                        font_size='0.9em',
+                        font_family='Satoshi Variable, sans-serif',
+                    ),
                 ),
                 direction='column',
-                spacing='5',
                 width='100%',
             ),
+
+            rx.center(
+                rx.hstack(
+                    rx.divider(
+                        size='3',
+                        width='100%',
+                    ),
+                    rx.text(
+                        "ou",
+                        style=rx.Style(
+                            color='#767574',
+                            font_size='0.9em',
+                        ),
+                    ),
+                    rx.divider(
+                        size='3',
+                        width='100%',
+                    ),
+                    width='100%',
+                ),
+                width='100%',
+                margin_y='0.5em',
+            ),
+            rx.box(
+                GoogleOAuthProvider.create(
+                    GoogleLogin.create(
+                        text='signin_with',
+                        on_success=RegistrationAccountStepState.on_google_auth_success  # noqa: E501
+                    ),
+                    client_id=GOOGLE_AUTH_CLIENT_ID,
+                ),
+                style=rx.Style(
+                    align_self='center',
+                ),
+            ),
             justify='center',
-            min_height='80vh',
         ),
-        on_submit=LogInState.on_submit
+        on_submit=LogInState.on_submit,
+        style=rx.Style(
+            max_width='434px',
+            padding_x='3.5em',
+            padding_y='3em',
+            border='1px solid #E3E4EB',
+            border_radius='0.75em',
+            box_shadow='0px 3px 4px 1px rgba(0, 0, 0, 0.05)',
+        )
     )
 
     return rx.cond(
         LogInState.is_hydrated,
-        rx.box(
-            rx.vstack(
-                login_form,
-                rx.cond(  # conditionally show error messages
-                    LogInState.success,
-                    rx.center(
-                        rx.vstack(
-                            rx.spinner(),
-                            rx.text(
-                                "Connexion réussie",
-                                size='3',
-                                weight='medium',
-                            ),
-                            align='center',
-                        ),
-                        width='100%',
-                    ),
-                    # This is a placeholder for the success message
-                    # to always takes the space.
+        rx.vstack(
+            login_form,
+            rx.cond(  # Conditionally show success messages
+                LogInState.success,
+                rx.center(
                     rx.vstack(
-                        rx.spinner(
-                            visibility='hidden',
-                        ),
+                        rx.spinner(),
                         rx.text(
                             "Connexion réussie",
                             size='3',
                             weight='medium',
-                            visibility='hidden',
                         ),
+                        align='center',
+                    ),
+                    width='100%',
+                ),
+                # This is a placeholder for the success message
+                # to always takes the space.
+                rx.vstack(
+                    rx.spinner(
+                        visibility='hidden',
+                    ),
+                    rx.text(
+                        "Connexion réussie",
+                        size='3',
+                        weight='medium',
+                        visibility='hidden',
                     ),
                 ),
+            ),
+            style=rx.Style(
                 position='absolute',
                 top='50%',
                 left='50%',
                 transform='translateX(-50%) translateY(-50%)',
-                min_width='260px',
             ),
         ),
     )

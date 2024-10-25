@@ -5,17 +5,26 @@ from .pages import (
     log_in,
     registration,
     profile,
-    members
+    groups,
+    group,
+    members,
+    private_discussions,
+    privacy_policy,
+    password_reset
 )
 
 
 __all__ = [
-    "base_state",
     "models",
+    "base_state",
     "home",
     "log_in",
     "registration",
     "profile",
+    "groups",
+    "group"
     "members",
-    "interest",
+    "private_discussions",
+    "privacy_policy",
+    "password_reset"
 ]

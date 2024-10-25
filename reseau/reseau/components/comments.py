@@ -5,17 +5,29 @@ from ..components.profile_picture import profile_picture
 from ..models import Comment, UserAccount
 
 
+name_style = rx.Style(
+    font_family='Satoshi, sans-serif',
+    font_weight='600',
+    font_size=["0.9em", "1em"],
+)
+
+date_style = rx.Style(
+    color='gray',
+    font_family='Satoshi, sans-serif',
+    font_size='0.8em',
+)
+
+
 def comments(
     post_comments: list[Tuple[Comment, str, UserAccount]],
 ) -> rx.Component:
     return rx.grid(
         rx.foreach(
             post_comments,
-            lambda comment: rx.card(
+            lambda comment: rx.box(
                 rx.hstack(
                     profile_picture(
                         style=rx.Style(
-                            border="0.5px solid #ccc",
                             width="2.5em",
                             height="2.5em",
                         ),
@@ -25,58 +37,47 @@ def comments(
                         rx.hstack(
                             rx.text(
                                 comment[2].first_name,
-                                style={
-                                    "font_weight": "500",
-                                    "font_size": ["0.9em", "1em"],
-                                },
                                 trim="both",
+                                style=name_style
                             ),
                             rx.text(
                                 comment[2].last_name,
-                                style={
-                                    "font_weight": "500",
-                                    "font_size": ["0.9em", "1em"],
-                                },
                                 trim="both",
+                                style=name_style
                             ),
                             rx.text(
                                 "•",
-                                style={
-                                    "font_size": "0.8em",
-                                    "color": "gray",
-                                },
                                 trim="both",
+                                style=date_style
                             ),
                             rx.text(
                                 comment[1],
-                                style={
-                                    "font_size": "0.8em",
-                                    "color": "gray",
-                                },
                                 trim="both",
+                                style=date_style
                             ),
                             spacing="1",
                             align="end",
                         ),
                         rx.text(
                             comment[0].content,
-                            style={
-                                "font_size": ["0.9em", "1em"],
-                            },
+                            style=rx.Style(
+                                font_family='Satoshi, sans-serif',
+                                font_size=["0.9em", "1em"],
+                            ),
                             margin_top="0.5em",
                         ),
                         spacing="0",
                     ),
                 ),
                 width="100%",
-                background_color=rx.color_mode_cond(
-                    light="#e9e9e9",
-                    dark="#191918",
-                ),
-                padding=["1em 0.5em", "1em"],
+                background_color='#f8f7f5',
+                padding=["1em", "1.5em"],
+                border_radius='0',
             ),
         ),
         columns="1",
         width="100%",
         spacing="3",
+        border_radius="0",
+        border='none',
     ),

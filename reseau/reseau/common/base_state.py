@@ -57,18 +57,6 @@ class BaseState(rx.State):
         """
         return token_urlsafe(16)
 
-    def do_logout(self) -> None:
-        """Destroy AuthSessions associated with the auth_token."""
-        with rx.session() as session:
-            for auth_session in session.exec(
-                AuthSession.select().where(
-                    AuthSession.session_id == self.auth_token
-                )
-            ).all():
-                session.delete(auth_session)
-            session.commit()
-        return self.set_auth_token(None)
-
     def _login(
         self,
         user_id: int,
@@ -89,7 +77,6 @@ class BaseState(rx.State):
             self.do_logout()
         if user_id < 0:
             return
-        # self.auth_token = self.auth_token or self.generate_auth_token()
         self.set_auth_token(self.generate_auth_token())
         with rx.session() as session:
             session.add(
@@ -101,3 +88,53 @@ class BaseState(rx.State):
                 )
             )
             session.commit()
+
+    def _google_login(
+        self,
+        user_id: int,
+        id_token: dict,
+        expiration_delta:
+            datetime.timedelta = DEFAULT_AUTH_SESSION_EXPIRATION_DELTA,
+    ) -> None:
+        """
+        Create an AuthSession for the given user_id.
+
+        If the auth_token is already associated with an AuthSession, it will be
+        logged out first.
+
+        Args:
+            user_id: The user ID to associate with the AuthSession.
+            id_token: The id_token returned by Google OAuth2.
+            expiration_delta: The amount of time
+            before the AuthSession expires.
+        """
+        if self.is_authenticated:
+            self.do_logout()
+        if user_id < 0:
+            return
+        self.set_auth_token(id_token['jti'])
+        with rx.session() as session:
+            session.add(
+                AuthSession(  # type: ignore
+                    useraccount_id=user_id,
+                    session_id=self.auth_token,
+                    expiration=datetime.datetime(
+                        1970, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc
+                    )
+                    + datetime.timedelta(seconds=id_token['exp'])
+                    + expiration_delta,
+                )
+            )
+            session.commit()
+
+    def do_logout(self) -> None:
+        """Destroy AuthSessions associated with the auth_token."""
+        with rx.session() as session:
+            for auth_session in session.exec(
+                AuthSession.select().where(
+                    AuthSession.session_id == self.auth_token
+                )
+            ).all():
+                session.delete(auth_session)
+            session.commit()
+        return self.set_auth_token(None)
