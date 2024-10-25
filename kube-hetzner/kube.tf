@@ -574,7 +574,7 @@ module "kube-hetzner" {
 
   # The default is "true" (in HA setup it works wonderfully well, with automatic roll-back to the previous snapshot in case of an issue).
   # IMPORTANT! For non-HA clusters i.e. when the number of control-plane nodes is < 3, you have to turn it off.
-  # automatically_upgrade_os = false
+  automatically_upgrade_os = false
 
   # If you need more control over kured and the reboot behaviour, you can pass additional options to kured.
   # For example limiting reboots to certain timeframes. For all options see: https://kured.dev/docs/configuration/
@@ -609,17 +609,17 @@ module "kube-hetzner" {
   # It will create the registries.yaml file, more info here https://docs.k3s.io/installation/private-registry.
   # Note that you do not need to get this right from the first time, you can update it when you want during the life of your cluster.
   # The default is blank.
-  # /* k3s_registries = <<-EOT
-  #   mirrors:
-  #     hub.my_registry.com:
-  #       endpoint:
-  #         - "hub.my_registry.com"
-  #   configs:
-  #     hub.my_registry.com:
-  #       auth:
-  #         username: username
-  #         password: password
-  # EOT */
+  k3s_registries = <<-EOT
+    mirrors:
+      ghcr.io:
+        endpoint:
+          - "ghcr.io"
+    configs:
+      ghcr.io:
+        auth:
+          username: Co-Bdt
+          password: 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
+  EOT
 
   # Additional environment variables for the host OS on which k3s runs. See for example https://docs.k3s.io/advanced#configuring-an-http-proxy .
   # additional_k3s_environment = {
@@ -666,24 +666,24 @@ module "kube-hetzner" {
 
   # Adding extra firewall rules, like opening a port
   # More info on the format here https://registry.terraform.io/providers/hetznercloud/hcloud/latest/docs/resources/firewall
-  # extra_firewall_rules = [
-  #   {
-  #     description = "For Postgres"
-  #     direction       = "in"
-  #     protocol        = "tcp"
-  #     port            = "5432"
-  #     source_ips      = ["0.0.0.0/0", "::/0"]
-  #     destination_ips = [] # Won't be used for this rule
-  #   },
-  #   {
-  #     description = "To Allow ArgoCD access to resources via SSH"
-  #     direction       = "out"
-  #     protocol        = "tcp"
-  #     port            = "22"
-  #     source_ips      = [] # Won't be used for this rule
-  #     destination_ips = ["0.0.0.0/0", "::/0"]
-  #   }
-  # ]
+  extra_firewall_rules = [
+    # {
+    #   description = "For Postgres"
+    #   direction       = "in"
+    #   protocol        = "tcp"
+    #   port            = "5432"
+    #   source_ips      = ["0.0.0.0/0", "::/0"]
+    #   destination_ips = [] # Won't be used for this rule
+    # },
+    {
+      description = "Allow Outbound Requests to Amazon RDS"
+      direction       = "out"
+      protocol        = "tcp"
+      port            = "5432"
+      source_ips      = [] # Won't be used for this rule
+      destination_ips = ["0.0.0.0/0", "::/0"]
+    }
+  ]
 
   # If you want to configure a different CNI for k3s, use this flag
   # possible values: flannel (Default), calico, and cilium
@@ -1060,12 +1060,26 @@ provider "hcloud" {
   token = var.hcloud_token != "" ? var.hcloud_token : local.hcloud_token
 }
 
+provider "google" {
+  project = var.project_id
+  region  = var.gcp_region
+  zone    = var.gcp_zone
+}
+
 terraform {
+  backend "gcs" {
+    bucket = "tf-state-prod-reseau-devperso"
+    prefix = "terraform/state"
+  }
   required_version = ">= 1.5.0"
   required_providers {
     hcloud = {
       source  = "hetznercloud/hcloud"
       version = ">= 1.43.0"
+    }
+    google = {
+      source  = "hashicorp/google"
+      version = "6.8.0"
     }
   }
 }
@@ -1078,4 +1092,19 @@ output "kubeconfig" {
 variable "hcloud_token" {
   sensitive = true
   default   = ""
+}
+
+variable "project_id" {
+  description = "GCP project id"
+  sensitive   = true
+}
+
+variable "gcp_region" {
+  description = "Region in which GCP ressources are located"
+  default     = "europe-west1"
+}
+
+variable "gcp_zone" {
+  description = "One of the gcp_zone used by GKE and the compute engine gcp_zone"
+  default     = "europe-west1-b"
 }

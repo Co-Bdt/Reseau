@@ -3,3 +3,9 @@
 kube-hetzner/.terraform
 kube-hetzner/terraform.tfstate
 kube-hetzner/terraform.tfstate.backup
+kube-hetzner/k3s_kubeconfig.yaml
+kube-hetzner/reseau-devperso.json
+
+# Ignore transient lock info files created by terraform apply
+kube-hetzner/.terraform.tfstate.lock.*
+kube-hetzner/*.terraform.lock.*
